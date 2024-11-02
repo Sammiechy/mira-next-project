@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import * as Yup from "yup";
 import { Formik } from "formik";
@@ -28,6 +28,12 @@ interface ButtonProps extends SpacingProps {
   target?: string;
 }
 
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+
 const Button = styled(MuiButton)<ButtonProps>(spacing);
 
 const Centered = styled(MuiTypography)`
@@ -43,6 +49,37 @@ const Typography = styled(MuiTypography)<TypographyProps>(spacing);
 function SignIn() {
   const router = useRouter();
   const { signIn } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch('http://localhost:3000/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            query {
+              users {
+                id
+                name
+                email
+              }
+            }
+          `,
+        }),
+      });
+
+      const { data } = await response.json();
+      setUsers(data.users);
+     
+    };
+
+    fetchUsers();
+  }, []);
+ 
+ 
 
   return (
     <Formik
