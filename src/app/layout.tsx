@@ -1,5 +1,5 @@
 "use client";
-
+import 'reflect-metadata';
 import React from "react";
 import { Inter } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";

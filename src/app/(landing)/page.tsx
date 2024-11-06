@@ -1,5 +1,5 @@
 "use client";
-
+import 'reflect-metadata';
 import React from "react";
 
 import AppBar from "@/components/pages/landing/AppBar";
