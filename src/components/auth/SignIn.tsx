@@ -73,19 +73,19 @@ function SignIn() {
 
       const { data } = await response.json();
       setUsers(data.users);
-     
+
     };
 
     fetchUsers();
   }, []);
- 
- 
+
+
 
   return (
     <Formik
       initialValues={{
-        email: "demo@bootlab.io",
-        password: "unsafepassword",
+        email: "",
+        password: "",
         submit: false,
       }}
       validationSchema={Yup.object().shape({
@@ -118,7 +118,7 @@ function SignIn() {
         touched,
         values,
       }) => (
-        <form noValidate onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} >
           <Alert mt={3} mb={3} severity="info">
             Use <strong>demo@bootlab.io</strong> and{" "}
             <strong>unsafepassword</strong> to sign in
@@ -130,25 +130,36 @@ function SignIn() {
           )}
           <TextField
             type="email"
-            name="email"
+            name="email_field"
             label="Email Address"
             value={values.email}
             error={Boolean(touched.email && errors.email)}
             fullWidth
             helperText={touched.email && errors.email}
-            onBlur={handleBlur}
             onChange={handleChange}
+            autoComplete="new-email"
+            slotProps={{
+              input: {
+                autoComplete: "new-email",
+              },
+            }}
             my={2}
           />
+
           <TextField
             type="password"
             name="password"
             label="Password"
             value={values.password}
+            autoComplete="off"
             error={Boolean(touched.password && errors.password)}
             fullWidth
+            slotProps={{
+              input: {
+                autoComplete: "off",
+              },
+            }}
             helperText={touched.password && errors.password}
-            onBlur={handleBlur}
             onChange={handleChange}
             my={2}
           />
@@ -171,7 +182,7 @@ function SignIn() {
           >
             Sign in
           </Button>
-          <Centered>        
+          <Centered>
           </Centered>
         </form>
       )}
