@@ -171,11 +171,7 @@ function SignIn() {
           >
             Sign in
           </Button>
-          <Centered>
-            Don't have an account yet?{" "}
-            <Link href="sign-up" component={NextLink}>
-              Sign up
-            </Link>
+          <Centered>        
           </Centered>
         </form>
       )}
