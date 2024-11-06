@@ -1,8 +1,7 @@
 
+// import { AppDataSource } from './data-source';
 
-// import { AppDataSource } from '../'
-
-// export const initializeDatabase = async () => {
+// export const initializeDataSource = async () => {
 //   if (!AppDataSource.isInitialized) {
 //     await AppDataSource.initialize();
 //   }
