@@ -1,6 +1,6 @@
 // app/api/test-connection/route.ts
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import { initializeDataSource } from 'lib/db';
 
 export async function GET() {

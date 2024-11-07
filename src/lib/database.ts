@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
-import { User } from './entities/User';
+// import 'reflect-metadata';
+import { DataSource } from "typeorm";
+import { User } from "./entities/User";
 
 console.log('DB_HOST:', process.env.DB_HOST);
 console.log('DB_PORT:', process.env.DB_PORT);

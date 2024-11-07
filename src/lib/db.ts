@@ -1,5 +1,5 @@
 // lib/db.ts
-import { AppDataSource } from './database';
+import { AppDataSource } from "./database";
 
 export const initializeDataSource = async () => {
   if (!AppDataSource.isInitialized) {

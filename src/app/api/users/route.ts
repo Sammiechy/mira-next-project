@@ -1,7 +1,7 @@
 
-import { NextResponse } from 'next/server';
-import { User } from 'lib/entities/User';
-import { initializeDataSource } from 'lib/db';
+import { NextResponse } from "next/server";
+import { User } from "lib/entities/User";
+import { initializeDataSource } from "lib/db";
 
 export async function GET() {
   const dataSource = await initializeDataSource();

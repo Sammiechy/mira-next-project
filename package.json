@@ -4,7 +4,6 @@
   "description": "Mira Pro - React Material UI Admin Dashboard Template",
   "author": "Bootlab <support@bootlab.io>",
   "private": true,
-  "type": "module",
   "license": "https://mui.com/store/license/",
   "scripts": {
     "dev": "next dev",

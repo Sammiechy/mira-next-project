@@ -1,5 +1,5 @@
 // app/api/graphql/route.ts
-import 'reflect-metadata';
+// import 'reflect-metadata';
 import { createYoga, createSchema } from 'graphql-yoga';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
