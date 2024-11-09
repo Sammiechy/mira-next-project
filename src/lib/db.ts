@@ -6,6 +6,7 @@ export const initializeDataSource = async () => {
     try {
         await AppDataSource.initialize(); 
         console.log('Database connection established successfully!');
+        console.log("Entities: ", AppDataSource.entityMetadatas);
       } catch (error) {
         console.error('Database connection failed:', error);
         throw new Error('Database connection failed');

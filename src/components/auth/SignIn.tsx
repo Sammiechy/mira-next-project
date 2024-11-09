@@ -51,31 +51,58 @@ function SignIn() {
   const { signIn } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
 
+  const dummyUser = {
+    firstName: 'sammie',
+    lastName: 'choudhary',
+    email: 'sammie@yopmail.com',
+    phone: '1234567890',
+    role: 'Admin',
+    organizationId: 1, 
+    type: 'Employee',
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetch("http://localhost:3000/api/graphql", {
+      const response = await fetch(`http://localhost:3000/api/graphql`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           query: `
-            query {
-              users {
-                id
-                name
-                email
-              }
+          mutation {
+            createUser(
+              FirstName: "${dummyUser.firstName}",
+              LastName: "${dummyUser.lastName}",
+              Email: "${dummyUser.email}",
+              Phone: "${dummyUser.phone}",
+              Role: "${dummyUser.role}",
+              OrganizationId: ${dummyUser.organizationId},
+              Type: "${dummyUser.type}"
+            ) {
+              id
+              FirstName
+              LastName
+              Email
+              Phone
+              Role
+              OrganizationId
+              Type
             }
+          }
           `,
         }),
       });
-
+  
       const { data } = await response.json();
-      setUsers(data.users);
-
+      if (response.ok) {
+        setUsers(data?.users);
+        console.log('User created:', data.createUser);
+      } else {
+        console.error('Error creating user:', data.errors);
+      }
+     
     };
-
     fetchUsers();
   }, []);
 
