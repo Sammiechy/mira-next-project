@@ -52,59 +52,71 @@ function SignIn() {
   const [users, setUsers] = useState<User[]>([]);
 
   const dummyUser = {
-    firstName: 'sammie',
-    lastName: 'choudhary',
-    email: 'sammie@yopmail.com',
+    firstName: 'Aman',
+    lastName: 'Singh',
+    email: 'admin@gmail.com',
+    password:"Aman@2024",
     phone: '1234567890',
     role: 'Admin',
+    status:"1",
     organizationId: 1, 
-    type: 'Employee',
+    type: 'Admin',
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch(`http://localhost:3000/api/graphql`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `
-          mutation {
-            createUser(
-              FirstName: "${dummyUser.firstName}",
-              LastName: "${dummyUser.lastName}",
-              Email: "${dummyUser.email}",
-              Phone: "${dummyUser.phone}",
-              Role: "${dummyUser.role}",
-              OrganizationId: ${dummyUser.organizationId},
-              Type: "${dummyUser.type}"
-            ) {
-              id
-              FirstName
-              LastName
-              Email
-              Phone
-              Role
-              OrganizationId
-              Type
-            }
-          }
-          `,
-        }),
-      });
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //     const response = await fetch(`http://localhost:3000/api/graphql`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         query: `
+  //         mutation {
+  //           createUser(
+  //             FirstName: "${dummyUser.firstName}",
+  //             LastName: "${dummyUser.lastName}",
+  //             Email: "${dummyUser.email}",
+  //             Phone: "${dummyUser.phone}",
+  //             Role: "${dummyUser.role}",
+  //             OrganizationId: ${dummyUser.organizationId},
+  //             Password:"${dummyUser.password}",
+  //             Status:"${dummyUser.status}",
+  //             Type: "${dummyUser.type}"
+  //           ) {
+  //             FirstName
+  //             LastName
+  //             Email
+  //             Phone
+  //             Role
+  //             OrganizationId
+  //             Type
+  //             Status
+  //             Password
+  //           }
+  //         }
+  //         `,
+  //       }),
+  //     });
   
-      const { data } = await response.json();
-      if (response.ok) {
-        setUsers(data?.users);
-        console.log('User created:', data.createUser);
-      } else {
-        console.error('Error creating user:', data.errors);
-      }
+  //     const { data,errors } = await response.json();
+  //     if (response.ok) {
+  //       if (data?.createUser) {
+  //         console.log('User created:', data.createUser);
+  //       } else {
+  //         console.error('Error in mutation response:', errors);
+  //       }
+  //     } else {
+  //       console.error('HTTP Error:', response.status, errors);
+  //     }
+  //   } catch (error) {
+  //     console.error('Fetch error:', error);
+  //   }
      
-    };
-    fetchUsers();
-  }, []);
+  //   };
+  //   fetchUsers();
+  // }, []);
 
 
 

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
@@ -17,16 +18,17 @@ export class Users {
   Email: string;
 
   @Column()
-  Role: string
+  Role: string;
 
   @Column()
-  OrganizationId: number
+  OrganizationId: number;
 
   @Column()
-  Type: string
+  Type: string;
 
+  @Column()
+  Password: string;
 
+  @Column()
+  Status: string;
 }
-
-
-

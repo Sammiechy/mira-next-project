@@ -20,6 +20,7 @@
     "not IE 11"
   ],
   "dependencies": {
+    "@apollo/client": "^3.11.9",
     "@auth0/auth0-spa-js": "1.22.6",
     "@date-io/date-fns": "2.17.0",
     "@emotion/cache": "11.13.1",
@@ -51,6 +52,7 @@
     "apexcharts": "3.53.0",
     "axios": "0.28.1",
     "axios-mock-adapter": "1.22.0",
+    "bcryptjs": "^2.4.3",
     "chart.js": "4.4.4",
     "css-vendor": "2.0.8",
     "date-fns": "2.30.0",
@@ -63,7 +65,7 @@
     "graphql-yoga": "^5.8.0",
     "history": "5.3.0",
     "i18next": "22.5.1",
-    "jsonwebtoken": "8.5.1",
+    "jsonwebtoken": "^8.5.1",
     "jss": "10.10.0",
     "jwt-decode": "3.1.2",
     "lucide-react": "0.445.0",
@@ -87,6 +89,7 @@
   },
   "devDependencies": {
     "@babel/preset-react": "7.24.7",
+    "@types/bcryptjs": "^2.4.6",
     "@types/faker": "6.6.9",
     "@types/google-map-react": "2.1.10",
     "@types/jsonwebtoken": "8.5.9",
