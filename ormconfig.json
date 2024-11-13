@@ -1,0 +1,11 @@
+{
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5433,
+    "username": "postgres",
+    "password": "Shammi@123",
+    "database": "mira_admin",
+    "entities": ["src/entities/*.ts"],
+    "synchronize": true
+  }
+  
