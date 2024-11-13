@@ -1,6 +1,6 @@
 // src/app/api/graphql/schema/organization/resolvers.ts
-import { AppDataSource } from 'lib/database';
-import { Organization } from 'lib/entities/Organization';
+import { AppDataSource } from "lib/database";
+import { Organization } from "lib/entities/Organization";
 
 export const organizationResolvers = {
   Query: {
