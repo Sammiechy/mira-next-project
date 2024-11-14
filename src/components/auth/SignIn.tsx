@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { spacing, SpacingProps } from "@mui/system";
-
+import { signUp ,signIn} from "aws-amplify/auth"
 import {
   Alert as MuiAlert,
   Checkbox,
@@ -15,7 +15,6 @@ import {
   Link,
   Typography as MuiTypography,
 } from "@mui/material";
-
 import useAuth from "@/hooks/useAuth";
 
 const Alert = styled(MuiAlert)(spacing);
@@ -56,12 +55,36 @@ function SignIn() {
     lastName: 'Singh',
     email: 'admin@gmail.com',
     password:"Aman@2024",
-    phone: '1234567890',
+    phone: '9023277211',
     role: 'Admin',
     status:"1",
     organizationId: 1, 
     type: 'Admin',
   };
+
+  const handleSignUp = async () => {
+    try {
+      const { isSignUpComplete, userId, nextStep } = await signUp({
+        username: "admin@gmail.com",
+        password: "Aman@2024",
+        options: {
+          userAttributes: {
+            email: "admin@gmail.com",
+            phone_number: "+919023277211" ,
+            name: "Aman", 
+          },
+        }
+      });
+    } catch (error) {
+      console.error('Error signing up:', error);
+    }
+  };
+
+
+  useEffect(()=>{
+   
+    // handleSignUp()
+  },[])
 
   // useEffect(() => {
   //   const fetchUsers = async () => {
@@ -132,20 +155,24 @@ function SignIn() {
           .email("Must be a valid email")
           .max(255)
           .required("Email is required"),
-        password: Yup.string().max(255).required("Password is required"),
+        password: Yup.string().min(8).required("Password is required"),
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-        try {
-          await signIn(values.email, values.password);
-
-          router.push("/dashboard/analytics");
-        } catch (error: any) {
-          const message = error.message || "Something went wrong";
-
-          setStatus({ success: false });
-          setErrors({ submit: message });
-          setSubmitting(false);
-        }
+      console.log(values?.password,"values?.password")
+          try {
+            const user = await signIn(values?.email, values?.password); // Replace with actual credentials
+            console.log("Sign-in successful:", user);
+            // setErrors({ submit: message });
+            // Handle post-login actions, e.g., redirecting the user
+          } catch (error: any) {
+            const message = error.message || "Something went wrong";
+  
+            setStatus({ success: false });
+            setErrors({ submit: message });
+            setSubmitting(false);
+          }
+          // router.push("/dashboard/analytics");
+       
       }}
     >
       {({
@@ -169,14 +196,14 @@ function SignIn() {
           )}
           <TextField
             type="email"
-            name="email_field"
+            name="email"
             label="Email Address"
             value={values.email}
             error={Boolean(touched.email && errors.email)}
             fullWidth
             helperText={touched.email && errors.email}
             onChange={handleChange}
-            autoComplete="new-email"
+           
             slotProps={{
               input: {
                 autoComplete: "new-email",

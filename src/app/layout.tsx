@@ -27,9 +27,9 @@ import "@/i18n";
 
 // Initialize Chart.js
 import "chart.js/auto";
-
+import { Authenticator } from "@aws-amplify/ui-react";
 import { Amplify } from 'aws-amplify';
-
+import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 
 Amplify.configure(awsconfig); 
