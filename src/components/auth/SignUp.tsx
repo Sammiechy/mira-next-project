@@ -238,6 +238,7 @@ function SignUp() {
         type="text"
         name="phoneNumber"
         label="Phone Number" 
+        placeholder="enter phone number with country code"
         value={values.phoneNumber}
         error={Boolean(touched.phoneNumber && errors.phoneNumber)}
         fullWidth
