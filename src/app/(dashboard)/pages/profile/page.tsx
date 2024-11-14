@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { ReactElement } from "react";
 import styled from "@emotion/styled";
 import { withTheme } from "@emotion/react";
@@ -42,7 +42,7 @@ import {
 import { spacing, SpacingProps } from "@mui/system";
 
 import { ThemeProps } from "@/types/theme";
-
+import { Auth } from 'aws-amplify';
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Button = styled(MuiButton)(spacing);
@@ -499,9 +499,86 @@ const SalesRevenue = withTheme(({ theme }: ThemeProps) => {
   );
 });
 
+
 function Profile() {
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const [step, setStep] = useState(1);
+
+  const handleSignUp = async (event: any) => {
+    event.preventDefault();
+    try {
+      await Auth.signUp({
+        username,
+        password,
+        attributes: { email },
+      });
+      setStep(2); // Move to confirmation step
+    } catch (error) {
+      console.log('Error signing up:', error);
+    }
+  };
+
+  const handleConfirmSignUp = async (event: any) => {
+    event.preventDefault();
+    try {
+      await Auth.confirmSignUp(username, confirmationCode);
+      console.log('User confirmed');
+      setStep(3); // Move to final step or login page
+    } catch (error) {
+      console.log('Error confirming sign up:', error);
+    }
+  };
+
+
   return (
     <React.Fragment>
+
+      <div>
+        {step === 1 && (
+          <form onSubmit={handleSignUp}>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Username"
+              required
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              required
+            />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              required
+            />
+            <button type="submit">Sign Up</button>
+          </form>
+        )}
+        {step === 2 && (
+          <form onSubmit={handleConfirmSignUp}>
+            <input
+              type="text"
+              value={confirmationCode}
+              onChange={(e) => setConfirmationCode(e.target.value)}
+              placeholder="Confirmation Code"
+              required
+            />
+            <button type="submit">Confirm Sign Up</button>
+          </form>
+        )}
+        {step === 3 && <p>Sign-up confirmed. You can now log in.</p>}
+      </div>
+
       <Typography variant="h3" gutterBottom display="inline">
         Profile
       </Typography>

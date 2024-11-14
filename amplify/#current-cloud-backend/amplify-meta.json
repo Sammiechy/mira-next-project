@@ -1,0 +1,58 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-miranextproject-dev-c69f8-authRole",
+      "UnauthRoleArn": "arn:aws:iam::575678931671:role/amplify-miranextproject-dev-c69f8-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::575678931671:role/amplify-miranextproject-dev-c69f8-authRole",
+      "Region": "ca-central-1",
+      "DeploymentBucketName": "amplify-miranextproject-dev-c69f8-deployment",
+      "UnauthRoleName": "amplify-miranextproject-dev-c69f8-unauthRole",
+      "StackName": "amplify-miranextproject-dev-c69f8",
+      "StackId": "arn:aws:cloudformation:ca-central-1:575678931671:stack/amplify-miranextproject-dev-c69f8/e78f70f0-a1fd-11ef-ba82-068f3fd8127f",
+      "AmplifyAppId": "d36xpakuiol2fe"
+    }
+  },
+  "auth": {
+    "miranextprojectab11ffc3": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-miranextproject-dev-c69f8-deployment/amplify-cfn-templates/auth/miranextprojectab11ffc3-cloudformation-template.json",
+        "logicalId": "authmiranextprojectab11ffc3"
+      },
+      "lastPushTimeStamp": "2024-11-13T20:33:06.946Z",
+      "output": {
+        "UserPoolId": "ca-central-1_K6jpQf4e4",
+        "AppClientIDWeb": "hee1aol56ig9q046h7rtsqk12",
+        "AppClientID": "2gt8noj1l0q6cq00vksdcv3u42",
+        "IdentityPoolId": "ca-central-1:8646bf7d-2762-4d98-b94f-e1beca924ea8",
+        "UserPoolArn": "arn:aws:cognito-idp:ca-central-1:575678931671:userpool/ca-central-1_K6jpQf4e4",
+        "IdentityPoolName": "miranextprojectab11ffc3_identitypool_ab11ffc3__dev",
+        "UserPoolName": "miranextprojectab11ffc3_userpool_ab11ffc3"
+      },
+      "lastPushDirHash": "4zZZebgJ0/SK0g+AywEX6Eyntdc="
+    }
+  }
+}

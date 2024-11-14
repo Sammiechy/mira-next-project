@@ -28,14 +28,20 @@ import "@/i18n";
 // Initialize Chart.js
 import "chart.js/auto";
 
+import { Amplify } from 'aws-amplify';
+
+import awsconfig from '../aws-exports';
+
+Amplify.configure(awsconfig); 
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
+
 function RootLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
-
   return (
     <html lang="en">
       <body className={inter.variable}>

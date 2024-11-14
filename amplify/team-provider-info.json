@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-miranextproject-dev-c69f8-authRole",
+      "UnauthRoleArn": "arn:aws:iam::575678931671:role/amplify-miranextproject-dev-c69f8-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::575678931671:role/amplify-miranextproject-dev-c69f8-authRole",
+      "Region": "ca-central-1",
+      "DeploymentBucketName": "amplify-miranextproject-dev-c69f8-deployment",
+      "UnauthRoleName": "amplify-miranextproject-dev-c69f8-unauthRole",
+      "StackName": "amplify-miranextproject-dev-c69f8",
+      "StackId": "arn:aws:cloudformation:ca-central-1:575678931671:stack/amplify-miranextproject-dev-c69f8/e78f70f0-a1fd-11ef-ba82-068f3fd8127f",
+      "AmplifyAppId": "d36xpakuiol2fe"
+    },
+    "categories": {
+      "auth": {
+        "miranextprojectab11ffc3": {}
+      }
+    }
+  }
+}
