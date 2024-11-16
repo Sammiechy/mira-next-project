@@ -58,7 +58,7 @@ function SignUp() {
   };
 
   const confirmSignup = async () => {
-    console.log(emailForConfirmation)
+    console.log(emailForConfirmation,"chbc")
     try {
       await confirmSignUp({
         username: emailForConfirmation,
@@ -164,9 +164,10 @@ function SignUp() {
           localStorage.setItem("userId",userId);
           console.log("Sign-up successful, next step:",userId, nextStep);
           setConfirm(true);
+          setEmailForConfirmation(values.email)
           // Check if there's a confirmation step required
-          if (nextStep && nextStep === "CONFIRM_SIGN_UP_STEP") {
-            setEmailForConfirmation(values.email)
+          if (nextStep && nextStep === "CONFIRM_SIGN_UP") {
+           
            
             alert("Please enter the confirmation code sent to your email or phone.")
             console.log("Please enter the confirmation code sent to your email or phone.");

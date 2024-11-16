@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { spacing, SpacingProps } from "@mui/system";
 import { signUp ,signIn} from "aws-amplify/auth"
+import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   Alert as MuiAlert,
   Checkbox,
@@ -47,7 +48,6 @@ const Typography = styled(MuiTypography)<TypographyProps>(spacing);
 
 function SignIn() {
   const router = useRouter();
-  const { signIn } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
 
   const dummyUser = {
@@ -160,19 +160,21 @@ function SignIn() {
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
       console.log(values?.password,"values?.password")
           try {
-            const user = await signIn(values?.email, values?.password); // Replace with actual credentials
-            console.log("Sign-in successful:", user);
-            // setErrors({ submit: message });
-            // Handle post-login actions, e.g., redirecting the user
+            const user = await signIn({
+              username: values?.email,
+              password: values?.password,
+            });
+            const session :any = await fetchAuthSession();
+            const idToken = session.tokens.idToken;
+            const accessToken = session.tokens.accessToken;
+            accessToken? localStorage.setItem("token",accessToken):""
+            router.push("/dashboard/analytics");
           } catch (error: any) {
             const message = error.message || "Something went wrong";
-  
             setStatus({ success: false });
             setErrors({ submit: message });
             setSubmitting(false);
-          }
-          // router.push("/dashboard/analytics");
-       
+          }      
       }}
     >
       {({
