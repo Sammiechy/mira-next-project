@@ -174,7 +174,7 @@ function SignUp() {
           } else {
             console.log("Sign-up complete, no further steps required.");
           }
-          // router.push("/auth/sign-in");
+          router.push("/auth/sign-in");
         } catch (error: any) {
           const message = error.message || "Something went wrong";
 
