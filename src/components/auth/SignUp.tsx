@@ -66,7 +66,6 @@ function SignUp() {
       });
       setConfirm(false)
       router.push("/auth/sign-in");
-      console.log("User confirmed successfully.");
     } catch (error) {
       console.error("Error confirming sign up:", error);
     }
@@ -163,18 +162,15 @@ function SignUp() {
           });
           localStorage.setItem("userId",userId);
           console.log("Sign-up successful, next step:",userId, nextStep);
-          setConfirm(true);
+          
           setEmailForConfirmation(values.email)
           // Check if there's a confirmation step required
-          if (nextStep && nextStep === "CONFIRM_SIGN_UP") {
-           
-           
-            alert("Please enter the confirmation code sent to your email or phone.")
-            console.log("Please enter the confirmation code sent to your email or phone.");
+          if (userId) {
+            setConfirm(true);
           } else {
             console.log("Sign-up complete, no further steps required.");
           }
-          router.push("/auth/sign-in");
+         
         } catch (error: any) {
           const message = error.message || "Something went wrong";
 
