@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Inter } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
@@ -31,6 +31,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import { Amplify } from 'aws-amplify';
 import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
+import { useRouter, usePathname } from "next/navigation";
 
 Amplify.configure(awsconfig); 
 
@@ -42,6 +43,21 @@ const inter = Inter({
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    const publicRoutes = ["/auth/sign-in", "/auth/sign-up"];
+    if (!token && !publicRoutes.includes(pathname)) {
+      router.push("/auth/sign-in");
+    } else if (token && publicRoutes.includes(pathname)) {
+      router.push("/dashboard/analytics");
+    }
+  }, [router, pathname]);
+
+  
   return (
     <html lang="en">
       <body className={inter.variable}>
