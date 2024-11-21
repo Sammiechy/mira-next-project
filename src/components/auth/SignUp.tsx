@@ -84,7 +84,7 @@ function SignUp() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          {"Please Confirm your email"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -104,7 +104,7 @@ function SignUp() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
+          {/* <Button onClick={handleClose}>Cancel</Button> */}
           <Button onClick={confirmSignup} >
             Confirm
           </Button>
@@ -161,9 +161,9 @@ function SignUp() {
             }
           });
           localStorage.setItem("userId",userId);
-          console.log("Sign-up successful, next step:",userId, nextStep);
+          console.log("Sign-up successful, next step:",userId, nextStep,isSignUpComplete);
           
-          setEmailForConfirmation(values.email)
+         !isSignUpComplete&& setEmailForConfirmation(values.email)
           // Check if there's a confirmation step required
           if (userId) {
             setConfirm(true);

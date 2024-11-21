@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useEffect, useReducer } from "react";
+import { signOut } from 'aws-amplify/auth';
 
 import { JWTContextType, ActionMap, AuthState, AuthUser } from "@/types/auth";
 
@@ -134,8 +135,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const signOut = async () => {
+  const userSignOut = async () => {
     setSession(null);
+    await signOut()
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId")
     dispatch({ type: SIGN_OUT });
   };
 
@@ -170,7 +174,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         ...state,
         method: "jwt",
         signIn,
-        signOut,
+        userSignOut,
         signUp,
         resetPassword,
       }}

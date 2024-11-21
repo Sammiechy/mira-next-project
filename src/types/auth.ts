@@ -25,7 +25,7 @@ export type JWTContextType = {
   user: AuthUser;
   method: "jwt";
   signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  userSignOut: () => Promise<void>;
   signUp: (
     email: string,
     password: string,

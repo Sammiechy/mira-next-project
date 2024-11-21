@@ -39,7 +39,7 @@ const AvatarBadge = styled(Badge)`
 function NavbarUserDropdown() {
   const [anchorMenu, setAnchorMenu] = React.useState<any>(null);
   const router = useRouter();
-  const { user, signOut } = useAuth();
+  const { user, userSignOut } = useAuth();
 
   const toggleMenu = (event: React.SyntheticEvent) => {
     setAnchorMenu(event.currentTarget);
@@ -50,7 +50,7 @@ function NavbarUserDropdown() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    await userSignOut();
     router.push("/auth/sign-in");
   };
 
