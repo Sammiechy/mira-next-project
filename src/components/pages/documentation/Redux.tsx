@@ -30,7 +30,7 @@ import {
   incrementAsync,
   incrementIfOdd,
   selectCount,
-} from "@/redux/slices/counter";
+} from "@/redux/slices/userReducer";
 
 const Divider = styled(MuiDivider)(spacing);
 

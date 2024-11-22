@@ -35,6 +35,7 @@ function SignUp() {
   const router = useRouter();
   const [confirm,setConfirm]= useState<boolean>(false);
   const [code,setCode]= useState<any>("");
+  const [formData,setFormData]= useState<any>("");
 
   const [emailForConfirmation, setEmailForConfirmation] = useState("");
   // const { signUp } = useAuth();
@@ -57,6 +58,113 @@ function SignUp() {
     }
   };
 
+
+  const fetchUsers = async () => {
+        try {
+        const response = await fetch(`http://localhost:3000/api/graphql`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `
+            mutation {
+              createUser(
+                FirstName: "${formData?.firstName}",
+                LastName: "${formData?.lastName}",
+                Email: "${formData?.email}",
+                Phone: "${formData?.phoneNumber}",
+                Role: "admin",
+                OrganizationId: 1,
+                Password:"${formData?.password}",
+                Status:"1",
+                Type: "1"
+              ) {
+                FirstName
+                LastName
+                Email
+                Phone
+                Role
+                OrganizationId
+                Type
+                Status
+                Password
+              }
+            }
+            `,
+          }),
+        });
+    
+        const { data,errors } = await response.json();
+        if (response.ok) {
+          if (data?.createUser) {
+            console.log('User created:', data.createUser);
+          } else {
+            console.error('Error in mutation response:', errors);
+          }
+        } else {
+          console.error('HTTP Error:', response.status, errors);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+       
+    }
+
+  //   const fetchUsers = async () => {
+  //     try {
+  //     const response = await fetch(`http://localhost:3000/api/graphql`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         query: `
+  //         mutation {
+  //           createUser(
+  //             FirstName: "${dummyUser.firstName}",
+  //             LastName: "${dummyUser.lastName}",
+  //             Email: "${dummyUser.email}",
+  //             Phone: "${dummyUser.phone}",
+  //             Role: "${dummyUser.role}",
+  //             OrganizationId: ${dummyUser.organizationId},
+  //             Password:"${dummyUser.password}",
+  //             Status:"${dummyUser.status}",
+  //             Type: "${dummyUser.type}"
+  //           ) {
+  //             FirstName
+  //             LastName
+  //             Email
+  //             Phone
+  //             Role
+  //             OrganizationId
+  //             Type
+  //             Status
+  //             Password
+  //           }
+  //         }
+  //         `,
+  //       }),
+  //     });
+  
+  //     const { data,errors } = await response.json();
+  //     if (response.ok) {
+  //       if (data?.createUser) {
+  //         console.log('User created:', data.createUser);
+  //       } else {
+  //         console.error('Error in mutation response:', errors);
+  //       }
+  //     } else {
+  //       console.error('HTTP Error:', response.status, errors);
+  //     }
+  //   } catch (error) {
+  //     console.error('Fetch error:', error);
+  //   }
+     
+  //   };
+  //   fetchUsers();
+  // }, []);
+
   const confirmSignup = async () => {
     console.log(emailForConfirmation,"chbc")
     try {
@@ -64,7 +172,9 @@ function SignUp() {
         username: emailForConfirmation,
         confirmationCode: code
       });
-      setConfirm(false)
+      await fetchUsers()
+      setConfirm(false);
+      
       router.push("/auth/sign-in");
     } catch (error) {
       console.error("Error confirming sign up:", error);
@@ -162,8 +272,9 @@ function SignUp() {
           });
           localStorage.setItem("userId",userId);
           console.log("Sign-up successful, next step:",userId, nextStep,isSignUpComplete);
-          
+          setFormData(values);
          !isSignUpComplete&& setEmailForConfirmation(values.email)
+
           // Check if there's a confirmation step required
           if (userId) {
             setConfirm(true);

@@ -48,6 +48,15 @@ type Mutation {
     Phone: String
     Status: String!
   ): AuthPayload
+
+   signIn(
+    Email: String!
+    Password: String!
+  ): AuthPayload
+
+   signOut(
+    token: String!
+  ): Boolean
 }
 
 `;

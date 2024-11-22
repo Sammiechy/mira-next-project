@@ -5,6 +5,8 @@ import { Badge, Grid2 as Grid, Avatar, Typography } from "@mui/material";
 import { green } from "@mui/material/colors";
 
 import useAuth from "@/hooks/useAuth";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const Footer = styled.div`
   background-color: ${(props) =>
@@ -38,6 +40,8 @@ const FooterBadge = styled(Badge)`
 
 const SidebarFooter: React.FC = ({ ...rest }) => {
   const { user } = useAuth();
+  const userData = useSelector((state: RootState) => state.userData);
+  console.log(userData,"userData----")
 
   return (
     <Footer {...rest}>
@@ -66,8 +70,8 @@ const SidebarFooter: React.FC = ({ ...rest }) => {
             <FooterText variant="body2">{user.displayName}</FooterText>
           )}
           {/* Demo data */}
-          {!user && <FooterText variant="body2">Lucy Lavender</FooterText>}
-          <FooterSubText variant="caption">UX Designer</FooterSubText>
+          {!user && <FooterText variant="body2">{userData?.firstName} { userData?.lastName}</FooterText>}
+          <FooterSubText variant="caption">{userData?.role}</FooterSubText>
         </Grid>
       </Grid>
     </Footer>

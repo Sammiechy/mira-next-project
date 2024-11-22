@@ -5,6 +5,8 @@ import { Users } from 'lib/entities/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 
+const invalidatedTokens: Set<string> = new Set();
+
 export const userResolvers = {
   Query: {
     users: async () => {
@@ -56,44 +58,62 @@ export const userResolvers = {
         throw new Error(`Failed to create user: ${error.message}`);
       }
     },
+    signIn: async (_: any, { Email, Password }: { Email: string; Password: string }) => {
+      try {
+        console.log("Signing in user with email:", Email);
+
+        const userRepository = AppDataSource.getRepository(Users);
+
+        // Find the user by email
+        const user = await userRepository.findOne({ where: { Email } });
+        if (!user) {
+          throw new Error("User not found.");
+        }
+
+        // Compare the provided password with the stored hashed password
+        const isPasswordValid = await bcrypt.compare(Password, user.Password);
+        if (!isPasswordValid) {
+          throw new Error("Invalid password.");
+        }
+
+        // Generate a JWT token
+        const token = jwt.sign(
+          { id: user.id, Email: user.Email, Role: user.Role },
+          JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        console.log("User signed in successfully:", user);
+
+        // Return the token and user details
+        return {
+          token,
+          user,
+        };
+      } catch (error: any) {
+        console.error("Error during sign-in:", error);
+        throw new Error(`Failed to sign in: ${error.message}`);
+      }
+    },
+
+
+    signOut: async (_: any, { token }: { token: string }) => {
+      try {
+        // Invalidate the token by adding it to a blacklist
+        if (!token) {
+          throw new Error("No token provided.");
+        }
+
+        invalidatedTokens.add(token);
+
+        // Optionally, clear the token client-side by providing feedback to the user
+        return true; // Sign-out successful
+      } catch (error: any) {
+        throw new Error(`Failed to sign out: ${error.message}`);
+      }
+    },
     
-    
 
-    // signup: async (
-    //   _: any,
-    //   { FirstName, LastName, Email, Password, Role, OrganizationId, Type, Phone }: any
-    // ) => {
-    //   const userRepository = AppDataSource.getRepository(Users);
-
-    //   // Check if the email is already in use
-    //   const existingUser = await userRepository.findOneBy({ Email });
-    //   if (existingUser) {
-    //     throw new Error("Email already in use");
-    //   }
-
-    //   // Hash the password before saving
-    //   const hashedPassword = await bcrypt.hash(Password, 10);
-
-    //   // Create a new user and save to the database
-    //   const user = userRepository.create({
-    //     FirstName,
-    //     LastName,
-    //     Email,
-    //     Password: hashedPassword,
-    //     Role,
-    //     OrganizationId,
-    //     Type,
-    //     Phone,
-    //   });
-    //   await userRepository.save(user);
-
-    //   // Generate JWT token
-    //   // const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
-
-    //   return {
-    //     // token,
-    //     user,
-    //   };
-    // },
+  
   },
 };

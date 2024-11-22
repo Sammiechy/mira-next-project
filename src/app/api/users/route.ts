@@ -14,6 +14,8 @@ export async function GET() {
 export async function POST(request: Request) {
   const dataSource = await initializeDataSource();
   const userRepository :any = dataSource.getRepository(Users);
+  console.log(dataSource.options.entities,"jjjjjjjjjjjjjj");
+
 
   const { name, email } = await request.json();
   const newUser = userRepository.create({ name, email });

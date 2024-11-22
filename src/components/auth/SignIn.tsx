@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { spacing, SpacingProps } from "@mui/system";
-import { signUp ,signIn} from "aws-amplify/auth"
+import { signUp, signIn } from "aws-amplify/auth"
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   Alert as MuiAlert,
@@ -17,6 +17,8 @@ import {
   Typography as MuiTypography,
 } from "@mui/material";
 import useAuth from "@/hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { setUsers } from "@/redux/slices/userReducer";
 
 const Alert = styled(MuiAlert)(spacing);
 
@@ -48,17 +50,17 @@ const Typography = styled(MuiTypography)<TypographyProps>(spacing);
 
 function SignIn() {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
+  const dispatch= useDispatch()
 
   const dummyUser = {
     firstName: 'Aman',
     lastName: 'Singh',
     email: 'admin@gmail.com',
-    password:"Aman@2024",
+    password: "Aman@2024",
     phone: '9023277211',
     role: 'Admin',
-    status:"1",
-    organizationId: 1, 
+    status: "1",
+    organizationId: 1,
     type: 'Admin',
   };
 
@@ -70,8 +72,8 @@ function SignIn() {
         options: {
           userAttributes: {
             email: "admin@gmail.com",
-            phone_number: "+919023277211" ,
-            name: "Aman", 
+            phone_number: "+919023277211",
+            name: "Aman",
           },
         }
       });
@@ -81,10 +83,10 @@ function SignIn() {
   };
 
 
-  useEffect(()=>{
-   
+  useEffect(() => {
+
     // handleSignUp()
-  },[])
+  }, [])
 
   // useEffect(() => {
   //   const fetchUsers = async () => {
@@ -122,7 +124,7 @@ function SignIn() {
   //         `,
   //       }),
   //     });
-  
+
   //     const { data,errors } = await response.json();
   //     if (response.ok) {
   //       if (data?.createUser) {
@@ -136,10 +138,59 @@ function SignIn() {
   //   } catch (error) {
   //     console.error('Fetch error:', error);
   //   }
-     
+
   //   };
   //   fetchUsers();
   // }, []);
+
+  const graphqlSignIn = async (values: any) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/graphql`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+        mutation {
+          signIn (
+            Email: "${values?.email}",
+            Password:"${values?.password}",
+          ) {
+            token
+       user {
+      id
+      FirstName
+      LastName
+      Email
+      Role
+      OrganizationId
+      Type
+      Phone
+      Status
+    }
+      }
+        }
+        `,
+        }),
+      });
+
+      const { data, errors } = await response.json();
+      if (response.ok) {
+        if (data?.signIn) {
+          dispatch(setUsers( data.signIn?.user));
+          console.log('User created:', data.signIn?.user);
+        } else {
+          console.error('Error in mutation response:', errors);
+        }
+      } else {
+        console.error('HTTP Error:', response.status, errors);
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+
+  }
 
 
 
@@ -158,23 +209,24 @@ function SignIn() {
         password: Yup.string().min(8).required("Password is required"),
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-      console.log(values?.password,"values?.password")
-          try {
-            const user = await signIn({
-              username: values?.email,
-              password: values?.password,
-            });
-            const session :any = await fetchAuthSession();
-            const idToken = session.tokens.idToken;
-            const accessToken = session.tokens.accessToken;
-            accessToken? localStorage.setItem("token",accessToken):""
-            router.push("/dashboard/analytics");
-          } catch (error: any) {
-            const message = error.message || "Something went wrong";
-            setStatus({ success: false });
-            setErrors({ submit: message });
-            setSubmitting(false);
-          }      
+        console.log(values?.password, "values?.password")
+        try {
+          const user = await signIn({
+            username: values?.email,
+            password: values?.password,
+          });
+          const session: any = await fetchAuthSession();
+          await graphqlSignIn(values);
+          const idToken = session.tokens.idToken;
+          const accessToken = session.tokens.accessToken;
+          accessToken ? localStorage.setItem("token", accessToken) : ""
+          router.push("/dashboard/analytics");
+        } catch (error: any) {
+          const message = error.message || "Something went wrong";
+          setStatus({ success: false });
+          setErrors({ submit: message });
+          setSubmitting(false);
+        }
       }}
     >
       {({
@@ -205,7 +257,7 @@ function SignIn() {
             fullWidth
             helperText={touched.email && errors.email}
             onChange={handleChange}
-           
+
             slotProps={{
               input: {
                 autoComplete: "new-email",

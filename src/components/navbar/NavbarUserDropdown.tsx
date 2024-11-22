@@ -49,7 +49,33 @@ function NavbarUserDropdown() {
     setAnchorMenu(null);
   };
 
+  const graphqSignOut= async()=>{
+    const token = localStorage.getItem('token')
+    try {
+      const response = await fetch(`http://localhost:3000/api/graphql`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+    query: `
+     mutation {
+    signOut(
+      token: "${token}" 
+    ) 
+  }
+
+    `,})
+  })
+
+  console.log(response,"signout000000000")
+}catch(err){
+  console.log(err)
+}
+  }
+
   const handleSignOut = async () => {
+     await graphqSignOut();
     await userSignOut();
     router.push("/auth/sign-in");
   };
