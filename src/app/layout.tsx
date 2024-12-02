@@ -49,7 +49,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    const publicRoutes = ["/auth/sign-in", "/auth/sign-up"];
+    const publicRoutes = ["/auth/sign-in", "/auth/sign-up","/auth/reset-password"];
     if (!token && !publicRoutes.includes(pathname)) {
       router.push("/auth/sign-in");
     } else if (token && publicRoutes.includes(pathname)) {

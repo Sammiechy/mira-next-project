@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import NextLink from "next/link";
 import styled from "@emotion/styled";
 import * as Yup from "yup";
 import { Formik } from "formik";
-
+import { resetPassword ,confirmResetPassword} from "aws-amplify/auth"
 import {
   Alert as MuiAlert,
   Button as MuiButton,
@@ -28,10 +28,56 @@ const Centered = styled(MuiTypography)`
 
 function ResetPassword() {
   const router = useRouter();
-  const { resetPassword } = useAuth();
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState<'info' | 'success' | 'error' | undefined>(undefined);
+  const [step, setStep] = useState(1); 
+  const [email, setEmail] = useState(""); 
+  const [confirmationCode, setConfirmationCode] = useState(""); 
+  const [newPassword, setNewPassword] = useState(""); 
+  // const { resetPassword } = useAuth();
+
+  const resetUserPassword=async(email: any)=>{
+    const response= await resetPassword({username:email})
+    const { nextStep } = response;
+    switch (nextStep.resetPasswordStep) {
+      case 'CONFIRM_RESET_PASSWORD_WITH_CODE':
+        const codeDeliveryDetails = nextStep.codeDeliveryDetails;
+        setAlertSeverity('info');
+        setAlertMessage(
+          `Confirmation code was sent via ${codeDeliveryDetails.deliveryMedium} to ${codeDeliveryDetails.destination}.`
+        );
+        setEmail(email);
+        setStep(2);
+        break;
+      case 'DONE':
+        console.log('Successfully reset password.');
+        break;
+    }
+    console.log(nextStep,"respppppp")
+  }
+
+  const confirm_Reset_Password=async()=>{
+    try {
+       await confirmResetPassword({
+        username: email,
+        confirmationCode: confirmationCode,
+        newPassword: newPassword,
+      });
+      setAlertSeverity('success');
+      setStep(1);
+      setAlertMessage('Password reset successfully!');
+      router.push("/auth/sign-in");
+    } catch (error: any) {
+      setAlertSeverity('error');
+      setAlertMessage(error.message || 'Failed to reset password.');
+    }
+  }
 
   return (
-    <Formik
+    <>
+  {alertMessage && <Alert severity={alertSeverity}>{alertMessage}</Alert>}
+   
+    {step === 1 && (<Formik
       initialValues={{
         email: "",
         submit: false,
@@ -44,8 +90,9 @@ function ResetPassword() {
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          resetPassword(values.email);
-          router.push("/auth/sign-in");
+          // resetPassword(values.email);
+          resetUserPassword(values.email)
+          // router.push("/auth/sign-in");
         } catch (error: any) {
           const message = error.message || "Something went wrong";
 
@@ -100,7 +147,39 @@ function ResetPassword() {
           </Centered>
         </form>
       )}
-    </Formik>
+    </Formik>)}
+    {step === 2 && (
+        <form noValidate>
+          <TextField
+            type="text"
+            name="confirmationCode"
+            label="Confirmation Code"
+            value={confirmationCode}
+            onChange={(e) => setConfirmationCode(e.target.value)}
+            fullWidth
+            my={2}
+          />
+          <TextField
+            type="password"
+            name="newPassword"
+            label="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            fullWidth
+            my={2}
+          />
+          <Button
+            onClick={confirm_Reset_Password}
+            fullWidth
+            variant="contained"
+            color="primary"
+            mb={3}
+          >
+            Confirm Reset Password
+          </Button>
+        </form>
+      )}
+    </>
   );
 }
 

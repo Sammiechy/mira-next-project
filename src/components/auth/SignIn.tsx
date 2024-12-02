@@ -5,7 +5,7 @@ import { Formik } from "formik";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { spacing, SpacingProps } from "@mui/system";
-import { signUp, signIn } from "aws-amplify/auth"
+import { signUp, signIn,resetPassword } from "aws-amplify/auth"
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   Alert as MuiAlert,
@@ -303,6 +303,10 @@ function SignIn() {
             Sign in
           </Button>
           <Centered>
+          Don't have an account?{" "}
+            <Link href="sign-up" component={NextLink}>
+              Sign up
+            </Link>
           </Centered>
         </form>
       )}
