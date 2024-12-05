@@ -5,6 +5,7 @@ import React from "react";
 import { Typography } from "@mui/material";
 
 import SignUpComponent from "@/components/auth/SignUp";
+import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 
 function SignUp() {
   return (
@@ -15,8 +16,10 @@ function SignUp() {
       <Typography component="h2" variant="subtitle1" align="center">
         Start creating the best possible user experience for you customers
       </Typography>
-
-      <SignUpComponent />
+<ApolloProviderWrapper>
+<SignUpComponent />
+</ApolloProviderWrapper>
+     
     </React.Fragment>
   );
 }

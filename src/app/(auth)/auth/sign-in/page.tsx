@@ -7,6 +7,7 @@ import styled from "@emotion/styled";
 import { Avatar, Typography } from "@mui/material";
 
 import SignInComponent from "@/components/auth/SignIn";
+import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 
 const BigAvatar = styled(Avatar)`
   width: 92px;
@@ -26,8 +27,9 @@ function SignIn() {
       <Typography component="h2" variant="subtitle1" align="center">
         Sign in to your account to continue
       </Typography>
-
+      <ApolloProviderWrapper>
       <SignInComponent />
+      </ApolloProviderWrapper>
     </React.Fragment>
   );
 }

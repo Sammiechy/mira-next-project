@@ -18,8 +18,9 @@ import {
   DialogActions,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-
+// import gql from "graphql-tag";
 import useAuth from "@/hooks/useAuth";
+import { useMutation,gql } from "@apollo/client";
 
 const Alert = styled(MuiAlert)(spacing);
 
@@ -58,52 +59,115 @@ function SignUp() {
     }
   };
 
+  const SIGNUP_MUTATION = gql`
+  mutation SignUp(
+    $firstName: String!
+    $lastName: String!
+    $email: String!
+    $password: String!
+    $phone: String!
+    $role: String!
+    $type: String!
+    $status: String!
+    $organizationId: Float!
+  ) {
+    signUp(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      password: $password
+      phone: $phone
+      role: $role
+      type: $type
+      status: $status
+      organizationId: $organizationId
+    ) {
+      message
+      userId
+    }
+  }
+`;
+  
+const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
+  const query = `
+  mutation signUp($input: SignUpInput!) {
+    signUp(input: $input) {
+      firstName
+      lastName
+      email
+      phone
+      role
+      organizationId
+      type
+      status
+      password
+    }
+  }`;
 
+  const variablesData = {
+      firstName: formData?.firstName,
+      lastName: formData?.lastName,
+      email: formData?.email,
+      phone: formData?.phoneNumber,
+      role: "admin",
+      organizationId: parseFloat("1") ,
+      password: formData?.password, // Preferably hashed
+      status: "1",
+      type: "1",
+  };
+  console.log(variablesData,"variablesData")
   const fetchUsers = async () => {
         try {
-        const response = await fetch(`http://localhost:3000/api/graphql`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            query: `
-            mutation {
-              createUser(
-                FirstName: "${formData?.firstName}",
-                LastName: "${formData?.lastName}",
-                Email: "${formData?.email}",
-                Phone: "${formData?.phoneNumber}",
-                Role: "admin",
-                OrganizationId: 1,
-                Password:"${formData?.password}",
-                Status:"1",
-                Type: "1"
-              ) {
-                FirstName
-                LastName
-                Email
-                Phone
-                Role
-                OrganizationId
-                Type
-                Status
-                Password
-              }
-            }
-            `,
-          }),
-        });
-    
-        const { data,errors } = await response.json();
-        if (response.ok) {
+        // const response = await fetch(`http://localhost:4000/graphql`, {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     query: `
+        //     mutation signUp(
+        //       $firstName: String!,
+        //       $lastName: String!,
+        //       $email: String!,
+        //       $phone: String!,
+        //       $role: String!,
+        //       $password: String!,
+        //       $status: String!,
+        //       $type: String!,
+        //       $organizationId: Int!
+        //     ) {
+        //       signUp(
+        //         firstName: $firstName,
+        //         lastName: $lastName,
+        //         email: $email,
+        //         phone: $phone,
+        //         role: $role,
+        //         password: $password,
+        //         status: $status,
+        //         type: $type,
+        //         organizationId: $organizationId
+        //       ) {
+        //         message
+        //         userId
+        //       }
+        //     }
+        //   `,
+        //   variables: variables,
+        //   }),
+        // });
+       
+        // const { data,errors } = await response.json();
+        const response = await signup({ variables: { ...variablesData } });
+        console.log(response,"response-----")
+        return; 
+        if (response) {
           if (data?.createUser) {
             console.log('User created:', data.createUser);
           } else {
-            console.error('Error in mutation response:', errors);
+            // console.error('Error in mutation response:', errors);
           }
         } else {
-          console.error('HTTP Error:', response.status, errors);
+          // console.error('HTTP Error:', response.status, errors);
         }
       } catch (error) {
         console.error('Fetch error:', error);
@@ -259,6 +323,7 @@ function SignUp() {
           //   values.firstName,
           //   values.lastName
           // );
+          setFormData(values);
           const { isSignUpComplete, userId, nextStep } :any = await signUp({
             username:  values.email,
             password: values.password,

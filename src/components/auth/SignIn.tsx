@@ -17,6 +17,7 @@ import {
   Typography as MuiTypography,
 } from "@mui/material";
 import useAuth from "@/hooks/useAuth";
+import { useMutation,gql } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { setUsers } from "@/redux/slices/userReducer";
 
@@ -51,18 +52,11 @@ const Typography = styled(MuiTypography)<TypographyProps>(spacing);
 function SignIn() {
   const router = useRouter();
   const dispatch= useDispatch()
-
-  const dummyUser = {
-    firstName: 'Aman',
-    lastName: 'Singh',
-    email: 'admin@gmail.com',
-    password: "Aman@2024",
-    phone: '9023277211',
-    role: 'Admin',
-    status: "1",
-    organizationId: 1,
-    type: 'Admin',
-  };
+  const SIGN_IN_MUTATION = gql`
+  mutation SignIn($email: String!, $password: String!) {
+    signIn(email: $email, password: $password)
+  }
+`;
 
   const handleSignUp = async () => {
     try {
@@ -82,11 +76,25 @@ function SignIn() {
     }
   };
 
-
-  useEffect(() => {
-
-    // handleSignUp()
-  }, [])
+  const SIGNIN_MUTATION = gql`
+mutation signin($email: String!, $password: String!) {
+  signin(email: $email, password: $password) {
+    token
+    user {
+      id
+      firstName
+      lastName
+      email
+      phone
+      role
+      type
+      status
+      organizationId
+    }
+  }
+}
+`;
+const [signin, { data, loading, error }] = useMutation(SIGNIN_MUTATION);
 
   // useEffect(() => {
   //   const fetchUsers = async () => {
@@ -145,47 +153,50 @@ function SignIn() {
 
   const graphqlSignIn = async (values: any) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/graphql`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `
-        mutation {
-          signIn (
-            Email: "${values?.email}",
-            Password:"${values?.password}",
-          ) {
-            token
-       user {
-      id
-      FirstName
-      LastName
-      Email
-      Role
-      OrganizationId
-      Type
-      Phone
-      Status
-    }
-      }
-        }
-        `,
-        }),
-      });
+    //   const response = await fetch(`http://localhost:3000/api/graphql`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       query: `
+    //     mutation {
+    //       signIn (
+    //         Email: "${values?.email}",
+    //         Password:"${values?.password}",
+    //       ) {
+    //         token
+    //    user {
+    //   id
+    //   FirstName
+    //   LastName
+    //   Email
+    //   Role
+    //   OrganizationId
+    //   Type
+    //   Phone
+    //   Status
+    // }
+    //   }
+    //     }
+    //     `,
+    //     }),
+    //   });
 
-      const { data, errors } = await response.json();
-      if (response.ok) {
-        if (data?.signIn) {
-          dispatch(setUsers( data.signIn?.user));
-          console.log('User created:', data.signIn?.user);
+    const variablesData ={
+      email: values?.email,
+      password:values?.password
+    }
+    const response = await signin({ variables: { ...variablesData } });
+      if (response?.data?.signin) {
+
+          dispatch(setUsers( response?.data?.signin?.user));
+          localStorage.setItem("userToken",response?.data?.signin?.token)
+          console.log('User created:', response?.data?.signin?.user);
         } else {
-          console.error('Error in mutation response:', errors);
+          console.error('Error in mutation response:', error);
         }
-      } else {
-        console.error('HTTP Error:', response.status, errors);
-      }
+       
     } catch (error) {
       console.error('Fetch error:', error);
     }

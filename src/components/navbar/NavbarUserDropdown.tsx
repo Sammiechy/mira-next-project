@@ -16,6 +16,7 @@ import {
 import { spacing } from "@mui/system";
 
 import useAuth from "@/hooks/useAuth";
+import { gql, useMutation } from "@apollo/client";
 
 const IconButton = styled(MuiIconButton)`
   ${spacing};
@@ -40,7 +41,15 @@ function NavbarUserDropdown() {
   const [anchorMenu, setAnchorMenu] = React.useState<any>(null);
   const router = useRouter();
   const { user, userSignOut } = useAuth();
-
+  const SIGNOUT_MUTATION = gql`
+ mutation signout($token: String!) {
+  signout(token: $token) {
+    message
+    success
+  }
+}
+`;
+const [signout, { loading, error }] = useMutation(SIGNOUT_MUTATION);
   const toggleMenu = (event: React.SyntheticEvent) => {
     setAnchorMenu(event.currentTarget);
   };
@@ -51,23 +60,25 @@ function NavbarUserDropdown() {
 
   const graphqSignOut= async()=>{
     const token = localStorage.getItem('token')
+    const userToken = localStorage.getItem("userToken");
     try {
-      const response = await fetch(`http://localhost:3000/api/graphql`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-    query: `
-     mutation {
-    signOut(
-      token: "${token}" 
-    ) 
-  }
+  //     const response = await fetch(`http://localhost:3000/api/graphql`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //   query: `
+  //    mutation {
+  //   signOut(
+  //     token: "${token}" 
+  //   ) 
+  // }
 
-    `,})
-  })
-
+  //   `,})
+  // })
+  const response = await signout({ variables: {  token: userToken  } });
+  localStorage.removeItem("userToken");
   console.log(response,"signout000000000")
 }catch(err){
   console.log(err)

@@ -18,6 +18,7 @@ import NavbarNotificationsDropdown from "./NavbarNotificationsDropdown";
 import NavbarMessagesDropdown from "./NavbarMessagesDropdown";
 import NavbarLanguagesDropdown from "./NavbarLanguagesDropdown";
 import NavbarUserDropdown from "./NavbarUserDropdown";
+import ApolloProviderWrapper from "../guards/apolloAuth";
 
 const AppBar = styled(MuiAppBar)`
   background: ${(props) => props.theme.header.background};
@@ -84,6 +85,7 @@ function Navbar({ onDrawerToggle }: NavbarProps) {
   const { t } = useTranslation();
   return (
     <React.Fragment>
+      <ApolloProviderWrapper>
       <AppBar position="sticky" elevation={1}>
         <Toolbar>
           <Grid container alignItems="center" style={{ width: "100%" }}>
@@ -116,6 +118,7 @@ function Navbar({ onDrawerToggle }: NavbarProps) {
           </Grid>
         </Toolbar>
       </AppBar>
+      </ApolloProviderWrapper>
     </React.Fragment>
   );
 }
