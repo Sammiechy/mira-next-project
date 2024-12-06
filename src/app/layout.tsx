@@ -32,6 +32,8 @@ import { Amplify } from 'aws-amplify';
 import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import { useRouter, usePathname } from "next/navigation";
+import { ApolloProvider } from "@apollo/client";
+import client from "lib/apolloClient";
 
 Amplify.configure(awsconfig); 
 
@@ -79,7 +81,9 @@ const withThemeProvider = (Component: React.ComponentType<any>) => {
   const AppWithThemeProvider = (props: any) => {
     return (
       <ThemeProvider>
+        <ApolloProvider client={client}>
         <Component {...props} />
+        </ApolloProvider>
       </ThemeProvider>
     );
   };

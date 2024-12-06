@@ -4,7 +4,6 @@ import React from "react";
 import type { ReactElement } from "react";
 import styled from "@emotion/styled";
 import NextLink from "next/link";
-
 import {
   Link,
   Breadcrumbs as MuiBreadcrumbs,
@@ -18,6 +17,8 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { spacing } from "@mui/system";
 import DashboardTable from "@/components/pages/dashboard/analytics/Table";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
+import { ApolloProvider } from "@apollo/client";
+import client from "lib/apolloClient";
 
 const Card = styled(MuiCard)(spacing);
 
@@ -118,9 +119,11 @@ function DataGridPage() {
       </Breadcrumbs>
 
       <Divider my={6} />
-      <ApolloProviderWrapper>
+      {/* <ApolloProviderWrapper> */}
+      <ApolloProvider client={client}>
       <DashboardTable/>
-      </ApolloProviderWrapper>
+      </ApolloProvider>
+      {/* </ApolloProviderWrapper> */}
       {/* <DataGridDemo /> */}
     </React.Fragment>
   );
