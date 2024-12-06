@@ -16,7 +16,8 @@ import { DataGrid, GridColDef, GridToolbar, GridOverlay } from '@mui/x-data-grid
 import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
-// Define the type for data
+import { TextField } from '@mui/material';
+
 interface RowData {
   id: Number;
   firstName: any;
@@ -28,11 +29,29 @@ interface RowData {
   type: any;
 }
 
+interface CustomToolbarProps {
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+}
+
 
 const DashboardTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
   const [loader, setLoader] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  // Debounced searchQuery state
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+
+  useEffect(() => {
+    // Set up debouncing
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms debounce delay
+
+    return () => clearTimeout(timer); // Clean up the timeout
+  }, [searchQuery]);
+
   const GET_USERS = gql`
   query GetUsers {
     users {
@@ -57,6 +76,8 @@ const DashboardTable = () => {
       }, 2000);
     }
   }, [data]);
+
+
 
 
   const columns: GridColDef<RowData>[] = [
@@ -86,8 +107,7 @@ const DashboardTable = () => {
             variant="outlined"
             color="primary"
             size="small"
-            onClick={() => 
-              // handleEdit(params.row)
+            onClick={() =>
               router.push(`/users/edit/${params.row.id}`)
             }
             style={{ marginRight: 8 }}
@@ -112,7 +132,6 @@ const DashboardTable = () => {
     alert('Delete User ' + id)
   }
 
-  // Custom Loader Overlay
   function CustomLoadingOverlay() {
     return (
       <GridOverlay>
@@ -121,7 +140,6 @@ const DashboardTable = () => {
     );
   }
 
-  // Custom No Data Overlay
   function CustomNoRowsOverlay() {
     return (
       <GridOverlay>
@@ -131,6 +149,30 @@ const DashboardTable = () => {
       </GridOverlay>
     );
   }
+
+
+  const filteredRows = list?.filter((row) =>
+    columns?.some((column) => {
+      const value = row[column.field as keyof RowData]; // Type assertion here
+      return value?.toString().toLowerCase().includes(searchQuery.toLowerCase());
+    })
+  );
+
+  const CustomToolbar: React.FC<CustomToolbarProps> = ({ searchQuery, setSearchQuery }) => {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
+        <GridToolbar />
+        <TextField
+          label="Search"
+          variant="outlined"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ width: '200px' }}
+        />
+      </div>
+    );
+  };
 
   return (
     <>
@@ -147,10 +189,10 @@ const DashboardTable = () => {
         />
         <Paper>
           <DataGrid
-            rows={list}
+            rows={filteredRows}
             columns={columns}
             slots={{
-              toolbar: GridToolbar,
+              toolbar: (props) => <CustomToolbar {...props} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />,
               loadingOverlay: CustomLoadingOverlay,
               noRowsOverlay: CustomNoRowsOverlay,
             }}
