@@ -132,7 +132,7 @@ function BasicForm() {
         <Card mb={6}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Add New User
+              Edit User
             </Typography>
 
             {status && status.sent && (
