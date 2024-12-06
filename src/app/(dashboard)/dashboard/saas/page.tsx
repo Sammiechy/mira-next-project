@@ -20,6 +20,8 @@ import DoughnutChart from "@/components/pages/dashboard/saas/DoughnutChart";
 import USAMap from "@/components/pages/dashboard/saas/USAMap";
 import Stats from "@/components/pages/dashboard/saas/Stats";
 import Table from "@/components/pages/dashboard/saas/Table";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -27,6 +29,7 @@ const Typography = styled(MuiTypography)(spacing);
 
 function SaaS() {
   const { t } = useTranslation();
+  const userData = useSelector((state: RootState) => state.userData);
 
   return (
     <React.Fragment>
@@ -36,7 +39,7 @@ function SaaS() {
             SaaS Dashboard
           </Typography>
           <Typography variant="subtitle1">
-            {t("Welcome back")}, Lucy! {t("We've missed you")}.{" "}
+            {t("Welcome back")}, {userData?.firstName} {userData?.lastName}! {t("We've missed you")}.{" "}
             <span role="img" aria-label="Waving Hand Sign">
               👋
             </span>

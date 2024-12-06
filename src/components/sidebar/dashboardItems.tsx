@@ -66,12 +66,12 @@ const pagesSection = [
     ],
   },
   {
-    href: "/userManagement",
+    href: "/users",
     icon: Layout,
-    title: "UserManagement",
+    title: "User Management",
     children: [
       {
-        href: "/userManagement/list",
+        href: "/users/list",
         title: "List",
       },
     ],

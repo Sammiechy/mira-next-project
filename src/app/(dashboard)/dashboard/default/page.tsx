@@ -20,6 +20,8 @@ import LineChart from "@/components/pages/dashboard/default/LineChart";
 import DoughnutChart from "@/components/pages/dashboard/default/DoughnutChart";
 import Stats from "@/components/pages/dashboard/default/Stats";
 import Table from "@/components/pages/dashboard/default/Table";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -27,6 +29,8 @@ const Typography = styled(MuiTypography)(spacing);
 
 function Default() {
   const { t } = useTranslation();
+  const userData = useSelector((state: RootState) => state.userData);
+
 
   return (
     <React.Fragment>
@@ -36,7 +40,7 @@ function Default() {
             Default Dashboard
           </Typography>
           <Typography variant="subtitle1">
-            {t("Welcome back")}, Lucy! {t("We've missed you")}.{" "}
+            {t("Welcome back")}, {userData?.firstName} {userData?.lastName}! {t("We've missed you")}.{" "}
             <span role="img" aria-label="Waving Hand Sign">
               👋
             </span>

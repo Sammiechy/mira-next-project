@@ -189,9 +189,11 @@ const [signin, { data, loading, error }] = useMutation(SIGNIN_MUTATION);
     }
     const response = await signin({ variables: { ...variablesData } });
       if (response?.data?.signin) {
-
+      console.log(response?.data?.signin?.user,"response?.data?.signin?.userresponse?.data?.signin?.userresponse?.data?.signin?.user")
           dispatch(setUsers( response?.data?.signin?.user));
           localStorage.setItem("userToken",response?.data?.signin?.token)
+          localStorage.setItem("userInfo",JSON.stringify(response?.data?.signin?.user))
+
           console.log('User created:', response?.data?.signin?.user);
         } else {
           console.error('Error in mutation response:', error);

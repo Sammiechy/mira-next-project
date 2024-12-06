@@ -21,6 +21,8 @@ import LanguagesTable from "@/components/pages/dashboard/analytics/LanguagesTabl
 import Stats from "@/components/pages/dashboard/analytics/Stats";
 import Table from "@/components/pages/dashboard/analytics/Table";
 import WorldMap from "@/components/pages/dashboard/analytics/WorldMap";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -28,6 +30,7 @@ const Typography = styled(MuiTypography)(spacing);
 
 function Analytics() {
   const { t } = useTranslation();
+  const userData = useSelector((state: RootState) => state.userData);
 
   return (
     <React.Fragment>
@@ -37,7 +40,7 @@ function Analytics() {
             Analytics Dashboard
           </Typography>
           <Typography variant="subtitle1">
-            {t("Welcome back")}, Lucy! {t("We've missed you")}.{" "}
+            {t("Welcome back")}, {userData?.firstName} {userData?.lastName}{}! {t("We've missed you")}.{" "}
             <span role="img" aria-label="Waving Hand Sign">
               👋
             </span>

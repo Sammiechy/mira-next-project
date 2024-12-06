@@ -60,12 +60,11 @@ export const userSlice = createSlice({
       state.value -= 1;
     },
     setUsers:(state,action)=>{
-    console.log(action.payload,"ppppppppppppppppppppppppp")
-    state.firstName=action.payload?.FirstName;
-    state.lastName=action.payload?.LastName;
-    state.email=action.payload?.Email;
-    state.phone=action.payload?.Phone;
-    state.role= action.payload?.Role;
+    state.firstName=action.payload?.firstName;
+    state.lastName=action.payload?.lastName;
+    state.email=action.payload?.email;
+    state.phone=action.payload?.phone;
+    state.role= action.payload?.role;
     },
     // Use the PayloadAction type to declare the contents of `action.payload`
     incrementByAmount: (state, action: PayloadAction<number>) => {
