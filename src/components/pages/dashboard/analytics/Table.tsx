@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { MoreVertical } from "lucide-react";
 
@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-
+import { useMutation,gql,useQuery } from "@apollo/client";
 const Card = styled(MuiCard)(spacing);
 
 const Chip = styled(MuiChip)`
@@ -45,52 +45,34 @@ const createData = (
   return { id, source, users, sessions, bounce, avg };
 };
 
-const rows = [
-  createData(
-    "Google",
-    "1023",
-    "1265",
-    <Chip label="30%" color="success" />,
-    "00:06:25"
-  ),
-  createData(
-    "Direct",
-    "872",
-    "1077",
-    <Chip label="63%" color="error" />,
-    "00:09:18"
-  ),
-  createData(
-    "X",
-    "812",
-    "1003",
-    <Chip label="28%" color="success" />,
-    "00:05:56"
-  ),
-  createData(
-    "GitHub",
-    "713",
-    "881",
-    <Chip label="22%" color="success" />,
-    "00:06:19"
-  ),
-  createData(
-    "DuckDuckGo",
-    "693",
-    "856",
-    <Chip label="56%" color="error" />,
-    "00:09:12"
-  ),
-  createData(
-    "Facebook",
-    "623",
-    "770",
-    <Chip label="20%" color="success" />,
-    "00:04:42"
-  ),
-];
+const DashboardTable = () => {
+  const[list,setList]=useState([])
+  const GET_USERS = gql`
+  query GetUsers {
+    users {
+      id
+      firstName
+      lastName
+      email
+      phone
+      role
+      status
+      type
+    }
+  }
+`;
+const { loading, error, data } = useQuery(GET_USERS);
+useEffect(() => {
+  if (data) {
+    setList(data.users); 
+  }
+}, [data]);
+if (loading) return <p>Loading...</p>;
+if (error) return <p>Error: {error.message}</p>;
 
-const DashboardTable = () => (
+
+
+return (<>
   <Card mb={6}>
     <CardHeader
       action={
@@ -98,7 +80,7 @@ const DashboardTable = () => (
           <MoreVertical />
         </IconButton>
       }
-      title="Traffic sources"
+      title="Users"
     />
 
     <Paper>
@@ -106,23 +88,30 @@ const DashboardTable = () => (
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Source</TableCell>
-              <TableCell align="right">Users</TableCell>
-              <TableCell align="right">Sessions</TableCell>
-              <TableCell align="right">Bounce Rate</TableCell>
-              <TableCell align="right">Avg. Session Duration</TableCell>
+              <TableCell>ID</TableCell>
+              <TableCell align="right">First Name</TableCell>
+              <TableCell align="right">Last Name</TableCell>
+              <TableCell align="right">Email</TableCell>
+              <TableCell align="right">Phone </TableCell>
+              <TableCell align="right">Role </TableCell>
+              <TableCell align="right">Status </TableCell>
+
+
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {list?.map((row:any) => (
               <TableRow key={row.id}>
                 <TableCell component="th" scope="row">
-                  {row.source}
+                  {row.id}
                 </TableCell>
-                <TableCell align="right">{row.users}</TableCell>
-                <TableCell align="right">{row.sessions}</TableCell>
-                <TableCell align="right">{row.bounce}</TableCell>
-                <TableCell align="right">{row.avg}</TableCell>
+                <TableCell align="right">{row.firstName}</TableCell>
+                <TableCell align="right">{row.lastName}</TableCell>
+                <TableCell align="right">{row.email}</TableCell>
+                <TableCell align="right">{row.phone}</TableCell>
+                <TableCell align="right">{row.role}</TableCell>
+                <TableCell align="right">{row.status=="1"?"Active":"none"}</TableCell>
+
               </TableRow>
             ))}
           </TableBody>
@@ -130,6 +119,8 @@ const DashboardTable = () => (
       </TableWrapper>
     </Paper>
   </Card>
-);
+  </>
+)
+};
 
 export default DashboardTable;
