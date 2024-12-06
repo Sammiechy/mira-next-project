@@ -40,16 +40,16 @@ const DashboardTable = () => {
   const [list, setList] = useState<RowData[]>([]);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  // Debounced searchQuery state
+  
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
 
   useEffect(() => {
-    // Set up debouncing
+  
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 300); // 300ms debounce delay
+    }, 300);
 
-    return () => clearTimeout(timer); // Clean up the timeout
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   const GET_USERS = gql`
@@ -76,7 +76,6 @@ const DashboardTable = () => {
       }, 2000);
     }
   }, [data]);
-
 
 
 
@@ -151,10 +150,10 @@ const DashboardTable = () => {
   }
 
 
-  const filteredRows = list?.filter((row) =>
-    columns?.some((column) => {
-      const value = row[column.field as keyof RowData]; // Type assertion here
-      return value?.toString().toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredRows = list.filter((row) =>
+    Object.keys(row).some((column) => {
+      const value = row[column as keyof RowData];
+      return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
     })
   );
 
