@@ -1,52 +1,38 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { MoreVertical } from "lucide-react";
 
 import {
   Card as MuiCard,
   CardHeader,
   Chip as MuiChip,
-  IconButton,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
+  Button as MuiButton,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { useMutation,gql,useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 const Card = styled(MuiCard)(spacing);
+const Button = styled(MuiButton)(spacing);
+import { DataGrid, GridColDef, GridToolbar, GridOverlay } from '@mui/x-data-grid';
+import { CircularProgress, Typography } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
+import { useRouter } from "next/navigation";
+// Define the type for data
+interface RowData {
+  id: Number;
+  firstName: any;
+  lastName: any;
+  email: any,
+  phone: any;
+  role: any;
+  status: any;
+  type: any;
+}
 
-const Chip = styled(MuiChip)`
-  height: 20px;
-  padding: 4px 0;
-  font-size: 90%;
-  background-color: ${(props) =>
-    props.theme.palette[props.color ? props.color : "primary"].light};
-  color: ${(props) => props.theme.palette.common.white};
-`;
-
-const TableWrapper = styled.div`
-  overflow-y: auto;
-  max-width: calc(100vw - ${(props) => props.theme.spacing(12)});
-`;
-
-// Data
-let id = 0;
-const createData = (
-  source: string,
-  users: string,
-  sessions: string,
-  bounce: JSX.Element,
-  avg: string
-) => {
-  id += 1;
-  return { id, source, users, sessions, bounce, avg };
-};
 
 const DashboardTable = () => {
-  const[list,setList]=useState([])
+  const router = useRouter();
+  const [list, setList] = useState<RowData[]>([]);
+  const [loader, setLoader] = useState(false);
   const GET_USERS = gql`
   query GetUsers {
     users {
@@ -61,66 +47,127 @@ const DashboardTable = () => {
     }
   }
 `;
-const { loading, error, data } = useQuery(GET_USERS);
-useEffect(() => {
-  if (data) {
-    setList(data.users); 
+  const { loading, error, data } = useQuery(GET_USERS);
+  useEffect(() => {
+    setLoader(true)
+    if (data) {
+      setList(data.users);
+      setTimeout(() => {
+        setLoader(false);
+      }, 2000);
+    }
+  }, [data]);
+
+
+  const columns: GridColDef<RowData>[] = [
+    { field: 'id', headerName: 'ID', width: 50 },
+    { field: 'firstName', headerName: 'First Name', width: 120 },
+    { field: 'lastName', headerName: 'Last Name', width: 120 },
+    { field: 'email', headerName: 'Email', width: 180 },
+    { field: 'phone', headerName: 'Phone Number', type: 'number', width: 120 },
+    {
+      field: 'role', headerName: 'Role', width: 90, renderCell: (params) => (
+        <Button variant="outlined" color="primary" size="small" sx={{ textTransform: 'capitalize' }}>
+          {params.value}
+        </Button>
+      )
+    },
+    {
+      field: 'status', headerName: 'Status', type: 'string', width: 100, renderCell: (params) => (
+        <Button variant="outlined" color="success" size="small" sx={{ textTransform: 'capitalize' }}>
+          {params.value == 1 ? 'Approved' : 'Disapproved'}
+        </Button>
+      )
+    },
+    {
+      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
+        <>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            onClick={() => 
+              // handleEdit(params.row)
+              router.push(`/users/edit/${params.row.id}`)
+            }
+            style={{ marginRight: 8 }}
+          >
+            <Edit fontSize="small" /> Edit
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            size="small"
+            onClick={() => handleDelete(params.row.id)}
+          >
+            <Delete fontSize="small" /> Delete
+          </Button>
+        </>
+      )
+    }
+  ];
+
+
+  const handleDelete = (id: any) => {
+    alert('Delete User ' + id)
   }
-}, [data]);
-if (loading) return <p>Loading...</p>;
-if (error) return <p>Error: {error.message}</p>;
 
+  // Custom Loader Overlay
+  function CustomLoadingOverlay() {
+    return (
+      <GridOverlay>
+        <CircularProgress />
+      </GridOverlay>
+    );
+  }
 
+  // Custom No Data Overlay
+  function CustomNoRowsOverlay() {
+    return (
+      <GridOverlay>
+        <Typography variant="h6" color="textSecondary">
+          No data available
+        </Typography>
+      </GridOverlay>
+    );
+  }
 
-return (<>
-  <Card mb={6}>
-    <CardHeader
-      action={
-        <IconButton aria-label="settings" size="large">
-          <MoreVertical />
-        </IconButton>
-      }
-      title="Users"
-    />
-
-    <Paper>
-      <TableWrapper>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell align="right">First Name</TableCell>
-              <TableCell align="right">Last Name</TableCell>
-              <TableCell align="right">Email</TableCell>
-              <TableCell align="right">Phone </TableCell>
-              <TableCell align="right">Role </TableCell>
-              <TableCell align="right">Status </TableCell>
-
-
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {list?.map((row:any) => (
-              <TableRow key={row.id}>
-                <TableCell component="th" scope="row">
-                  {row.id}
-                </TableCell>
-                <TableCell align="right">{row.firstName}</TableCell>
-                <TableCell align="right">{row.lastName}</TableCell>
-                <TableCell align="right">{row.email}</TableCell>
-                <TableCell align="right">{row.phone}</TableCell>
-                <TableCell align="right">{row.role}</TableCell>
-                <TableCell align="right">{row.status=="1"?"Active":"none"}</TableCell>
-
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableWrapper>
-    </Paper>
-  </Card>
-  </>
-)
+  return (
+    <>
+      <Card mb={6}>
+        <CardHeader
+          action={
+            <Button mr={2} mb={2} variant="contained" onClick={() => {
+              router.push("/users/add");
+            }}>
+              Add New User
+            </Button>
+          }
+          title="Users List"
+        />
+        <Paper>
+          <DataGrid
+            rows={list}
+            columns={columns}
+            slots={{
+              toolbar: GridToolbar,
+              loadingOverlay: CustomLoadingOverlay,
+              noRowsOverlay: CustomNoRowsOverlay,
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 10 },
+              },
+            }}
+            pageSizeOptions={[5, 10, 20]}
+            checkboxSelection
+            disableRowSelectionOnClick
+            loading={loader}
+          />
+        </Paper>
+      </Card>
+    </>
+  )
 };
 
 export default DashboardTable;

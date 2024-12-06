@@ -39,6 +39,21 @@ const pagesSection = [
     ],
   },
   {
+    href: "/users",
+    icon: Layout,
+    title: "User Management",
+    children: [
+      {
+        href: "/users/list",
+        title: "List",
+      },
+      {
+        href: "/users/add",
+        title: "Add",
+      },
+    ],
+  },
+  {
     href: "/pages",
     icon: Layout,
     title: "Pages",
@@ -62,17 +77,6 @@ const pagesSection = [
       {
         href: "/pages/blank",
         title: "Blank Page",
-      },
-    ],
-  },
-  {
-    href: "/users",
-    icon: Layout,
-    title: "User Management",
-    children: [
-      {
-        href: "/users/list",
-        title: "List",
       },
     ],
   },

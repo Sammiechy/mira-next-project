@@ -1,4 +1,5 @@
-  {  "US": { "country": "United States", "countryCode": "1" },
+  {  
+    "US": { "country": "United States", "countryCode": "1" },
     "CA": { "country": "Canada", "countryCode": "1" },
     "GB": { "country": "United Kingdom", "countryCode": "44" },
     "AU": { "country": "Australia", "countryCode": "61" },
