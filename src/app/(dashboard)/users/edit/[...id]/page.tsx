@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
@@ -28,10 +28,9 @@ import {
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { gql, useMutation } from "@apollo/client";
-
-const Divider = styled(MuiDivider)(spacing);
-
-const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useParams,useRouter } from "next/navigation";
 
 const Card = styled(MuiCard)(spacing);
 
@@ -47,19 +46,6 @@ const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
 
-
-const timeOut = (time: number) => new Promise((res) => setTimeout(res, time));
-
-const initialValues = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  password: "",
-  confirmPassword: "",
-  role: 0,
-  status: 1
-};
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First name is required"),
@@ -96,29 +82,131 @@ const validationSchema = Yup.object().shape({
     .required("Confirm password is required"),
 });
 
+const Edit_USER = gql`
+mutation editUser(
+  $id:String!
+  $firstName: String!
+  $lastName: String!
+  $email: String!
+  $phone: String!
+  $role: String!
+  $type: String!
+  $status: String!
+  $organizationId:  Float!
+  $password: String!
+) {
+  editUser(
+    id:$id
+    firstName: $firstName
+    lastName: $lastName
+    email: $email
+    phone: $phone
+    role: $role
+    type: $type
+    status: $status
+    organizationId: $organizationId
+    password: $password
+  ) {
+    id
+    firstName
+    lastName
+    email
+  }
+}
+`;
+
+const EDIT_USER_MUTATION = gql`
+mutation EditUser(
+  $id: Float!
+  $firstName: String
+  $lastName: String
+  $email: String
+  $phone: String
+  $role: String
+  $type: String
+  $status: String
+  $organizationId: Float
+  $password: String
+) {
+  editUser(
+    id: $id
+    firstName: $firstName
+    lastName: $lastName
+    email: $email
+    phone: $phone
+    role: $role
+    type: $type
+    status: $status
+    organizationId: $organizationId
+    password: $password
+  ) {
+    id
+    firstName
+    lastName
+    email
+    phone
+    role
+    type
+    status
+    organizationId
+  }
+}
+`;
+
 function EditUserForm() {
+const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
+ const {id}= useParams();
+ const router= useRouter();
+
+  const userData = useSelector((state: RootState) => state.userData);
+  const [userstatus,setStatus] =useState("");
+  const [role,setRole] =useState("");
+
+  const initialValues :any= {
+    firstName: userData?.editUser?.firstName||"",
+    lastName: userData?.editUser?.lastName||"",
+    email: userData?.editUser?.email||"",
+    phone: userData?.editUser?.phone||"",
+    password:"Welcome@123",
+    confirmPassword: "Welcome@123",
+    role: role||"user",
+    status: userstatus||"1"
+  };
+
+useEffect(()=>{
+  setStatus(userData?.editUser?.status);
+  setRole(userData?.editUser?.role);
+},[userData])
+
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
+
     const variablesData = {
       firstName: values?.firstName,
       lastName: values?.lastName,
       email: values?.email,
       phone: values?.phone,
-      role: values?.role,
+      role: role,
       organizationId: parseFloat("1"),
       password: values?.password,
-      status: values.status,
-      id: values.id,
+      status: userstatus,
+      id: parseFloat(id?.[0]),
       type: "1",
     };
+ 
     try {
       const response = await editUser({ variables: { ...variablesData } });
-      console.log(response, "response-----")
-      resetForm();
-      setStatus({ sent: true });
-      setSubmitting(false);
+      if(response?.data?.editUser){
+        router.push('/users/list');
+        resetForm();
+        setStatus({ sent: true });
+        setSubmitting(false);
+      }else{
+        setSubmitting(false);
+      }
+   
     } catch (error: any) {
       setStatus({ sent: false });
       setErrors({ submit: error.message });
@@ -127,45 +215,7 @@ function EditUserForm() {
   };
 
 
-  const EDIT_USER_MUTATION = gql`
-  mutation EditUser(
-    $id: Int!
-    $firstName: String
-    $lastName: String
-    $email: String
-    $phone: String
-    $role: String
-    $type: String
-    $status: String
-    $organizationId: Int
-    $password: String
-  ) {
-    editUser(
-      id: $id
-      firstName: $firstName
-      lastName: $lastName
-      email: $email
-      phone: $phone
-      role: $role
-      type: $type
-      status: $status
-      organizationId: $organizationId
-      password: $password
-    ) {
-      id
-      firstName
-      lastName
-      email
-      phone
-      role
-      type
-      status
-      organizationId
-    }
-  }
-`;
 
-const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
   return (
     <Formik
       initialValues={initialValues}
@@ -291,6 +341,7 @@ const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
                       name="password"
                       label="Password"
                       value={values.password}
+                      defaultValue={values.password}
                       error={Boolean(touched.password && errors.password)}
                       fullWidth
                       helperText={touched.password && errors.password}
@@ -312,10 +363,12 @@ const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
                       name="confirmPassword"
                       label="Confirm password"
                       value={values.confirmPassword}
+                      defaultValue={values.confirmPassword}
                       error={Boolean(
                         touched.confirmPassword && errors.confirmPassword
                       )}
                       fullWidth
+                      // defaultValue={"123456789"}
                       helperText={touched.confirmPassword && errors.confirmPassword}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -338,11 +391,13 @@ const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
                         labelId="demo-simple-select-error-label"
                         label="Age"
                         id="demo-simple-select-error"
-                        value={values.role}
-                        onChange={handleChange}
+                        defaultValue={values?.role}
+                        value={role}
+                        onChange={ (e:any)=>{handleChange(e),setRole(e.target.value)}}
+                        // onChange={handleChange}
                       >
-                        <MenuItem value={1}>Admin</MenuItem>
-                        <MenuItem value={0}>User</MenuItem>
+                        <MenuItem value={"admin"}>Admin</MenuItem>
+                        <MenuItem value={"user"}>User</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -357,11 +412,12 @@ const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
                         labelId="demo-simple-select-error-label"
                         label="Age"
                         id="demo-simple-select-error"
-                        value={values.status}
-                        onChange={handleChange}
+                        defaultValue={values.status}
+                        value={userstatus}
+                        onChange={ (e:any)=>{handleChange(e),setStatus(e.target.value)}}
                       >
-                        <MenuItem value={1}>Approved</MenuItem>
-                        <MenuItem value={0}>Disapproved</MenuItem>
+                        <MenuItem value={"1"}>Approved</MenuItem>
+                        <MenuItem value={"0"}>Disapproved</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>

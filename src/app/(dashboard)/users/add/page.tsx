@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
@@ -29,6 +29,7 @@ import {
 import { spacing } from "@mui/system";
 import { gql, useMutation } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
+import { useRouter } from "next/navigation";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -58,7 +59,7 @@ const initialValues = {
   phone: "",
   password: "",
   confirmPassword: "",
-  role: 0,
+  role: "",
   status: 1
 };
 
@@ -99,6 +100,10 @@ const validationSchema = Yup.object().shape({
 
 
 function AddUserForm() {
+  const router= useRouter();
+  const [userStatus,setUserStatus]= useState("");
+  const [role,setRole]= useState("user");
+
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
@@ -108,20 +113,27 @@ function AddUserForm() {
       lastName: values?.lastName,
       email: values?.email,
       phone: values?.phone,
-      role: values?.role,
+      role: `${role}`,
       organizationId: parseFloat("1"),
       password: values?.password,
-      status: values.status,
+      status: `${userStatus}`,
       type: "1",
     };
 
     try {
       // await timeOut(1500);
       const response = await addUser({ variables: { ...variablesData } });
-      console.log(response, "response-----")
-      // resetForm();
-      setStatus({ sent: true });
-      setSubmitting(false);
+      console.log(response?.data?.addUser, "response-----")
+      if(response?.data?.addUser){
+        resetForm();
+        setStatus({ sent: true });
+        setSubmitting(false);
+        router.push('/users/list')
+      }else{
+        setSubmitting(false);
+      }
+    
+
     } catch (error: any) {
       setStatus({ sent: false });
       setErrors({ submit: error.message });
@@ -140,7 +152,7 @@ mutation AddUser(
   $role: String!
   $type: String!
   $status: String!
-  $organizationId: Int!
+  $organizationId:  Float!
   $password: String!
 ) {
   addUser(
@@ -336,11 +348,11 @@ mutation AddUser(
                         labelId="demo-simple-select-error-label"
                         label="Age"
                         id="demo-simple-select-error"
-                        value={values.role}
-                        onChange={handleChange}
+                        value={role}
+                        onChange={(e:any)=>{handleChange(e),setRole(e.target.value)}}
                       >
-                        <MenuItem value={1}>Admin</MenuItem>
-                        <MenuItem value={0}>User</MenuItem>
+                        <MenuItem value={"admin"}>Admin</MenuItem>
+                        <MenuItem value={"user"}>User</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -355,8 +367,11 @@ mutation AddUser(
                         labelId="demo-simple-select-error-label"
                         label="Age"
                         id="demo-simple-select-error"
-                        value={values.status}
-                        onChange={handleChange}
+                        // value={values.status}
+                        value={userStatus}
+                        onChange={(e:any)=>{handleChange(e),setUserStatus(e.target.value)}}
+
+                        // onChange={handleChange}
                       >
                         <MenuItem value={1}>Approved</MenuItem>
                         <MenuItem value={0}>Disapproved</MenuItem>

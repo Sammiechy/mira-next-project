@@ -7,9 +7,10 @@ import {
   Chip as MuiChip,
   Paper,
   Button as MuiButton,
+  Snackbar,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 const Card = styled(MuiCard)(spacing);
 const Button = styled(MuiButton)(spacing);
 import { DataGrid, GridColDef, GridToolbar, GridOverlay } from '@mui/x-data-grid';
@@ -17,6 +18,8 @@ import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
+import { setUsers ,editUser } from "@/redux/slices/userReducer";
+import { useDispatch } from "react-redux";
 
 interface RowData {
   id: Number;
@@ -34,17 +37,39 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
+const DELETE_USERS_MUTATION = gql`
+  mutation DeleteUsers($ids: [Float!]!) {
+    deleteUsers(ids: $ids)
+  }
+`;
+
+const GET_USERS = gql`
+query GetUsers {
+  users {
+    id
+    firstName
+    lastName
+    email
+    phone
+    role
+    status
+    type
+  }
+}
+`;
 
 const DashboardTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
+  const { loading, error, data ,refetch} = useQuery(GET_USERS);
+  const [deleteUsers, {  }] = useMutation(DELETE_USERS_MUTATION);
+  const [deleteStatus,setDeleteStatus] =useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const dispatch= useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
 
   useEffect(() => {
-  
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
@@ -52,21 +77,8 @@ const DashboardTable = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const GET_USERS = gql`
-  query GetUsers {
-    users {
-      id
-      firstName
-      lastName
-      email
-      phone
-      role
-      status
-      type
-    }
-  }
-`;
-  const { loading, error, data } = useQuery(GET_USERS);
+
+  
   useEffect(() => {
     setLoader(true)
     if (data) {
@@ -94,7 +106,7 @@ const DashboardTable = () => {
     },
     {
       field: 'status', headerName: 'Status', type: 'string', width: 100, renderCell: (params) => (
-        <Button variant="outlined" color="success" size="small" sx={{ textTransform: 'capitalize' }}>
+        <Button variant="outlined" color={`${params.value == 1? "success":"error"}`} size="small" sx={{ textTransform: 'capitalize' }}>
           {params.value == 1 ? 'Approved' : 'Disapproved'}
         </Button>
       )
@@ -106,8 +118,10 @@ const DashboardTable = () => {
             variant="outlined"
             color="primary"
             size="small"
-            onClick={() =>
+            onClick={() =>{
+              dispatch(editUser(params.row)),
               router.push(`/users/edit/${params.row.id}`)
+            }
             }
             style={{ marginRight: 8 }}
           >
@@ -127,8 +141,14 @@ const DashboardTable = () => {
   ];
 
 
-  const handleDelete = (id: any) => {
-    alert('Delete User ' + id)
+  const handleDelete = async(ids: any) => {
+    const deletedId=[ids];
+    console.log(deletedId,"deletedId---")
+    const response = await deleteUsers({ variables: { ids } });
+    if(response?.data?.deleteUsers){
+      setDeleteStatus(true);
+      await refetch();
+    }
   }
 
   function CustomLoadingOverlay() {
@@ -175,6 +195,13 @@ const DashboardTable = () => {
 
   return (
     <>
+    <Snackbar
+  anchorOrigin={{ vertical:"top", horizontal:"right" }}
+  open={deleteStatus}
+  onClose={()=>setDeleteStatus(false)}
+  message="User Deleted Successfully"
+  key={"top" + "right"}
+/>
       <Card mb={6}>
         <CardHeader
           action={

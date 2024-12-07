@@ -51,7 +51,7 @@ const Typography = styled(MuiTypography)<TypographyProps>(spacing);
 
 function SignIn() {
   const router = useRouter();
-  const dispatch= useDispatch()
+  const dispatch= useDispatch();
   const SIGN_IN_MUTATION = gql`
   mutation SignIn($email: String!, $password: String!) {
     signIn(email: $email, password: $password)
