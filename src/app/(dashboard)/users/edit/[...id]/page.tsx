@@ -27,6 +27,7 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
+import { gql, useMutation } from "@apollo/client";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -90,19 +91,31 @@ const validationSchema = Yup.object().shape({
       /^(?=.*[@$!%*?&])/,
       "Password must contain at least one special character"
     ),
-    confirmPassword: Yup.string()
-  .oneOf([Yup.ref("password")], "Passwords must match")
-  .required("Confirm password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm password is required"),
 });
 
-function BasicForm() {
+function EditUserForm() {
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
-    console.log(values, 'valuesvalues')
+    const variablesData = {
+      firstName: values?.firstName,
+      lastName: values?.lastName,
+      email: values?.email,
+      phone: values?.phone,
+      role: values?.role,
+      organizationId: parseFloat("1"),
+      password: values?.password,
+      status: values.status,
+      id: values.id,
+      type: "1",
+    };
     try {
-      await timeOut(1500);
+      const response = await editUser({ variables: { ...variablesData } });
+      console.log(response, "response-----")
       resetForm();
       setStatus({ sent: true });
       setSubmitting(false);
@@ -113,6 +126,46 @@ function BasicForm() {
     }
   };
 
+
+  const EDIT_USER_MUTATION = gql`
+  mutation EditUser(
+    $id: Int!
+    $firstName: String
+    $lastName: String
+    $email: String
+    $phone: String
+    $role: String
+    $type: String
+    $status: String
+    $organizationId: Int
+    $password: String
+  ) {
+    editUser(
+      id: $id
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      phone: $phone
+      role: $role
+      type: $type
+      status: $status
+      organizationId: $organizationId
+      password: $password
+    ) {
+      id
+      firstName
+      lastName
+      email
+      phone
+      role
+      type
+      status
+      organizationId
+    }
+  }
+`;
+
+const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
   return (
     <Formik
       initialValues={initialValues}
@@ -334,7 +387,7 @@ function BasicForm() {
 function FormikPage() {
   return (
     <React.Fragment>
-      <BasicForm />
+      <EditUserForm />
     </React.Fragment>
   );
 }

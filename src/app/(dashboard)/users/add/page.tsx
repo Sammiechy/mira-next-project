@@ -27,6 +27,8 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
+import { gql, useMutation } from "@apollo/client";
+import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -90,20 +92,34 @@ const validationSchema = Yup.object().shape({
       /^(?=.*[@$!%*?&])/,
       "Password must contain at least one special character"
     ),
-    confirmPassword: Yup.string()
-  .oneOf([Yup.ref("password")], "Passwords must match")
-  .required("Confirm password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm password is required"),
 });
 
-function BasicForm() {
+
+function AddUserForm() {
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
-    console.log(values, 'valuesvalues')
+    const variablesData = {
+      firstName: values?.firstName,
+      lastName: values?.lastName,
+      email: values?.email,
+      phone: values?.phone,
+      role: values?.role,
+      organizationId: parseFloat("1"),
+      password: values?.password,
+      status: values.status,
+      type: "1",
+    };
+
     try {
-      await timeOut(1500);
-      resetForm();
+      // await timeOut(1500);
+      const response = await addUser({ variables: { ...variablesData } });
+      console.log(response, "response-----")
+      // resetForm();
       setStatus({ sent: true });
       setSubmitting(false);
     } catch (error: any) {
@@ -112,6 +128,41 @@ function BasicForm() {
       setSubmitting(false);
     }
   };
+
+
+
+  const ADD_USER = gql`
+mutation AddUser(
+  $firstName: String!
+  $lastName: String!
+  $email: String!
+  $phone: String!
+  $role: String!
+  $type: String!
+  $status: String!
+  $organizationId: Int!
+  $password: String!
+) {
+  addUser(
+    firstName: $firstName
+    lastName: $lastName
+    email: $email
+    phone: $phone
+    role: $role
+    type: $type
+    status: $status
+    organizationId: $organizationId
+    password: $password
+  ) {
+    id
+    firstName
+    lastName
+    email
+  }
+}
+`;
+
+  const [addUser, { data, loading, error }] = useMutation(ADD_USER);
 
   return (
     <Formik
@@ -333,9 +384,11 @@ function BasicForm() {
 
 function FormikPage() {
   return (
-    <React.Fragment>
-      <BasicForm />
-    </React.Fragment>
+    <ApolloProviderWrapper>
+      <React.Fragment>
+        <AddUserForm />
+      </React.Fragment>
+    </ApolloProviderWrapper>
   );
 }
 
