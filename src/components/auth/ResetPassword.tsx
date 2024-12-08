@@ -5,6 +5,7 @@ import styled from "@emotion/styled";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { resetPassword ,confirmResetPassword} from "aws-amplify/auth"
+import { useMutation ,gql} from "@apollo/client";
 import {
   Alert as MuiAlert,
   Button as MuiButton,
@@ -26,14 +27,23 @@ const Centered = styled(MuiTypography)`
   text-align: center;
 `;
 
+const RESET_PASSWORD = gql`
+  mutation reset_Password($id: Float!, $newPassword: String!) {
+    reset_Password(id: $id, newPassword: $newPassword)
+  }
+`;
+
 function ResetPassword() {
   const router = useRouter();
+  const [reset_Password, { loading, error, data }] = useMutation(RESET_PASSWORD);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'info' | 'success' | 'error' | undefined>(undefined);
   const [step, setStep] = useState(1); 
   const [email, setEmail] = useState(""); 
   const [confirmationCode, setConfirmationCode] = useState(""); 
   const [newPassword, setNewPassword] = useState(""); 
+  const localStore = localStorage.getItem("userInfo");
+  const userInfo = localStore ? JSON.parse(localStore) : null;
   // const { resetPassword } = useAuth();
 
   const resetUserPassword=async(email: any)=>{
@@ -64,9 +74,19 @@ function ResetPassword() {
         newPassword: newPassword,
       });
       setAlertSeverity('success');
-      setStep(1);
-      setAlertMessage('Password reset successfully!');
-      router.push("/auth/sign-in");
+    const resp=  await reset_Password({  variables: {
+        id: parseInt(userInfo?.id), 
+        newPassword,
+      },})
+      if(resp.data?.reset_Password){
+        setStep(1);
+        setAlertMessage('Password reset successfully!');
+        router.push("/auth/sign-in");
+      }else{
+        setAlertMessage('Something went wrong!');
+
+      }
+ 
     } catch (error: any) {
       setAlertSeverity('error');
       setAlertMessage(error.message || 'Failed to reset password.');
