@@ -44,8 +44,8 @@ const DELETE_USERS_MUTATION = gql`
 `;
 
 const GET_USERS = gql`
-query GetUsers {
-  users {
+query GetUsers($excludeId: Float) {
+  users (excludeId: $excludeId){
     id
     firstName
     lastName
@@ -61,7 +61,11 @@ query GetUsers {
 const DashboardTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
-  const { loading, error, data ,refetch} = useQuery(GET_USERS);
+  const [selectedIds,setSelectedIds]= useState([]);
+  const localStore= localStorage.getItem("userInfo");
+  const userDetail = localStore? JSON.parse(localStore):null;
+  const {id}=userDetail;
+  const { loading, error, data ,refetch} = useQuery(GET_USERS,{variables:{excludeId: id }});
   const [deleteUsers, {  }] = useMutation(DELETE_USERS_MUTATION);
   const [deleteStatus,setDeleteStatus] =useState(false);
   const [loader, setLoader] = useState(false);
@@ -142,13 +146,20 @@ const DashboardTable = () => {
 
 
   const handleDelete = async(ids: any) => {
-    const deletedId=[ids];
-    console.log(deletedId,"deletedId---")
+  if(selectedIds?.length>0&&ids==""){
+  const response = await deleteUsers({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString())) } });
+  if(response?.data?.deleteUsers){
+  setDeleteStatus(true);
+   await refetch();
+  } 
+  }else{
     const response = await deleteUsers({ variables: { ids } });
     if(response?.data?.deleteUsers){
-      setDeleteStatus(true);
-      await refetch();
-    }
+    setDeleteStatus(true);
+    await refetch();
+   }
+}
+
   }
 
   function CustomLoadingOverlay() {
@@ -176,6 +187,10 @@ const DashboardTable = () => {
       return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
     })
   );
+
+  const handleSelectionChange = (id:any) => {
+    setSelectedIds(id);
+  };
 
   const CustomToolbar: React.FC<CustomToolbarProps> = ({ searchQuery, setSearchQuery }) => {
     return (
@@ -214,6 +229,7 @@ const DashboardTable = () => {
           title="Users List"
         />
         <Paper>
+           {selectedIds?.length > 0 &&<Button mr={2} mb={2} variant="contained" onClick={()=>handleDelete("")} > Delete Selected </Button>}
           <DataGrid
             rows={filteredRows}
             columns={columns}
@@ -229,6 +245,7 @@ const DashboardTable = () => {
             }}
             pageSizeOptions={[5, 10, 20]}
             checkboxSelection
+            onRowSelectionModelChange={(ids:any) => handleSelectionChange(ids)}
             disableRowSelectionOnClick
             loading={loader}
           />
