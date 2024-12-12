@@ -44,8 +44,8 @@ const DELETE_USERS_MUTATION = gql`
 `;
 
 const GET_USERS = gql`
-query GetUsers($excludeId: Float) {
-  users (excludeId: $excludeId){
+query GetUsers($excludeId: Float  $limit: Float, $offset: Float) {
+  users (excludeId: $excludeId limit: $limit, offset: $offset){
     id
     firstName
     lastName
@@ -58,6 +58,12 @@ query GetUsers($excludeId: Float) {
 }
 `;
 
+const GET_USER_COUNT = gql`
+  query GetUserCount {
+    userCount
+  }
+`;
+
 const DashboardTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
@@ -65,14 +71,20 @@ const DashboardTable = () => {
   const localStore= localStorage.getItem("userInfo");
   const userDetail = localStore? JSON.parse(localStore):null;
   const {id}=userDetail;
-  const { loading, error, data ,refetch} = useQuery(GET_USERS,{variables:{excludeId: id }});
+  const [pageNumber, setPageNumber] = useState(1);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0, 
+    pageSize: 10,
+  });
+  const { loading, error, data ,refetch} = useQuery(GET_USERS,{variables:{excludeId: id , limit:  paginationModel.pageSize,  offset: paginationModel.page * paginationModel.pageSize}, fetchPolicy: "network-only"});
   const [deleteUsers, {  }] = useMutation(DELETE_USERS_MUTATION);
   const [deleteStatus,setDeleteStatus] =useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch= useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-
+  const { data: countData } = useQuery(GET_USER_COUNT);
+  const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -180,6 +192,14 @@ const DashboardTable = () => {
     );
   }
 
+  const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
+    setPaginationModel(paginationModel);
+    refetch({
+        excludeId: id,
+        limit: paginationModel.pageSize,
+        offset: paginationModel.page * paginationModel.pageSize,
+    });
+  };
 
   const filteredRows = list.filter((row) =>
     Object.keys(row).some((column) => {
@@ -211,12 +231,12 @@ const DashboardTable = () => {
   return (
     <>
     <Snackbar
-  anchorOrigin={{ vertical:"top", horizontal:"right" }}
-  open={deleteStatus}
-  onClose={()=>setDeleteStatus(false)}
-  message="User Deleted Successfully"
-  key={"top" + "right"}
-/>
+    anchorOrigin={{ vertical:"top", horizontal:"right" }}
+     open={deleteStatus}
+    onClose={()=>setDeleteStatus(false)}
+    message="User Deleted Successfully"
+    key={"top" + "right"}
+  />
       <Card mb={6}>
         <CardHeader
           action={
@@ -230,25 +250,23 @@ const DashboardTable = () => {
         />
         <Paper>
            {selectedIds?.length > 0 &&<Button mr={2} mb={2} variant="contained" onClick={()=>handleDelete("")} > Delete Selected </Button>}
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            slots={{
-              toolbar: (props) => <CustomToolbar {...props} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />,
-              loadingOverlay: CustomLoadingOverlay,
-              noRowsOverlay: CustomNoRowsOverlay,
-            }}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 10 },
-              },
-            }}
-            pageSizeOptions={[5, 10, 20]}
-            checkboxSelection
-            onRowSelectionModelChange={(ids:any) => handleSelectionChange(ids)}
-            disableRowSelectionOnClick
-            loading={loader}
-          />
+           <DataGrid
+               pagination
+               paginationMode="server"
+               paginationModel={paginationModel}
+               onPaginationModelChange={handlePaginationChange}
+                rows={filteredRows}
+               rowCount={countData ? countData.userCount : 0} 
+               columns={columns}
+               checkboxSelection
+               disableRowSelectionOnClick
+               loading={loader}
+                slots={{
+                toolbar: (props) => <CustomToolbar {...props} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />,
+                loadingOverlay: CustomLoadingOverlay,
+                 noRowsOverlay: CustomNoRowsOverlay,
+    }}
+/>
         </Paper>
       </Card>
     </>
