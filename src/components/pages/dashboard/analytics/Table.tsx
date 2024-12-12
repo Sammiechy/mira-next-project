@@ -259,6 +259,7 @@ const DashboardTable = () => {
                rowCount={countData ? countData.userCount : 0} 
                columns={columns}
                checkboxSelection
+               onRowSelectionModelChange={handleSelectionChange}
                disableRowSelectionOnClick
                loading={loader}
                 slots={{
