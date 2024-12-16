@@ -53,6 +53,21 @@ const pagesSection = [
       },
     ],
   },
+  {
+    href: "/users",
+    icon: Layout,
+    title: "Organizations",
+    children: [
+      {
+        href: "/organization/list",
+        title: "List",
+      },
+      {
+        href: "/organization/add",
+        title: "Add",
+      },
+    ],
+  },
   // {
   //   href: "/pages",
   //   icon: Layout,

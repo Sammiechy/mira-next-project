@@ -64,7 +64,7 @@ const GET_USER_COUNT = gql`
   }
 `;
 
-const DashboardTable = () => {
+const OrganizationTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
   const [selectedIds,setSelectedIds]= useState([]);
@@ -271,10 +271,10 @@ const DashboardTable = () => {
             <Button mr={2} mb={2} variant="contained" onClick={() => {
               router.push("/users/add");
             }}>
-              Add New User
+              Add New Organization
             </Button>
           }
-          title="Users List"
+          title="Organization List"
         />
         <Paper>
            {selectedIds?.length > 0 &&<Button mr={2} mb={2} variant="contained" onClick={()=>handleDelete("")} > Delete Selected </Button>}
@@ -302,4 +302,4 @@ const DashboardTable = () => {
   )
 };
 
-export default DashboardTable;
+export default OrganizationTable;
