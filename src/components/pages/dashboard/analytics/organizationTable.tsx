@@ -37,6 +37,23 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
+
+export const GET_ORGANIZATIONS = gql`
+  query PaginatedOrganizations($page: Int, $limit: Int) {
+    getOrganizations(page: $page, limit: $limit) {
+      organizations {
+        id
+        Name
+        Email
+        Website
+        LocationID
+        Phone
+      }
+      totalCount
+    }
+  }
+`;
+
 const DELETE_USERS_MUTATION = gql`
   mutation DeleteUsers($ids: [Float!]!) {
     deleteUsers(ids: $ids)
@@ -71,20 +88,22 @@ const OrganizationTable = () => {
   const localStore= localStorage.getItem("userInfo");
   const userDetail = localStore? JSON.parse(localStore):null;
   const {id}=userDetail;
-  const [pageNumber, setPageNumber] = useState(1);
+  const [count, setCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    page: 0, 
+    page: 1, 
     pageSize: 10,
   });
-  const { loading, error, data ,refetch} = useQuery(GET_USERS,{variables:{excludeId: id , limit:  paginationModel.pageSize,  offset: paginationModel.page * paginationModel.pageSize}, fetchPolicy: "network-only"});
+  const { loading, error, data } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+  });
   const [deleteUsers, {  }] = useMutation(DELETE_USERS_MUTATION);
   const [deleteStatus,setDeleteStatus] =useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch= useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-  const { data: countData } = useQuery(GET_USER_COUNT);
-  const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
+  // const { data: countData } = useQuery(GET_USER_COUNT);
+  // const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -99,7 +118,8 @@ const OrganizationTable = () => {
   useEffect(() => {
     setLoader(true)
     if (data) {
-      setList(data.users);
+      setList(data.getOrganizations?.organizations);
+      setCount(data.getOrganizations?.totalCount)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
@@ -133,26 +153,12 @@ const OrganizationTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'firstName', headerName: 'First Name', width: 120 },
-    { field: 'lastName', headerName: 'Last Name', width: 120 },
-    { field: 'email', headerName: 'Email', width: 180 },
-    { field: 'phone', headerName: 'Phone Number', type: 'number', width: 120 },
-    {
-      field: 'role', headerName: 'Role', width: 90, renderCell: (params) => (
-        <Button variant="outlined" color="primary" size="small" sx={{ textTransform: 'capitalize' }}>
-          {params.value}
-        </Button>
-      )
-    },
-    {
-      field: 'status', headerName: 'Status', type: 'string', width: 100, renderCell: (params) => (
-        <Button variant="outlined" color={`${params.value == 1? "success":"error"}`} size="small" sx={{ textTransform: 'capitalize' }}>
-          {params.value == 1 ? 'Approved' : 'Disapproved'}
-        </Button>
-      )
-    },
-    {
-      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
+    { field: 'Name', headerName: 'Name', width: 120 },
+    { field: 'Email', headerName: 'Email', width: 120 },
+    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
+    { field: 'Website', headerName: 'Website', type: 'number', width: 120 },
+    { field: 'LocationID', headerName: 'LocationID', type: 'number', width: 120 },
+      {field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
         <>
           <Button
             variant="outlined"
@@ -190,13 +196,13 @@ const OrganizationTable = () => {
   const response = await deleteUsers({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString()))}});
   if(response?.data?.deleteUsers){
   setDeleteStatus(true);
-   await refetch();
+  //  await refetch();
   } 
   }else{
     const response = await deleteUsers({ variables: { ids } });
     if(response?.data?.deleteUsers){
     setDeleteStatus(true);
-    await refetch();
+    // await refetch();
    }
 }
 
@@ -220,16 +226,16 @@ const OrganizationTable = () => {
     );
   }
 
-  const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
-    setPaginationModel(paginationModel);
-    refetch({
-        excludeId: id,
-        limit: paginationModel.pageSize,
-        offset: paginationModel.page * paginationModel.pageSize,
-    });
-  };
+  // const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
+  //   setPaginationModel(paginationModel);
+  //   refetch({
+  //       excludeId: id,
+  //       limit: paginationModel.pageSize,
+  //       offset: paginationModel.page * paginationModel.pageSize,
+  //   });
+  // };
 
-  const filteredRows = list.filter((row) =>
+  const filteredRows = list?.filter((row) =>
     Object.keys(row).some((column) => {
       const value = row[column as keyof RowData];
       return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
@@ -282,9 +288,9 @@ const OrganizationTable = () => {
                pagination
                paginationMode="server"
                paginationModel={paginationModel}
-               onPaginationModelChange={handlePaginationChange}
+              //  onPaginationModelChange={handlePaginationChange}
                 rows={filteredRows}
-               rowCount={countData ? countData.userCount : 0} 
+               rowCount={count ? count : 0} 
                columns={columns}
                checkboxSelection
                onRowSelectionModelChange={handleSelectionChange}
