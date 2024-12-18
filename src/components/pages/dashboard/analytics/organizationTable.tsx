@@ -54,9 +54,9 @@ export const GET_ORGANIZATIONS = gql`
   }
 `;
 
-const DELETE_USERS_MUTATION = gql`
-  mutation DeleteUsers($ids: [Float!]!) {
-    deleteUsers(ids: $ids)
+const DELETE_MULTIPLE_ORGANIZATIONS = gql`
+  mutation DeleteMultipleOrganizations($ids: [Int!]!) {
+    deleteMultipleOrganizations(ids: $ids)
   }
 `;
 
@@ -93,10 +93,10 @@ const OrganizationTable = () => {
     page: 1, 
     pageSize: 10,
   });
-  const { loading, error, data } = useQuery(GET_ORGANIZATIONS, {
+  const { loading, error, data ,refetch } = useQuery(GET_ORGANIZATIONS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
-  const [deleteUsers, {  }] = useMutation(DELETE_USERS_MUTATION);
+  const [deleteMultipleOrganizations] = useMutation(DELETE_MULTIPLE_ORGANIZATIONS);
   const [deleteStatus,setDeleteStatus] =useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -177,7 +177,7 @@ const OrganizationTable = () => {
             variant="outlined"
             color="error"
             size="small"
-            onClick={() => deleteUser(params.row.email)}
+            onClick={() => handleDelete(params.row?.id)}
           >
             <Delete fontSize="small" /> Delete
           </Button>
@@ -190,19 +190,17 @@ const OrganizationTable = () => {
  
 
   const handleDelete = async(ids: any) => {
-      
-    return;
   if(selectedIds?.length>0&&ids==""){
-  const response = await deleteUsers({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString()))}});
-  if(response?.data?.deleteUsers){
+  const response = await deleteMultipleOrganizations({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString()))}});
+  if(response.data.deleteMultipleOrganizations){
   setDeleteStatus(true);
-  //  await refetch();
+   await refetch();
   } 
   }else{
-    const response = await deleteUsers({ variables: { ids } });
-    if(response?.data?.deleteUsers){
+    const response = await deleteMultipleOrganizations({ variables: { ids } });
+    if(response.data.deleteMultipleOrganizations){
     setDeleteStatus(true);
-    // await refetch();
+    await refetch();
    }
 }
 
@@ -268,7 +266,7 @@ const OrganizationTable = () => {
     anchorOrigin={{ vertical:"top", horizontal:"right" }}
      open={deleteStatus}
     onClose={()=>setDeleteStatus(false)}
-    message="User Deleted Successfully"
+    message="Organization Deleted Successfully"
     key={"top" + "right"}
   />
       <Card mb={6}>

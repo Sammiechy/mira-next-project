@@ -171,7 +171,7 @@ const DashboardTable = () => {
             variant="outlined"
             color="error"
             size="small"
-            onClick={() => deleteUser(params.row.email)}
+            onClick={() => handleDelete(params.row)}
           >
             <Delete fontSize="small" /> Delete
           </Button>
@@ -184,8 +184,7 @@ const DashboardTable = () => {
  
 
   const handleDelete = async(ids: any) => {
-      
-    return;
+
   if(selectedIds?.length>0&&ids==""){
   const response = await deleteUsers({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString()))}});
   if(response?.data?.deleteUsers){
