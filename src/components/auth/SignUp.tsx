@@ -16,6 +16,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  FormHelperText,
+  MenuItem,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 // import gql from "graphql-tag";
@@ -36,6 +41,8 @@ function SignUp() {
   const router = useRouter();
   const [confirm,setConfirm]= useState<boolean>(false);
   const [code,setCode]= useState<any>("");
+  const [selectOrg,setSelectOrg]= useState<any>("");
+
   const [formData,setFormData]= useState<any>("");
 
   const [emailForConfirmation, setEmailForConfirmation] = useState("");
@@ -104,14 +111,16 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
     }
   }`;
 
+  const dummyLocation= [{id:"1",value:"TCS"},{id:"2",value:"Microsoft"},{id:"3",value:"Mira"},{id:"4",value:"ABCaS"},{id:"5",value:"hYDRO"}]
+
   const variablesData = {
       firstName: formData?.firstName,
       lastName: formData?.lastName,
       email: formData?.email,
       phone: formData?.phoneNumber,
       role: "admin",
-      organizationId: parseFloat("1") ,
-      password: formData?.password, // Preferably hashed
+      organizationId: selectOrg ? parseFloat(selectOrg):parseFloat("1") ,
+      password: formData?.password, 
       status: "1",
       type: "1",
   };
@@ -293,6 +302,7 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
         password: "",
         confirmPassword: "",
         phoneNumber: "",
+        OrganizationId:"",
         submit: false,
       }}
       validationSchema={Yup.object().shape({
@@ -407,6 +417,22 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
             onChange={handleChange}
             my={3}
           />
+           <FormControl fullWidth >
+                      <InputLabel id="demo-simple-select-error-label"> Organization</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-error-label"
+                        name="locationID"
+                        label="Location"
+                        id="demo-simple-select-error"
+                        defaultValue={ dummyLocation?.find(item=>item.id == values?.OrganizationId)?.value}
+                        value={selectOrg ||dummyLocation?.find(item=>item.id == values?.OrganizationId)?.value}                      
+                         onChange={(e:any)=>{handleChange(e) ,setSelectOrg(e.target.value)}}
+                      >
+                        {dummyLocation?.map(item=><MenuItem value={item?.id}>{item?.value}</MenuItem>) }
+                       
+                      </Select>
+                      {/* <FormHelperText>{fieldError && fieldError}</FormHelperText> */}
+                    </FormControl>
            <TextField
         type="text"
         name="phoneNumber"

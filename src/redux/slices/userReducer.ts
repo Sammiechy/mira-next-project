@@ -11,6 +11,7 @@ export interface UserState {
   id:any;
   role:string;
   editUser:any;
+  editOrganizations:any;
 }
 
 const initialState: UserState = {
@@ -22,7 +23,8 @@ const initialState: UserState = {
   phone:"",
   id:"",
   role:"",
-  editUser:""
+  editUser:"",
+  editOrganizations:{}
 };
 
 // A mock function to mimic making an async request for data
@@ -71,6 +73,9 @@ export const userSlice = createSlice({
     editUser:(state,action)=>{
     state.editUser=action.payload;
     },
+    setEditOrganization:(state,action)=>{
+      state.editOrganizations=action.payload;
+      },
     // Use the PayloadAction type to declare the contents of `action.payload`
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.value += action.payload;
@@ -90,7 +95,7 @@ export const userSlice = createSlice({
   },
 });
 
-export const { increment, decrement, incrementByAmount ,setUsers,editUser } = userSlice.actions;
+export const { increment, decrement, incrementByAmount ,setUsers,editUser ,setEditOrganization} = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

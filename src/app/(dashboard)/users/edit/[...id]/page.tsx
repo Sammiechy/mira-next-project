@@ -262,7 +262,7 @@ useEffect(()=>{
                       value={values.firstName}
                       error={Boolean(touched.firstName && errors.firstName)}
                       fullWidth
-                      helperText={touched.firstName && errors.firstName}
+                      helperText={Boolean(touched.firstName && errors.firstName)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -280,7 +280,7 @@ useEffect(()=>{
                       value={values.lastName}
                       error={Boolean(touched.lastName && errors.lastName)}
                       fullWidth
-                      helperText={touched.lastName && errors.lastName}
+                      helperText={Boolean(touched.lastName && errors.lastName)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -301,7 +301,7 @@ useEffect(()=>{
                       value={values.email}
                       error={Boolean(touched.email && errors.email)}
                       fullWidth
-                      helperText={touched.email && errors.email}
+                      helperText={Boolean(touched.email && errors.email)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="email"
@@ -320,7 +320,7 @@ useEffect(()=>{
                       value={values.phone}
                       error={Boolean(touched.phone && errors.phone)}
                       fullWidth
-                      helperText={touched.phone && errors.phone}
+                      helperText={Boolean(touched.phone && errors.phone)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
@@ -344,7 +344,7 @@ useEffect(()=>{
                       defaultValue={values.password}
                       error={Boolean(touched.password && errors.password)}
                       fullWidth
-                      helperText={touched.password && errors.password}
+                      helperText={Boolean(touched.password && errors.password)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="password"
@@ -369,7 +369,7 @@ useEffect(()=>{
                       )}
                       fullWidth
                       // defaultValue={"123456789"}
-                      helperText={touched.confirmPassword && errors.confirmPassword}
+                      helperText={Boolean(touched.confirmPassword && errors.confirmPassword)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="password"

@@ -18,7 +18,7 @@ import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
-import { setUsers ,editUser } from "@/redux/slices/userReducer";
+import { setUsers ,setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 
 interface RowData {
@@ -165,8 +165,8 @@ const OrganizationTable = () => {
             color="primary"
             size="small"
             onClick={() =>{
-              dispatch(editUser(params.row)),
-              router.push(`/users/edit/${params.row.id}`)
+              dispatch(setEditOrganization(params.row)),
+              router.push(`/organization/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -273,7 +273,7 @@ const OrganizationTable = () => {
         <CardHeader
           action={
             <Button mr={2} mb={2} variant="contained" onClick={() => {
-              router.push("/users/add");
+              router.push("/organization/add");
             }}>
               Add New Organization
             </Button>
