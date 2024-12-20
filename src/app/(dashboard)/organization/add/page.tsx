@@ -272,7 +272,7 @@ function AddOrganizationForm() {
                       value={values.Website}
                       error={Boolean(touched.Website && errors.Website)}
                       fullWidth
-                      helperText={touched.email && errors.email}
+                      helperText={touched.Website && errors.Website}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"

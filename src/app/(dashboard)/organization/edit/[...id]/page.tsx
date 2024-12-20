@@ -46,10 +46,10 @@ const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
 
- const dummyLocation= [{id:"1",value:"Chandigarh"},{id:"2",value:"Mohali"},{id:"3",value:"Delhi"},{id:"4",value:"Pune"},{id:"5",value:"Hyderabad"}]
+ const dummyLocation= [{id:1,value:"Chandigarh"},{id: 2,value:"Mohali"},{id:3,value:"Delhi"},{id: 4,value:"Pune"},{id: 5,value:"Hyderabad"}]
 const validationSchema = Yup.object().shape({
   Name: Yup.string().required("name is required"),
-  email: Yup.string().required("Emai is required"),
+  email: Yup.string().required("Email is required"),
   LocationID: Yup.string().required("Location is required"),
   //  phone: Yup.string().required("phone required"),
   phone: Yup.string()
@@ -85,6 +85,7 @@ const GET_ORGANIZATION_BY_ID = gql`
       LocationID
       Website
       Email
+      Phone
     }
   }
 `;
@@ -101,8 +102,6 @@ const [editOrganization, {  loading, error }] = useMutation(EDIT_ORGANIZATION);
  const [location,setLocation]= useState("");
  const [organisationData,setOrganizationData]= useState<any>("");
 
-  const editOrganizations = useSelector((state: RootState) => state.userData); 
-
   const initialValues :any= {
     Name:  organisationData?.Name||"",
     LocationID:  organisationData?.LocationID||"",
@@ -113,25 +112,17 @@ const [editOrganization, {  loading, error }] = useMutation(EDIT_ORGANIZATION);
 
   useEffect(() => {
     if (data?.getOrganizationById) {
-      console.log(data.getOrganizationById,"data.getOrganizationById")
       setOrganizationData(data.getOrganizationById)
-      // Populate form with fetched organization data
-      // initialValues.Name = data.getOrganizationById.Name || "";
-      // initialValues.email = data.getOrganizationById.Email || "";
-      // initialValues.LocationID = data.getOrganizationById.LocationID || "";
-      // initialValues.Phone = data.getOrganizationById.Phone || "";
-      // initialValues.Website = data.getOrganizationById.Website || "";
 
     }
   }, [data]);
-  console.log(organisationData,initialValues,"nhjbhbhb")
-
+  
 
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, errors,setSubmitting }: any
   ) => {
-console.log(errors,"values")
+
     const variablesData = {
       Name: values?.Name,
       Email: values?.email,
@@ -214,7 +205,7 @@ console.log(errors,"values")
                       defaultValue={values.Name}
                       error={Boolean(touched.Name && errors.Name)}
                       fullWidth
-                      helperText={Boolean(touched.Name && errors.Name)}
+                      helperText={touched.Name ? errors.Name:""}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -232,7 +223,7 @@ console.log(errors,"values")
                       value={values.email}
                       error={Boolean(touched.email && errors.email)}
                       fullWidth
-                      helperText={Boolean(touched.email && errors.email)}
+                      helperText={touched.email && errors.email}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -247,16 +238,16 @@ console.log(errors,"values")
                       md: 6,
                     }}
                   >
-                   <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
+                   <FormControl fullWidth  error={Boolean(touched.LocationID && errors.LocationID)}>
                       <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
-                        name="locationID"
+                        name="LocationID"
                         label="Location"
                         id="demo-simple-select-error"
-                        defaultValue={ dummyLocation?.find(item=>item.id == values?.locationID)?.value}
-                        value={location ||dummyLocation?.find(item=>item.id == values?.locationID)?.value}                      
-                         onChange={(e:any)=>{handleChange(e) ,setLocation(e.target.value),setFieldError("locationID")}}
+                        defaultValue={ dummyLocation?.find(item=>item.id == values?.LocationID)?.id}
+                        value={location||dummyLocation?.find(item=>item.id == values?.LocationID)?.id }                      
+                         onChange={(e:any)=>{handleChange(e) ,setLocation(e.target.value),setFieldError("location required")}}
                       >
                         {dummyLocation?.map(item=><MenuItem value={item?.id}>{item?.value}</MenuItem>) }
                        
@@ -275,10 +266,10 @@ console.log(errors,"values")
                       value={values.phone}
                       error={Boolean(touched.phone && errors.phone)}
                       fullWidth
-                      helperText={Boolean(touched.phone && errors.phone)}
+                      helperText={touched.phone && errors.phone}
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      type="text"
+                      // type="text"
                       variant="outlined"
                       my={2}
                     />
@@ -298,7 +289,7 @@ console.log(errors,"values")
                       value={values.Website}
                       error={Boolean(touched.Website && errors.Website)}
                       fullWidth
-                      helperText={Boolean(touched.Website && errors.Website)}
+                      helperText={touched.Website && errors.Website}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
@@ -320,7 +311,7 @@ console.log(errors,"values")
           </CardContent>
         </Card>
       )}
-    </Formik> :"...loaging"}
+    </Formik> :"...loading"}
   </>
    
   );
