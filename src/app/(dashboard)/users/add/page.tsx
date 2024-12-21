@@ -123,7 +123,6 @@ function AddUserForm() {
     try {
       // await timeOut(1500);
       const response = await addUser({ variables: { ...variablesData } });
-      console.log(response?.data?.addUser, "response-----")
       if(response?.data?.addUser){
         resetForm();
         setStatus({ sent: true });

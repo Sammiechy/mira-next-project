@@ -111,15 +111,12 @@ function AddOrganizationForm() {
     try {
       // await timeOut(1500);
 
-  
-      
       const response = await addOrganization({ variables: { data: variablesData } });
-      console.log(response?.data, "response-----")
-      if(response?.data?.addUser){
+      if(response?.data?.addOrganization){
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-        router.push('/users/list')
+        router.push('/organization/list')
       }else{
         setSubmitting(false);
       }

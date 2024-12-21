@@ -8,6 +8,7 @@ import {
   Paper,
   Button as MuiButton,
   Snackbar,
+  Stack,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -18,7 +19,7 @@ import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
-import { setUsers ,setEditOrganization } from "@/redux/slices/userReducer";
+import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 
 interface RowData {
@@ -84,23 +85,23 @@ const GET_USER_COUNT = gql`
 const OrganizationTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
-  const [selectedIds,setSelectedIds]= useState([]);
-  const localStore= localStorage.getItem("userInfo");
-  const userDetail = localStore? JSON.parse(localStore):null;
-  const {id}=userDetail;
+  const [selectedIds, setSelectedIds] = useState([]);
+  const localStore = localStorage?.getItem("userInfo");
+  const userDetail = localStore ? JSON.parse(localStore) : null;
+  const { id } = userDetail;
   const [count, setCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1, 
+    page: 1,
     pageSize: 10,
   });
-  const { loading, error, data ,refetch } = useQuery(GET_ORGANIZATIONS, {
+  const { loading, error, data, refetch } = useQuery(GET_ORGANIZATIONS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
   const [deleteMultipleOrganizations] = useMutation(DELETE_MULTIPLE_ORGANIZATIONS);
-  const [deleteStatus,setDeleteStatus] =useState(false);
+  const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
   // const { data: countData } = useQuery(GET_USER_COUNT);
   // const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
@@ -114,41 +115,18 @@ const OrganizationTable = () => {
   }, [searchQuery]);
 
 
-  
+
   useEffect(() => {
     setLoader(true)
     if (data) {
       setList(data.getOrganizations?.organizations);
-      setCount(data.getOrganizations?.totalCount)
+      setCount(data.getOrganizations?.organizations?.length)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
     }
+    refetch();
   }, [data]);
-
-  const deleteUser = async (username:any) => {
-    try {
-      const response = await fetch("/api/user-delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete user");
-      }
-  
-      const data = await response.json();
-      console.log("User deleted successfully:", data);
-      // alert(`User ${username} deleted successfully`);
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      // alert(error.message);
-    }
-  };
 
 
   const columns: GridColDef<RowData>[] = [
@@ -157,16 +135,29 @@ const OrganizationTable = () => {
     { field: 'Email', headerName: 'Email', width: 120 },
     { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
     { field: 'Website', headerName: 'Website', type: 'number', width: 120 },
-    { field: 'LocationID', headerName: 'LocationID', type: 'number', width: 120 },
-      {field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
+    {
+      field: 'LocationID', headerName: 'LocationID', type: 'number', width: 120, renderCell: (params) => (
+        <>
+          {
+            params.value == '1' ? 'Chandigarh' :
+              params.value == '2' ? 'Mohali' :
+                params.value == '3' ? 'Delhi' :
+                  params.value == '4' ? 'Pune' :
+                    'Hyderabad'
+          }
+        </>
+      )
+    },
+    {
+      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
         <>
           <Button
             variant="outlined"
             color="primary"
             size="small"
-            onClick={() =>{
+            onClick={() => {
               dispatch(setEditOrganization(params.row)),
-              router.push(`/organization/edit/${params.row.id}`)
+                router.push(`/organization/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -187,22 +178,21 @@ const OrganizationTable = () => {
   ];
 
 
- 
 
-  const handleDelete = async(ids: any) => {
-  if(selectedIds?.length>0&&ids==""){
-  const response = await deleteMultipleOrganizations({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString()))}});
-  if(response.data.deleteMultipleOrganizations){
-  setDeleteStatus(true);
-   await refetch();
-  } 
-  }else{
-    const response = await deleteMultipleOrganizations({ variables: { ids } });
-    if(response.data.deleteMultipleOrganizations){
-    setDeleteStatus(true);
-    await refetch();
-   }
-}
+  const handleDelete = async (ids: any) => {
+    if (selectedIds?.length > 0 && ids == "") {
+      const response = await deleteMultipleOrganizations({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
+      if (response.data.deleteMultipleOrganizations) {
+        setDeleteStatus(true);
+        await refetch();
+      }
+    } else {
+      const response = await deleteMultipleOrganizations({ variables: { ids } });
+      if (response.data.deleteMultipleOrganizations) {
+        setDeleteStatus(true);
+        await refetch();
+      }
+    }
 
   }
 
@@ -240,7 +230,7 @@ const OrganizationTable = () => {
     })
   );
 
-  const handleSelectionChange = (id:any) => {
+  const handleSelectionChange = (id: any) => {
     setSelectedIds(id);
   };
 
@@ -260,15 +250,16 @@ const OrganizationTable = () => {
     );
   };
 
+
   return (
     <>
-    <Snackbar
-    anchorOrigin={{ vertical:"top", horizontal:"right" }}
-     open={deleteStatus}
-    onClose={()=>setDeleteStatus(false)}
-    message="Organization Deleted Successfully"
-    key={"top" + "right"}
-  />
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={deleteStatus}
+        onClose={() => setDeleteStatus(false)}
+        message="Organization Deleted Successfully"
+        key={"top" + "right"}
+      />
       <Card mb={6}>
         <CardHeader
           action={
@@ -281,25 +272,46 @@ const OrganizationTable = () => {
           title="Organization List"
         />
         <Paper>
-           {selectedIds?.length > 0 &&<Button mr={2} mb={2} variant="contained" onClick={()=>handleDelete("")} > Delete Selected </Button>}
-           <DataGrid
-               pagination
-               paginationMode="server"
-               paginationModel={paginationModel}
-              //  onPaginationModelChange={handlePaginationChange}
-                rows={filteredRows}
-               rowCount={count ? count : 0} 
-               columns={columns}
-               checkboxSelection
-               onRowSelectionModelChange={handleSelectionChange}
-               disableRowSelectionOnClick
-               loading={loader}
-                slots={{
-                toolbar: (props) => <CustomToolbar {...props} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />,
-                loadingOverlay: CustomLoadingOverlay,
-                 noRowsOverlay: CustomNoRowsOverlay,
-    }}
-/>
+          <DataGrid
+            pagination
+            paginationMode="server"
+            paginationModel={paginationModel}
+            //  onPaginationModelChange={handlePaginationChange}
+            rows={filteredRows}
+            rowCount={count ? count : 0}
+            columns={columns}
+            checkboxSelection
+            onRowSelectionModelChange={handleSelectionChange}
+            disableRowSelectionOnClick
+            loading={loader}
+            slots={{
+              toolbar: (props) =>
+                <div>
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ marginBottom: 2 }}
+                  >
+                    {selectedIds?.length > 0 && (
+                      <Button
+                        variant="contained"
+                        onClick={() => handleDelete("")}
+                      >
+                        Delete Selected
+                      </Button>
+                    )}
+                  </Stack>
+                  <CustomToolbar
+                    {...props}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                  />
+                </div>
+              ,
+              loadingOverlay: CustomLoadingOverlay,
+              noRowsOverlay: CustomNoRowsOverlay,
+            }}
+          />
         </Paper>
       </Card>
     </>
