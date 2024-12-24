@@ -41,8 +41,7 @@ const FooterBadge = styled(Badge)`
 const SidebarFooter: React.FC = ({ ...rest }) => {
   const { user } = useAuth();
   const userData = useSelector((state: RootState) => state.userData);
-  console.log(userData,"userData----")
-
+  
   return (
     <Footer {...rest}>
       <Grid container spacing={2}>

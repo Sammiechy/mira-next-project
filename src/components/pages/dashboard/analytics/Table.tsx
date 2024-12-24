@@ -8,6 +8,7 @@ import {
   Paper,
   Button as MuiButton,
   Snackbar,
+  Stack,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -18,7 +19,7 @@ import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
-import { setUsers ,editUser } from "@/redux/slices/userReducer";
+import { setUsers, editUser } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 
 interface RowData {
@@ -67,25 +68,25 @@ const GET_USER_COUNT = gql`
 const DashboardTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
-  const [selectedIds,setSelectedIds]= useState([]);
-  const localStore= localStorage.getItem("userInfo");
-  const userDetail = localStore? JSON.parse(localStore):null;
-  const {id}=userDetail;
+  const [selectedIds, setSelectedIds] = useState([]);
+  const localStore = localStorage.getItem("userInfo");
+  const userDetail = localStore ? JSON.parse(localStore) : null;
+  const { id } = userDetail;
   const [pageNumber, setPageNumber] = useState(1);
   const [paginationModel, setPaginationModel] = useState({
-    page: 0, 
+    page: 0,
     pageSize: 10,
   });
-  const { loading, error, data ,refetch} = useQuery(GET_USERS,{variables:{excludeId: id , limit:  paginationModel.pageSize,  offset: paginationModel.page * paginationModel.pageSize}, fetchPolicy: "network-only"});
-  const [deleteUsers, {  }] = useMutation(DELETE_USERS_MUTATION);
-  const [deleteStatus,setDeleteStatus] =useState(false);
+  const { loading, error, data, refetch } = useQuery(GET_USERS, { variables: { excludeId: id, limit: paginationModel.pageSize, offset: paginationModel.page * paginationModel.pageSize }, fetchPolicy: "network-only" });
+  const [deleteUsers, { }] = useMutation(DELETE_USERS_MUTATION);
+  const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
   const { data: countData } = useQuery(GET_USER_COUNT);
   const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
-
+  const [count, setCount] = useState(0);
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -95,40 +96,17 @@ const DashboardTable = () => {
   }, [searchQuery]);
 
 
-  
+
   useEffect(() => {
     setLoader(true)
     if (data) {
-      setList(data.users);
+      setList(data?.users);
+      setCount(data?.users?.length)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
     }
   }, [data]);
-
-  const deleteUser = async (username:any) => {
-    try {
-      const response = await fetch("/api/user-delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete user");
-      }
-  
-      const data = await response.json();
-      console.log("User deleted successfully:", data);
-      // alert(`User ${username} deleted successfully`);
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      // alert(error.message);
-    }
-  };
 
 
   const columns: GridColDef<RowData>[] = [
@@ -145,8 +123,8 @@ const DashboardTable = () => {
       )
     },
     {
-      field: 'status', headerName: 'Status', type: 'string', width: 100, renderCell: (params) => (
-        <Button variant="outlined" color={`${params.value == 1? "success":"error"}`} size="small" sx={{ textTransform: 'capitalize' }}>
+      field: 'status', headerName: 'Status', type: 'string', width: 115, renderCell: (params) => (
+        <Button variant="outlined" color={`${params.value == 1 ? "success" : "error"}`} size="small" sx={{ textTransform: 'capitalize' }}>
           {params.value == 1 ? 'Approved' : 'Disapproved'}
         </Button>
       )
@@ -158,9 +136,9 @@ const DashboardTable = () => {
             variant="outlined"
             color="primary"
             size="small"
-            onClick={() =>{
+            onClick={() => {
               dispatch(editUser(params.row)),
-              router.push(`/users/edit/${params.row.id}`)
+                router.push(`/users/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -180,24 +158,21 @@ const DashboardTable = () => {
     }
   ];
 
+  const handleDelete = async (ids: any) => {
 
- 
-
-  const handleDelete = async(ids: any) => {
-
-  if(selectedIds?.length>0&&ids==""){
-  const response = await deleteUsers({ variables: {ids: selectedIds.map((id:any) => parseFloat(id.toString()))}});
-  if(response?.data?.deleteUsers){
-  setDeleteStatus(true);
-   await refetch();
-  } 
-  }else{
-    const response = await deleteUsers({ variables: { ids } });
-    if(response?.data?.deleteUsers){
-    setDeleteStatus(true);
-    await refetch();
-   }
-}
+    if (selectedIds?.length > 0 && ids == "") {
+      const response = await deleteUsers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
+      if (response?.data?.deleteUsers) {
+        setDeleteStatus(true);
+        await refetch();
+      }
+    } else {
+      const response = await deleteUsers({ variables: { ids } });
+      if (response?.data?.deleteUsers) {
+        setDeleteStatus(true);
+        await refetch();
+      }
+    }
 
   }
 
@@ -222,9 +197,9 @@ const DashboardTable = () => {
   const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
     setPaginationModel(paginationModel);
     refetch({
-        excludeId: id,
-        limit: paginationModel.pageSize,
-        offset: paginationModel.page * paginationModel.pageSize,
+      excludeId: id,
+      limit: paginationModel.pageSize,
+      offset: paginationModel.page * paginationModel.pageSize,
     });
   };
 
@@ -235,7 +210,7 @@ const DashboardTable = () => {
     })
   );
 
-  const handleSelectionChange = (id:any) => {
+  const handleSelectionChange = (id: any) => {
     setSelectedIds(id);
   };
 
@@ -257,13 +232,13 @@ const DashboardTable = () => {
 
   return (
     <>
-    <Snackbar
-    anchorOrigin={{ vertical:"top", horizontal:"right" }}
-     open={deleteStatus}
-    onClose={()=>setDeleteStatus(false)}
-    message="User Deleted Successfully"
-    key={"top" + "right"}
-  />
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={deleteStatus}
+        onClose={() => setDeleteStatus(false)}
+        message="User Deleted Successfully"
+        key={"top" + "right"}
+      />
       <Card mb={6}>
         <CardHeader
           action={
@@ -276,25 +251,44 @@ const DashboardTable = () => {
           title="Users List"
         />
         <Paper>
-           {selectedIds?.length > 0 &&<Button mr={2} mb={2} variant="contained" onClick={()=>handleDelete("")} > Delete Selected </Button>}
-           <DataGrid
-               pagination
-               paginationMode="server"
-               paginationModel={paginationModel}
-               onPaginationModelChange={handlePaginationChange}
-                rows={filteredRows}
-               rowCount={countData ? countData.userCount : 0} 
-               columns={columns}
-               checkboxSelection
-               onRowSelectionModelChange={handleSelectionChange}
-               disableRowSelectionOnClick
-               loading={loader}
-                slots={{
-                toolbar: (props) => <CustomToolbar {...props} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />,
-                loadingOverlay: CustomLoadingOverlay,
-                 noRowsOverlay: CustomNoRowsOverlay,
-    }}
-/>
+          <DataGrid
+            pagination
+            paginationMode="server"
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationChange}
+            rows={filteredRows}
+            rowCount={count ? count : 0}
+            columns={columns}
+            checkboxSelection
+            onRowSelectionModelChange={handleSelectionChange}
+            disableRowSelectionOnClick
+            loading={loader}
+            slots={{
+              toolbar: (props) =>
+                <div>
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ marginBottom: 2 }}
+                  >
+                    {selectedIds?.length > 0 &&
+                      <Button mr={2} mb={2}
+                        variant="contained"
+                        onClick={() => handleDelete("")}>
+                        Delete Selected
+                      </Button>
+                    }
+                  </Stack>
+                  <CustomToolbar
+                    {...props}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery} />
+
+                </div>,
+              loadingOverlay: CustomLoadingOverlay,
+              noRowsOverlay: CustomNoRowsOverlay,
+            }}
+          />
         </Paper>
       </Card>
     </>
