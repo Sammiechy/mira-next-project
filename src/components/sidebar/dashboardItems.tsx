@@ -54,7 +54,7 @@ const pagesSection = [
     ],
   },
   {
-    href: "/users",
+    href: "/organizations",
     icon: Layout,
     title: "Organizations",
     children: [
@@ -64,6 +64,21 @@ const pagesSection = [
       },
       {
         href: "/organization/add",
+        title: "Add",
+      },
+    ],
+  },
+  {
+    href: "/shippers",
+    icon: Layout,
+    title: "Shippers",
+    children: [
+      {
+        href: "/shippers/list",
+        title: "List",
+      },
+      {
+        href: "/shippers/add",
         title: "Add",
       },
     ],
