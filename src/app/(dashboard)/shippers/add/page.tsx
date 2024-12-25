@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
@@ -27,9 +27,10 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
+import {GET_ORGANIZATIONS} from "hooks/queries/queries";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -56,14 +57,14 @@ const initialValues = {
   name: "",
   email: "",
   phone: "",
-  Website: "",
+  organizationId: "",
   locationID: ""
 };
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   locationID: Yup.string().required("locationID is required"),
-  Website: Yup.string().required("Webside is required"),
+  organizationId: Yup.string().required("Organization is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
     .matches(
@@ -73,54 +74,85 @@ const validationSchema = Yup.object().shape({
     .required("Phone number is required"),
 });
 
-const ADD_ORGANIZATION = gql`
-  mutation AddOrganization($data: OrganizationInput!) {
-    addOrganization(data: $data) {
-      message
-      organization {
+const CREATE_SHIPPER = gql`
+  mutation CreateShipper(
+    $Name: String!
+    $LocationID: Int!
+    $Phone: String!
+    $Email: String!
+    $organizationId: Float!
+  ) {
+    createShipper(
+      Name: $Name
+      LocationID: $LocationID
+      Phone: $Phone
+      Email: $Email
+      organizationId: $organizationId
+    ) {
+      shipper {
         id
         Name
         LocationID
-        Website
         Phone
         Email
+        organizationId
         isDeleted
       }
+      message
     }
   }
-`;
+`; 
 
 
 function AddShipperForm() {
   const router= useRouter();
   const [userStatus,setUserStatus]= useState("");
   const [location,setLocation]= useState("");
-  const [organisation,setOrganisation]= useState("");
+  const [list,setList] =useState<any>("");
+  const [organisation,setOrganisation]= useState<any>("");
+//     const [paginationModel, setPaginationModel] = useState({
+//       page: 1,
+//       pageSize: 10,
+//     });
+//     const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+//       variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+//     });
+
+//  useEffect(() => {
+   
+//     if (data) {
+//       setList(data.getOrganizations?.organizations);
+//       // setCount(data.getOrganizations?.organizations?.length)
+//       setTimeout(() => {
+//         // setLoader(false);
+//       }, 2000);
+//     }
+//     refetch();
+//   }, [data]);
 
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
+    const organisationID = parseFloat(organisation); 
+    const locationID = parseFloat(location);
     const variablesData = {
       Name: values?.name,
       Email: values?.email,
       Phone: values?.phone,
-      Website:values?.Website,
+      organizationId: organisationID,
       LocationID:parseFloat(location) ,
     };
+    console.log(variablesData,"variablesData-----")
 
     try {
-      // await timeOut(1500);
-
-  
-      
-      const response = await addOrganization({ variables: { data: variablesData } });
+      const response = await createShipper({ variables:  variablesData  });
       console.log(response?.data, "response-----")
-      if(response?.data?.addUser){
+      if(response?.data?.createShipper){
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-        router.push('/users/list')
+        router.push('/shippers/list')
       }else{
         setSubmitting(false);
       }
@@ -133,7 +165,7 @@ function AddShipperForm() {
     }
   };
 
-  const [addOrganization, { data, loading, error }] = useMutation(ADD_ORGANIZATION);
+  const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
 
   return (
     <Formik
@@ -266,7 +298,7 @@ function AddShipperForm() {
                       md: 6,
                     }}
                   >
-                     <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
+                     <FormControl fullWidth  error={Boolean(touched.organizationId && errors.organizationId)}>
                       <InputLabel id="demo-simple-select-error-label">Organisation</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
@@ -276,13 +308,13 @@ function AddShipperForm() {
                         value={organisation}                      
                         onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
                       >
-                        <MenuItem value={"1"}>Chandigarh</MenuItem>
-                        <MenuItem value={"2"}>Mohali</MenuItem>
-                        <MenuItem value={"3"}>Delhi</MenuItem>
-                        <MenuItem value={"4"}>Pune</MenuItem>
-                        <MenuItem value={"5"}>Hyderabad</MenuItem>
+                        <MenuItem value={1}>Chandigarh</MenuItem>
+                        <MenuItem value={2}>Mohali</MenuItem>
+                        <MenuItem value={3}>Delhi</MenuItem>
+                        <MenuItem value={4}>Pune</MenuItem>
+                        <MenuItem value={5}>Hyderabad</MenuItem>
                       </Select>
-                      <FormHelperText>{touched && errors.locationID}</FormHelperText>
+                      <FormHelperText>{touched && errors.organizationId}</FormHelperText>
                     </FormControl>
 
                       {/* <TextField 
