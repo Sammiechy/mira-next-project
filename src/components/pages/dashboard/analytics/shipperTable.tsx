@@ -22,6 +22,7 @@ import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 import { GET_SHIPPERS } from "@/hooks/queries/queries";
+import {DELETE_MULTIPLE_SHIPPERS} from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -61,7 +62,7 @@ const ShipperTable = () => {
   const { loading, error, data, refetch } = useQuery(GET_SHIPPERS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
-  const [deleteMultipleOrganizations] = useMutation(DELETE_MULTIPLE_ORGANIZATIONS);
+  const [deleteShippers] = useMutation(DELETE_MULTIPLE_SHIPPERS)
   const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -121,7 +122,7 @@ const ShipperTable = () => {
             size="small"
             onClick={() => {
               dispatch(setEditOrganization(params.row)),
-                router.push(`/organization/edit/${params.row.id}`)
+                router.push(`/shippers/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -145,14 +146,14 @@ const ShipperTable = () => {
 
   const handleDelete = async (ids: any) => {
     if (selectedIds?.length > 0 && ids == "") {
-      const response = await deleteMultipleOrganizations({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
-      if (response.data.deleteMultipleOrganizations) {
+      const response = await deleteShippers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
+      if (response.data.deleteMultipleShipper) {
         setDeleteStatus(true);
         await refetch();
       }
     } else {
-      const response = await deleteMultipleOrganizations({ variables: { ids } });
-      if (response.data.deleteMultipleOrganizations) {
+      const response = await deleteShippers({ variables: { ids } });
+      if (response.data.deleteMultipleShipper) {
         setDeleteStatus(true);
         await refetch();
       }
@@ -221,14 +222,14 @@ const ShipperTable = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         open={deleteStatus}
         onClose={() => setDeleteStatus(false)}
-        message="Organization Deleted Successfully"
+        message="Shipper Deleted Successfully"
         key={"top" + "right"}
       />
       <Card mb={6}>
         <CardHeader
           action={
             <Button mr={2} mb={2} variant="contained" onClick={() => {
-              router.push("/organization/add");
+              router.push("/shippers/add");
             }}>
               Add New Shipper
             </Button>

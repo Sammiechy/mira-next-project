@@ -33,4 +33,30 @@ export const GET_ORGANIZATIONS = gql`
   }
 `;
 
+export const GET_ORGANIZATION_BY_ID = gql`
+  query GetOrganizationById($id: Int!) {
+    getOrganizationById(id: $id) {
+      id
+      Name
+      LocationID
+      Website
+      Email
+      Phone
+    }
+  }
+`;
+
+ export const GET_SHIPPER_BY_ID = gql`
+  query GetShipperById($id: Int!) {
+    getShipperById(id: $id) {
+      id
+      Name
+      LocationID
+      organizationId
+      Email
+      Phone
+    }
+  }
+`;
+
 
