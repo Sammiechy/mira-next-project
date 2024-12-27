@@ -83,6 +83,21 @@ const pagesSection = [
       },
     ],
   },
+  {
+    href: "/recievers",
+    icon: Layout,
+    title: "Recievers",
+    children: [
+      {
+        href: "/recievers/list",
+        title: "List",
+      },
+      {
+        href: "/recievers/add",
+        title: "Add",
+      },
+    ],
+  },
   // {
   //   href: "/pages",
   //   icon: Layout,

@@ -31,7 +31,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import {GET_ORGANIZATIONS} from "hooks/queries/queries";
-import { CREATE_SHIPPER } from "@/hooks/mutations/mutation";
+import { CREATE_RECIEVER } from "@/hooks/mutations/mutation";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -76,7 +76,9 @@ const validationSchema = Yup.object().shape({
 });
 
 
-function AddShipperForm() {
+
+
+function AddRecieverForm() {
   const router= useRouter();
   const [userStatus,setUserStatus]= useState("");
   const [location,setLocation]= useState("");
@@ -118,13 +120,13 @@ function AddShipperForm() {
     console.log(variablesData,"variablesData-----")
 
     try {
-      const response = await createShipper({ variables:  variablesData  });
+      const response = await createReciever({ variables:  variablesData  });
       console.log(response?.data, "response-----")
-      if(response?.data?.createShipper){
+      if(response?.data?.createReciever){
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-        router.push('/shippers/list')
+        router.push('/recievers/list')
       }else{
         setSubmitting(false);
       }
@@ -137,7 +139,7 @@ function AddShipperForm() {
     }
   };
 
-  const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
+  const [createReciever, { loading, error }] = useMutation(CREATE_RECIEVER);
 
   return (
     <Formik
@@ -159,7 +161,7 @@ function AddShipperForm() {
         <Card mb={6}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Add New Shipper
+              Add New Reciever
             </Typography>
 
             {status && status.sent && (
@@ -326,7 +328,7 @@ function FormikPage() {
   return (
     <ApolloProviderWrapper>
       <React.Fragment>
-        <AddShipperForm />
+        <AddRecieverForm />
       </React.Fragment>
     </ApolloProviderWrapper>
   );

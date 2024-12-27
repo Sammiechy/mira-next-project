@@ -22,6 +22,35 @@ export const EDIT_ORGANIZATION = gql`
   }
 `;
 
+ export const CREATE_SHIPPER = gql`
+  mutation CreateShipper(
+    $Name: String!
+    $LocationID: Int!
+    $Phone: String!
+    $Email: String!
+    $organizationId: Float!
+  ) {
+    createShipper(
+      Name: $Name
+      LocationID: $LocationID
+      Phone: $Phone
+      Email: $Email
+      organizationId: $organizationId
+    ) {
+      shipper {
+        id
+        Name
+        LocationID
+        Phone
+        Email
+        organizationId
+        isDeleted
+      }
+      message
+    }
+  }
+`; 
+
 export const EDIT_SHIPPER = gql`
   mutation EditShipper($id: Int!, $data: ShipperInput!) {
     editShipper(id: $id, data: $data) {
@@ -37,5 +66,34 @@ export const EDIT_SHIPPER = gql`
     }
   }
 `;
+
+export const CREATE_RECIEVER = gql`
+  mutation createReciever(
+    $Name: String!
+    $LocationID: Int!
+    $Phone: String!
+    $Email: String!
+    $organizationId: Float!
+  ) {
+    createReciever(
+      Name: $Name
+      LocationID: $LocationID
+      Phone: $Phone
+      Email: $Email
+      organizationId: $organizationId
+    ) {
+      reciever {
+        id
+        Name
+        LocationID
+        Phone
+        Email
+        organizationId
+        isDeleted
+      }
+      message
+    }
+  }
+`; 
 
 
