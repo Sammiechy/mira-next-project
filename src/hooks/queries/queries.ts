@@ -59,4 +59,21 @@ export const GET_ORGANIZATION_BY_ID = gql`
   }
 `;
 
+export const GET_RECIEVER = gql`
+query GetRecievers($page: Int, $limit: Int) {
+  getRecievers(page: $page, limit: $limit) {
+    recievers {
+      id
+      Name
+      Email
+      Phone
+      organizationId
+      isDeleted
+      # Add any other fields your shipper entity contains
+    }
+    totalCount
+  }
+}
+`;
+
 

@@ -32,6 +32,7 @@ import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import {GET_ORGANIZATIONS} from "hooks/queries/queries";
 import { CREATE_RECIEVER } from "@/hooks/mutations/mutation";
+import LocationComp from "@/components/locationField/LocationComp";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -223,7 +224,8 @@ function AddRecieverForm() {
                       md: 6,
                     }}
                   >
-                    <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
+                    <LocationComp />
+                    {/* <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
                       <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
@@ -240,7 +242,7 @@ function AddRecieverForm() {
                         <MenuItem value={"5"}>Hyderabad</MenuItem>
                       </Select>
                       <FormHelperText>{touched && errors.locationID}</FormHelperText>
-                    </FormControl>
+                    </FormControl> */}
                   </Grid>
                  
                   <Grid

@@ -96,4 +96,10 @@ export const CREATE_RECIEVER = gql`
   }
 `; 
 
+export const DELETE_MULTIPLE_RECIEVER = gql`
+  mutation DeleteMultipleRecievers($ids: [Int!]!) {
+    deleteMultipleReciever(ids: $ids)
+  }
+`;
+
 
