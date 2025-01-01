@@ -24,6 +24,7 @@ export const GET_ORGANIZATIONS = gql`
         Name
         Email
         Phone
+        address
         organizationId
         isDeleted
         # Add any other fields your shipper entity contains
@@ -52,6 +53,7 @@ export const GET_ORGANIZATION_BY_ID = gql`
       id
       Name
       LocationID
+      address
       organizationId
       Email
       Phone
@@ -68,12 +70,36 @@ query GetRecievers($page: Int, $limit: Int) {
       Email
       Phone
       organizationId
+      LocationID
+      address
       isDeleted
       # Add any other fields your shipper entity contains
     }
     totalCount
   }
 }
+`;
+export const GET_RECIEVER_BY_ID = gql`
+query GetRecieverById($id: Int!) {
+  getRecieverById(id: $id) {
+    id
+    Name
+    LocationID
+    organizationId
+    address
+    Email
+    Phone
+  }
+}
+`;
+
+export const SEARCH_PLACES = gql`
+  query SearchPlaces($input: String!) {
+    searchPlaces(input: $input) {
+      description
+      place_id
+    }
+  }
 `;
 
 

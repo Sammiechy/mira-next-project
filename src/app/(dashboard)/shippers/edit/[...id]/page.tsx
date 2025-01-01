@@ -33,6 +33,7 @@ import { RootState } from "@/redux/store";
 import { useParams,useRouter } from "next/navigation";
 import { GET_SHIPPER_BY_ID } from "@/hooks/queries/queries";
 import { EDIT_SHIPPER } from "@/hooks/mutations/mutation";
+import LocationComp from "@/components/locationField/LocationComp";
 
 const Card = styled(MuiCard)(spacing);
 
@@ -79,13 +80,13 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
  const [location,setLocation]= useState("");
  const [shipperData,setShipperData]= useState<any>("");
 
-  const initialValues :any= {
-    Name:  shipperData?.Name||"",
-    LocationID:  shipperData?.LocationID||"",
-    email:  shipperData?.Email||location,
-    phone:  shipperData?.Phone||"",
-    organizationId:  shipperData?.organizationId||"",
-  };
+ const initialValues :any= {
+  Name:  shipperData?.Name||"",
+  LocationID:  shipperData?.address||"",
+  email:  shipperData?.Email||location,
+  phone:  shipperData?.Phone||"",
+  organizationId:  shipperData?.organizationId||"",
+};
 
   useEffect(() => {
     if (data?.getShipperById) {
@@ -106,6 +107,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
       Phone: values?.phone,
       // organizationId: parseFloat("1"),
       organizationId: values?.organizationId,
+      address:values?.locationID?.target?.name,
       LocationID:values?.LocationID,
     };
  
@@ -147,6 +149,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
         handleChange,
         handleSubmit,
         isSubmitting,
+        setFieldValue,
         touched,
         values,
         status,
@@ -215,7 +218,9 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                       md: 6,
                     }}
                   >
-                   <FormControl fullWidth  error={Boolean(touched.LocationID && errors.LocationID)}>
+                    <LocationComp defaultValue={values?.LocationID} setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name="Location" helperText={Boolean(touched.LocationID && errors.LocationID)}/>
+
+                   {/* <FormControl fullWidth  error={Boolean(touched.LocationID && errors.LocationID)}>
                       <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
@@ -230,7 +235,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                        
                       </Select>
                       <FormHelperText>{fieldError && fieldError}</FormHelperText>
-                    </FormControl>
+                    </FormControl> */}
                   </Grid>
                   <Grid
                     size={{
@@ -262,7 +267,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                   >
                   <TextField 
                       name="organizationId"
-                      label="Website"
+                      label="Organization"
                       value={values.organizationId}
                       error={Boolean(touched.organizationId && errors.organizationId)}
                       fullWidth

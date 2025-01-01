@@ -31,7 +31,8 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import {GET_ORGANIZATIONS} from "hooks/queries/queries";
-import { CREATE_SHIPPER } from "@/hooks/mutations/mutation";
+import { CREATE_LOCATION, CREATE_SHIPPER } from "@/hooks/mutations/mutation";
+import LocationComp from "@/components/locationField/LocationComp";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -64,7 +65,14 @@ const initialValues = {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  locationID: Yup.string().required("locationID is required"),
+   locationID: Yup.string()
+     .transform((value) => {
+       if (typeof value === "object" && value?.target?.value) {
+         return value.target.value;
+       }
+       return value;
+     })
+     .required("Location is required"),
   organizationId: Yup.string().required("Organization is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
@@ -113,12 +121,24 @@ function AddShipperForm() {
       Email: values?.email,
       Phone: values?.phone,
       organizationId: organisationID,
-      LocationID:parseFloat(location) ,
+      LocationID: values?.locationID?.target?.value,
+      address:values?.locationID?.target?.name
     };
+    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item:any) => item.trim());
+    const LocationData={
+      Address1: values?.locationID?.target?.name,
+      places_id: values?.locationID?.target?.value,
+      City: City||"",
+      Country: Country||"",
+      State_Province: State_Province||"",
+      PostalCode_Zip:"",
+      Address2:""
+    }
     console.log(variablesData,"variablesData-----")
 
     try {
       const response = await createShipper({ variables:  variablesData  });
+      const res= await createLocation({variables:LocationData})
       console.log(response?.data, "response-----")
       if(response?.data?.createShipper){
         resetForm();
@@ -138,6 +158,7 @@ function AddShipperForm() {
   };
 
   const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
+   const [createLocation] = useMutation(CREATE_LOCATION);
 
   return (
     <Formik
@@ -153,6 +174,7 @@ function AddShipperForm() {
         isSubmitting,
         setFieldError,
         touched,
+        setFieldValue,
         values,
         status,
       }) => (
@@ -221,7 +243,9 @@ function AddShipperForm() {
                       md: 6,
                     }}
                   >
-                    <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
+                    <LocationComp  setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
+
+                    {/* <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
                       <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
@@ -238,7 +262,7 @@ function AddShipperForm() {
                         <MenuItem value={"5"}>Hyderabad</MenuItem>
                       </Select>
                       <FormHelperText>{touched && errors.locationID}</FormHelperText>
-                    </FormControl>
+                    </FormControl> */}
                   </Grid>
                  
                   <Grid

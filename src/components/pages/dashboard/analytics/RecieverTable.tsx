@@ -95,15 +95,16 @@ const RecieverTable = () => {
     { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
     { field: 'organizationId', headerName: 'Organization', type: 'number', width: 120 },
     {
-      field: 'LocationID', headerName: 'Location', type: 'number', width: 120, renderCell: (params) => (
+      field: 'address', headerName: 'Location', type: 'number', width: 120, renderCell: (params) => (
         <>
-          {
+        { params.value}
+          {/* {
             params.value == '1' ? 'Chandigarh' :
               params.value == '2' ? 'Mohali' :
                 params.value == '3' ? 'Delhi' :
                   params.value == '4' ? 'Pune' :
                     'Hyderabad'
-          }
+          } */}
         </>
       )
     },
@@ -116,7 +117,7 @@ const RecieverTable = () => {
             size="small"
             onClick={() => {
               dispatch(setEditOrganization(params.row)),
-                router.push(`/shippers/edit/${params.row.id}`)
+                router.push(`/recievers/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}

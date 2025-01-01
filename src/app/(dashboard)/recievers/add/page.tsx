@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
 import NextLink from "next/link";
-import { Formik } from "formik";
+import { Formik, useFormikContext } from "formik";
 
 import {
   Alert as MuiAlert,
@@ -31,7 +31,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import {GET_ORGANIZATIONS} from "hooks/queries/queries";
-import { CREATE_RECIEVER } from "@/hooks/mutations/mutation";
+import { CREATE_LOCATION, CREATE_RECIEVER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
 
 const Divider = styled(MuiDivider)(spacing);
@@ -65,7 +65,15 @@ const initialValues = {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  locationID: Yup.string().required("locationID is required"),
+  // locationID: Yup.string().required("location is required"),
+  locationID: Yup.string()
+    .transform((value) => {
+      if (typeof value === "object" && value?.target?.value) {
+        return value.target.value;
+      }
+      return value;
+    })
+    .required("Location is required"),
   organizationId: Yup.string().required("Organization is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
@@ -85,30 +93,12 @@ function AddRecieverForm() {
   const [location,setLocation]= useState("");
   const [list,setList] =useState<any>("");
   const [organisation,setOrganisation]= useState<any>("");
-//     const [paginationModel, setPaginationModel] = useState({
-//       page: 1,
-//       pageSize: 10,
-//     });
-//     const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
-//       variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
-//     });
-
-//  useEffect(() => {
-   
-//     if (data) {
-//       setList(data.getOrganizations?.organizations);
-//       // setCount(data.getOrganizations?.organizations?.length)
-//       setTimeout(() => {
-//         // setLoader(false);
-//       }, 2000);
-//     }
-//     refetch();
-//   }, [data]);
 
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
+    console.log(values,"values")
     const organisationID = parseFloat(organisation); 
     const locationID = parseFloat(location);
     const variablesData = {
@@ -116,12 +106,23 @@ function AddRecieverForm() {
       Email: values?.email,
       Phone: values?.phone,
       organizationId: organisationID,
-      LocationID:parseFloat(location) ,
+      LocationID: values?.locationID?.target?.value,
+      address:values?.locationID?.target?.name
     };
-    console.log(variablesData,"variablesData-----")
+    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item:any) => item.trim());
+    const LocationData={
+      Address1: values?.locationID?.target?.name,
+      places_id: values?.locationID?.target?.value,
+      City: City||"",
+      Country: Country||"",
+      State_Province: State_Province||"",
+      PostalCode_Zip:"",
+      Address2:""
+    }
 
     try {
       const response = await createReciever({ variables:  variablesData  });
+      const res= await createLocation({variables:LocationData})
       console.log(response?.data, "response-----")
       if(response?.data?.createReciever){
         resetForm();
@@ -130,8 +131,7 @@ function AddRecieverForm() {
         router.push('/recievers/list')
       }else{
         setSubmitting(false);
-      }
-    
+      } 
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -140,7 +140,11 @@ function AddRecieverForm() {
     }
   };
 
+
+
   const [createReciever, { loading, error }] = useMutation(CREATE_RECIEVER);
+  const [createLocation] = useMutation(CREATE_LOCATION);
+
 
   return (
     <Formik
@@ -155,6 +159,7 @@ function AddRecieverForm() {
         handleSubmit,
         isSubmitting,
         setFieldError,
+        setFieldValue,
         touched,
         values,
         status,
@@ -224,25 +229,7 @@ function AddRecieverForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp />
-                    {/* <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
-                      <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="locationID"
-                        label="Location"
-                        id="demo-simple-select-error"
-                        value={location}                      
-                        onChange={(e:any)=>{handleChange(e),setLocation(e.target.value),setFieldError("locationID","")}}
-                      >
-                        <MenuItem value={"1"}>Chandigarh</MenuItem>
-                        <MenuItem value={"2"}>Mohali</MenuItem>
-                        <MenuItem value={"3"}>Delhi</MenuItem>
-                        <MenuItem value={"4"}>Pune</MenuItem>
-                        <MenuItem value={"5"}>Hyderabad</MenuItem>
-                      </Select>
-                      <FormHelperText>{touched && errors.locationID}</FormHelperText>
-                    </FormControl> */}
+                    <LocationComp  setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
                   </Grid>
                  
                   <Grid
@@ -266,8 +253,6 @@ function AddRecieverForm() {
                     />
                   </Grid>
                 </Grid>
-
-
                 <Grid container spacing={6}>
                 <Grid
                     size={{
@@ -292,20 +277,6 @@ function AddRecieverForm() {
                       </Select>
                       <FormHelperText>{touched && errors.organizationId}</FormHelperText>
                     </FormControl>
-
-                      {/* <TextField 
-                      name="organisationId"
-                      label="Organisation"
-                      value={values.Website}
-                      error={Boolean(touched.Website && errors.Website)}
-                      fullWidth
-                      helperText={touched.Website && errors.Website}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="text"
-                      variant="outlined"
-                      my={2}
-                    /> */}
                   </Grid>
                 </Grid>
 
@@ -315,7 +286,7 @@ function AddRecieverForm() {
                   color="primary"
                   mt={3}
                 >
-                  Save 
+                  Save  
                 </Button>
               </form>
             )}

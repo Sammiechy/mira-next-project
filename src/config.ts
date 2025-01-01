@@ -18,3 +18,6 @@ export const cognitoConfig = {
   userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
   clientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
 };
+export const googleApi={
+  Google_api_key: process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+}
