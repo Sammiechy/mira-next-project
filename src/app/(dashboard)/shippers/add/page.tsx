@@ -1,10 +1,7 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
 import { Formik } from "formik";
 
 import {
@@ -17,7 +14,6 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
@@ -27,33 +23,22 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import {GET_ORGANIZATIONS} from "hooks/queries/queries";
 import { CREATE_LOCATION, CREATE_SHIPPER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
 
-const Divider = styled(MuiDivider)(spacing);
-
-const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
-
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
 const FormControlSpacing = styled(MuiFormControl)(spacing);
-
 const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
 
-
-const timeOut = (time: number) => new Promise((res) => setTimeout(res, time));
 
 const initialValues = {
   name: "",
@@ -86,30 +71,10 @@ const validationSchema = Yup.object().shape({
 
 function AddShipperForm() {
   const router= useRouter();
-  const [userStatus,setUserStatus]= useState("");
   const [location,setLocation]= useState("");
-  const [list,setList] =useState<any>("");
+  const [organizationList,setOrganizationList] =useState<any>("");
   const [organisation,setOrganisation]= useState<any>("");
-//     const [paginationModel, setPaginationModel] = useState({
-//       page: 1,
-//       pageSize: 10,
-//     });
-//     const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
-//       variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
-//     });
-
-//  useEffect(() => {
-   
-//     if (data) {
-//       setList(data.getOrganizations?.organizations);
-//       // setCount(data.getOrganizations?.organizations?.length)
-//       setTimeout(() => {
-//         // setLoader(false);
-//       }, 2000);
-//     }
-//     refetch();
-//   }, [data]);
-
+  
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
@@ -134,12 +99,10 @@ function AddShipperForm() {
       PostalCode_Zip:"",
       Address2:""
     }
-    console.log(variablesData,"variablesData-----")
 
     try {
       const response = await createShipper({ variables:  variablesData  });
       const res= await createLocation({variables:LocationData})
-      console.log(response?.data, "response-----")
       if(response?.data?.createShipper){
         resetForm();
         setStatus({ sent: true });
@@ -160,6 +123,16 @@ function AddShipperForm() {
   const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
    const [createLocation] = useMutation(CREATE_LOCATION);
 
+   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setOrganizationList(data.getOrganizations?.organizations);
+    }
+    refetch();
+  }, [data]);
   return (
     <Formik
       initialValues={initialValues}
@@ -243,26 +216,7 @@ function AddShipperForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp  setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
-
-                    {/* <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
-                      <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="locationID"
-                        label="Location"
-                        id="demo-simple-select-error"
-                        value={location}                      
-                        onChange={(e:any)=>{handleChange(e),setLocation(e.target.value),setFieldError("locationID","")}}
-                      >
-                        <MenuItem value={"1"}>Chandigarh</MenuItem>
-                        <MenuItem value={"2"}>Mohali</MenuItem>
-                        <MenuItem value={"3"}>Delhi</MenuItem>
-                        <MenuItem value={"4"}>Pune</MenuItem>
-                        <MenuItem value={"5"}>Hyderabad</MenuItem>
-                      </Select>
-                      <FormHelperText>{touched && errors.locationID}</FormHelperText>
-                    </FormControl> */}
+                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
                   </Grid>
                  
                   <Grid
@@ -304,28 +258,17 @@ function AddShipperForm() {
                         value={organisation}                      
                         onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
                       >
-                        <MenuItem value={1}>Chandigarh</MenuItem>
-                        <MenuItem value={2}>Mohali</MenuItem>
-                        <MenuItem value={3}>Delhi</MenuItem>
-                        <MenuItem value={4}>Pune</MenuItem>
-                        <MenuItem value={5}>Hyderabad</MenuItem>
+                        {
+                          organizationList && organizationList?.length > 0 && organizationList?.map((org:any, index:any) =>{
+                            return (
+                              <MenuItem value={org?.id}>{org?.Name}</MenuItem>
+                            )
+                          })
+                        }
+                        
                       </Select>
                       <FormHelperText>{touched && errors.organizationId}</FormHelperText>
                     </FormControl>
-
-                      {/* <TextField 
-                      name="organisationId"
-                      label="Organisation"
-                      value={values.Website}
-                      error={Boolean(touched.Website && errors.Website)}
-                      fullWidth
-                      helperText={touched.Website && errors.Website}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="text"
-                      variant="outlined"
-                      my={2}
-                    /> */}
                   </Grid>
                 </Grid>
 

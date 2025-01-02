@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
-import { Formik, useFormikContext } from "formik";
+import { Formik } from "formik";
 
 import {
   Alert as MuiAlert,
@@ -17,7 +15,6 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
@@ -27,33 +24,21 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
-import {GET_ORGANIZATIONS} from "hooks/queries/queries";
+import { GET_ORGANIZATIONS } from "hooks/queries/queries";
 import { CREATE_LOCATION, CREATE_RECIEVER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
 
-const Divider = styled(MuiDivider)(spacing);
-
-const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
-
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
 const FormControlSpacing = styled(MuiFormControl)(spacing);
-
 const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
-
-
-const timeOut = (time: number) => new Promise((res) => setTimeout(res, time));
 
 const initialValues = {
   name: "",
@@ -65,7 +50,6 @@ const initialValues = {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  // locationID: Yup.string().required("location is required"),
   locationID: Yup.string()
     .transform((value) => {
       if (typeof value === "object" && value?.target?.value) {
@@ -85,21 +69,17 @@ const validationSchema = Yup.object().shape({
 });
 
 
-
-
 function AddRecieverForm() {
-  const router= useRouter();
-  const [userStatus,setUserStatus]= useState("");
-  const [location,setLocation]= useState("");
-  const [list,setList] =useState<any>("");
-  const [organisation,setOrganisation]= useState<any>("");
-
+  const router = useRouter();
+  const [location, setLocation] = useState("");
+  const [organisation, setOrganisation] = useState<any>("");
+  const [organizationList, setOrganizationList] = useState<any>("");
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
-    console.log(values,"values")
-    const organisationID = parseFloat(organisation); 
+    console.log(values, "values")
+    const organisationID = parseFloat(organisation);
     const locationID = parseFloat(location);
     const variablesData = {
       Name: values?.name,
@@ -107,31 +87,31 @@ function AddRecieverForm() {
       Phone: values?.phone,
       organizationId: organisationID,
       LocationID: values?.locationID?.target?.value,
-      address:values?.locationID?.target?.name
+      address: values?.locationID?.target?.name
     };
-    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item:any) => item.trim());
-    const LocationData={
+    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item: any) => item.trim());
+
+    const LocationData = {
       Address1: values?.locationID?.target?.name,
       places_id: values?.locationID?.target?.value,
-      City: City||"",
-      Country: Country||"",
-      State_Province: State_Province||"",
-      PostalCode_Zip:"",
-      Address2:""
+      City: City || "",
+      Country: Country || "",
+      State_Province: State_Province || "",
+      PostalCode_Zip: "",
+      Address2: ""
     }
 
     try {
-      const response = await createReciever({ variables:  variablesData  });
-      const res= await createLocation({variables:LocationData})
-      console.log(response?.data, "response-----")
-      if(response?.data?.createReciever){
+      const response = await createReciever({ variables: variablesData });
+      const res = await createLocation({ variables: LocationData })
+      if (response?.data?.createReciever) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
         router.push('/recievers/list')
-      }else{
+      } else {
         setSubmitting(false);
-      } 
+      }
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -142,10 +122,19 @@ function AddRecieverForm() {
 
 
 
-  const [createReciever, { loading, error }] = useMutation(CREATE_RECIEVER);
+  const [createReciever] = useMutation(CREATE_RECIEVER);
   const [createLocation] = useMutation(CREATE_LOCATION);
 
+  const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
 
+  useEffect(() => {
+    if (data) {
+      setOrganizationList(data.getOrganizations?.organizations);
+    }
+    refetch();
+  }, [data]);
   return (
     <Formik
       initialValues={initialValues}
@@ -206,7 +195,7 @@ function AddRecieverForm() {
                       md: 6,
                     }}
                   >
-                      <TextField
+                    <TextField
                       name="email"
                       label="Email"
                       value={values.email}
@@ -219,7 +208,7 @@ function AddRecieverForm() {
                       variant="outlined"
                       my={2}
                     />
-                   
+
                   </Grid>
                 </Grid>
 
@@ -229,9 +218,9 @@ function AddRecieverForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp  setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
+                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values} helperText={touched.locationID && errors.locationID} />
                   </Grid>
-                 
+
                   <Grid
                     size={{
                       md: 6,
@@ -254,26 +243,29 @@ function AddRecieverForm() {
                   </Grid>
                 </Grid>
                 <Grid container spacing={6}>
-                <Grid
+                  <Grid
                     size={{
                       md: 6,
                     }}
                   >
-                     <FormControl fullWidth  error={Boolean(touched.organizationId && errors.organizationId)}>
+                    <FormControl fullWidth error={Boolean(touched.organizationId && errors.organizationId)}>
                       <InputLabel id="demo-simple-select-error-label">Organisation</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
                         name="organizationId"
                         label="Organisation"
                         id="demo-simple-select-error"
-                        value={organisation}                      
-                        onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
+                        value={organisation}
+                        onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
                       >
-                        <MenuItem value={1}>Chandigarh</MenuItem>
-                        <MenuItem value={2}>Mohali</MenuItem>
-                        <MenuItem value={3}>Delhi</MenuItem>
-                        <MenuItem value={4}>Pune</MenuItem>
-                        <MenuItem value={5}>Hyderabad</MenuItem>
+                        {
+                          organizationList && organizationList?.length > 0 && organizationList?.map((org: any, index: any) => {
+                            return (
+                              <MenuItem value={org?.id}>{org?.Name}</MenuItem>
+                            )
+                          })
+                        }
+
                       </Select>
                       <FormHelperText>{touched && errors.organizationId}</FormHelperText>
                     </FormControl>
@@ -286,7 +278,7 @@ function AddRecieverForm() {
                   color="primary"
                   mt={3}
                 >
-                  Save  
+                  Save
                 </Button>
               </form>
             )}

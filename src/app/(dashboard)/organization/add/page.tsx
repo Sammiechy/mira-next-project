@@ -1,10 +1,7 @@
 "use client";
-
 import React, { useState } from "react";
-import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
 import { Formik } from "formik";
 
 import {
@@ -17,14 +14,9 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { gql, useMutation } from "@apollo/client";
@@ -32,26 +24,10 @@ import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import LocationComp from "@/components/locationField/LocationComp";
 
-const Divider = styled(MuiDivider)(spacing);
-
-const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
-
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
-const FormControlSpacing = styled(MuiFormControl)(spacing);
-
-const FormControl = styled(FormControlSpacing)`
-  min-width: 148px;
-`;
-
-
-const timeOut = (time: number) => new Promise((res) => setTimeout(res, time));
 
 const initialValues = {
   name: "",
@@ -100,10 +76,7 @@ const ADD_ORGANIZATION = gql`
 
 
 function AddOrganizationForm() {
-  const router= useRouter();
-  const [userStatus,setUserStatus]= useState("");
-  const [location,setLocation]= useState("");
-
+  const router = useRouter();
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
@@ -112,24 +85,22 @@ function AddOrganizationForm() {
       Name: values?.name,
       Email: values?.email,
       Phone: values?.phone,
-      Website:values?.Website,
+      Website: values?.Website,
       LocationID: values?.locationID?.target?.value,
-      address:values?.locationID?.target?.name
+      address: values?.locationID?.target?.name
     };
 
     try {
-      // await timeOut(1500);
-
       const response = await addOrganization({ variables: { data: variablesData } });
-      if(response?.data?.addOrganization){
+      if (response?.data?.addOrganization) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
         router.push('/organization/list')
-      }else{
+      } else {
         setSubmitting(false);
       }
-    
+
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -138,7 +109,7 @@ function AddOrganizationForm() {
     }
   };
 
-  const [addOrganization, { data, loading, error }] = useMutation(ADD_ORGANIZATION);
+  const [addOrganization] = useMutation(ADD_ORGANIZATION);
 
   return (
     <Formik
@@ -200,7 +171,7 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                      <TextField
+                    <TextField
                       name="email"
                       label="Email"
                       value={values.email}
@@ -213,7 +184,7 @@ function AddOrganizationForm() {
                       variant="outlined"
                       my={2}
                     />
-                   
+
                   </Grid>
                 </Grid>
 
@@ -223,27 +194,9 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp  setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
-                    {/* <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
-                      <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="locationID"
-                        label="Location"
-                        id="demo-simple-select-error"
-                        value={location}                      
-                        onChange={(e:any)=>{handleChange(e),setLocation(e.target.value),setFieldError("locationID","")}}
-                      >
-                        <MenuItem value={"1"}>Chandigarh</MenuItem>
-                        <MenuItem value={"2"}>Mohali</MenuItem>
-                        <MenuItem value={"3"}>Delhi</MenuItem>
-                        <MenuItem value={"4"}>Pune</MenuItem>
-                        <MenuItem value={"5"}>Hyderabad</MenuItem>
-                      </Select>
-                      <FormHelperText>{touched && errors.locationID}</FormHelperText>
-                    </FormControl> */}
+                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values} helperText={touched.locationID && errors.locationID} />
                   </Grid>
-                 
+
                   <Grid
                     size={{
                       md: 6,
@@ -268,13 +221,12 @@ function AddOrganizationForm() {
 
 
                 <Grid container spacing={6}>
-                <Grid
+                  <Grid
                     size={{
                       md: 6,
                     }}
                   >
-
-                      <TextField 
+                    <TextField
                       name="Website"
                       label="Website"
                       value={values.Website}

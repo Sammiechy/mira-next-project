@@ -19,7 +19,7 @@ import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
-import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
+import { setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
 
@@ -39,15 +39,11 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-
-
-
 const DELETE_MULTIPLE_ORGANIZATIONS = gql`
   mutation DeleteMultipleOrganizations($ids: [Int!]!) {
     deleteMultipleOrganizations(ids: $ids)
   }
 `;
-
 
 const OrganizationTable = () => {
   const router = useRouter();
@@ -61,17 +57,16 @@ const OrganizationTable = () => {
     page: 1,
     pageSize: 10,
   });
-  const { loading, error, data, refetch } = useQuery(GET_ORGANIZATIONS, {
-    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
-  });
   const [deleteMultipleOrganizations] = useMutation(DELETE_MULTIPLE_ORGANIZATIONS);
   const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-  // const { data: countData } = useQuery(GET_USER_COUNT);
-  // const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
+
+  const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -80,8 +75,6 @@ const OrganizationTable = () => {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
-
 
   useEffect(() => {
     setLoader(true)
@@ -95,7 +88,6 @@ const OrganizationTable = () => {
     refetch();
   }, [data]);
 
-
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50 },
     { field: 'Name', headerName: 'Name', width: 120 },
@@ -105,7 +97,7 @@ const OrganizationTable = () => {
     {
       field: 'address', headerName: 'LocationID', type: 'number', width: 120, renderCell: (params) => (
         <>
-        {params.value}
+          {params.value}
           {/* {
             params.value == '1' ? 'Chandigarh' :
               params.value == '2' ? 'Mohali' :
@@ -145,8 +137,6 @@ const OrganizationTable = () => {
     }
   ];
 
-
-
   const handleDelete = async (ids: any) => {
     if (selectedIds?.length > 0 && ids == "") {
       const response = await deleteMultipleOrganizations({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
@@ -181,15 +171,6 @@ const OrganizationTable = () => {
       </GridOverlay>
     );
   }
-
-  // const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
-  //   setPaginationModel(paginationModel);
-  //   refetch({
-  //       excludeId: id,
-  //       limit: paginationModel.pageSize,
-  //       offset: paginationModel.page * paginationModel.pageSize,
-  //   });
-  // };
 
   const filteredRows = list?.filter((row) =>
     Object.keys(row).some((column) => {
@@ -244,7 +225,6 @@ const OrganizationTable = () => {
             pagination
             paginationMode="server"
             paginationModel={paginationModel}
-            //  onPaginationModelChange={handlePaginationChange}
             rows={filteredRows}
             rowCount={count ? count : 0}
             columns={columns}
