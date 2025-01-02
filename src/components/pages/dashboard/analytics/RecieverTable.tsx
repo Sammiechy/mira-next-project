@@ -93,7 +93,12 @@ const RecieverTable = () => {
     { field: 'Name', headerName: 'Name', width: 120 },
     { field: 'Email', headerName: 'Email', width: 120 },
     { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
-    { field: 'organizationId', headerName: 'Organization', type: 'number', width: 120 },
+    { field: 'organization', headerName: 'Organization', width: 120 ,renderCell: (params) => (
+<>
+{params.value ? params.value.Name : 'No Organization'}
+</>
+
+    )},
     {
       field: 'address', headerName: 'Location', type: 'number', width: 120, renderCell: (params) => (
         <>

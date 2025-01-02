@@ -26,7 +26,10 @@ export const GET_ORGANIZATIONS = gql`
         Email
         Phone
         address
-        organizationId
+         organization {
+        id
+        Name
+      }
         isDeleted
         # Add any other fields your shipper entity contains
       }
@@ -71,11 +74,14 @@ query GetRecievers($page: Int, $limit: Int) {
       Name
       Email
       Phone
-      organizationId
+       organization {
+        id
+        Name
+      }
       LocationID
       address
       isDeleted
-      # Add any other fields your shipper entity contains
+    
     }
     totalCount
   }
