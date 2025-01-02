@@ -185,7 +185,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                       defaultValue={values.Name}
                       error={Boolean(touched.Name && errors.Name)}
                       fullWidth
-                      helperText={touched.Name ? errors.Name:""}
+                      helperText={Boolean(touched.Name ? errors.Name:"")}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -203,7 +203,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                       value={values.email}
                       error={Boolean(touched.email && errors.email)}
                       fullWidth
-                      helperText={touched.email && errors.email}
+                      helperText={Boolean(touched.email && errors.email)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -248,7 +248,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                       value={values.phone}
                       error={Boolean(touched.phone && errors.phone)}
                       fullWidth
-                      helperText={touched.phone && errors.phone}
+                      helperText={Boolean(touched.phone && errors.phone)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       // type="text"
@@ -271,7 +271,7 @@ const [editShipper, {  loading, error }] = useMutation(EDIT_SHIPPER);
                       value={values.organizationId}
                       error={Boolean(touched.organizationId && errors.organizationId)}
                       fullWidth
-                      helperText={touched.Website && errors.organizationId}
+                      helperText={Boolean(touched.Website && errors.organizationId)}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
