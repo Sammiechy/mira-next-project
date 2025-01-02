@@ -79,7 +79,7 @@ function EditShipperForm() {
     LocationID: shipperData?.address || "",
     email: shipperData?.Email || location,
     phone: shipperData?.Phone || "",
-    organizationId: shipperData?.organizationId || "",
+    organizationId: shipperData?.organization?.id || "",
   };
 
   useEffect(() => {
@@ -100,7 +100,7 @@ function EditShipperForm() {
       Email: values?.email,
       Phone: values?.phone,
       // organizationId: parseFloat("1"),
-      organizationId: values?.organizationId,
+      organizationId: parseFloat(values?.organizationId),
       address: values?.locationID?.target?.name,
       LocationID: values?.LocationID,
     };

@@ -65,7 +65,7 @@ function EditRecieverForm() {
     LocationID: shipperData?.address || "",
     email: shipperData?.Email || location,
     phone: shipperData?.Phone || "",
-    organizationId: shipperData?.organizationId || "",
+    organizationId: shipperData?.organization?.id || "",
   };
 
   useEffect(() => {
@@ -85,7 +85,7 @@ function EditRecieverForm() {
       Name: values?.Name,
       Email: values?.email,
       Phone: values?.phone,
-      organizationId: values?.organizationId,
+      organizationId:  parseFloat(values?.organizationId),
       address: values?.locationID?.target?.name,
       LocationID: values?.LocationID,
     };

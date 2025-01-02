@@ -58,7 +58,10 @@ export const GET_ORGANIZATION_BY_ID = gql`
       Name
       LocationID
       address
-      organizationId
+        organization {
+        id
+        Name
+      }
       Email
       Phone
     }
@@ -93,7 +96,10 @@ query GetRecieverById($id: Int!) {
     id
     Name
     LocationID
-    organizationId
+   organization {
+        id
+        Name
+      }
     address
     Email
     Phone

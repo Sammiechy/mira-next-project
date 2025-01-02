@@ -46,7 +46,7 @@ export const EDIT_ORGANIZATION = gql`
         Phone
         Email
         address
-        organizationId
+       organizationId
         isDeleted
       }
       message
@@ -64,7 +64,9 @@ export const EDIT_SHIPPER = gql`
         Name
         LocationID
         address
-        organizationId
+         organization {
+        id
+      }
         Email
       }
     }
@@ -95,7 +97,9 @@ export const CREATE_RECIEVER = gql`
         Phone
         Email
         address
-        organizationId
+        organization {
+        id
+      }
         isDeleted
       }
       message
@@ -113,7 +117,9 @@ export const EDIT_RECIEVER = gql`
         Name
         LocationID
         address
-        organizationId
+         organization {
+        id
+      }
         Email
       }
     }
