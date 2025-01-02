@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import * as Yup from "yup";
 import { Formik } from "formik";
@@ -25,7 +25,9 @@ import {
 import { spacing } from "@mui/system";
 // import gql from "graphql-tag";
 import useAuth from "@/hooks/useAuth";
-import { useMutation,gql } from "@apollo/client";
+import { useMutation,gql, useQuery } from "@apollo/client";
+import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
+import { SIGNUP_MUTATION } from "@/hooks/mutations/mutation";
 
 const Alert = styled(MuiAlert)(spacing);
 
@@ -42,11 +44,14 @@ function SignUp() {
   const [confirm,setConfirm]= useState<boolean>(false);
   const [code,setCode]= useState<any>("");
   const [selectOrg,setSelectOrg]= useState<any>("");
+  const [organizationList,setOrganizationList] =useState<any>("");
 
   const [formData,setFormData]= useState<any>("");
 
   const [emailForConfirmation, setEmailForConfirmation] = useState("");
-  // const { signUp } = useAuth();
+ const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
 
   const handleSignUp = async (data:any) => {
     try {
@@ -65,53 +70,14 @@ function SignUp() {
       console.error('Error signing up:', error);
     }
   };
-
-  const SIGNUP_MUTATION = gql`
-  mutation SignUp(
-    $firstName: String!
-    $lastName: String!
-    $email: String!
-    $password: String!
-    $phone: String!
-    $role: String!
-    $type: String!
-    $status: String!
-    $organizationId: Float!
-  ) {
-    signUp(
-      firstName: $firstName
-      lastName: $lastName
-      email: $email
-      password: $password
-      phone: $phone
-      role: $role
-      type: $type
-      status: $status
-      organizationId: $organizationId
-    ) {
-      message
-      userId
-    }
-  }
-`;
   
-const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
-  const query = `
-  mutation signUp($input: SignUpInput!) {
-    signUp(input: $input) {
-      firstName
-      lastName
-      email
-      phone
-      role
-      organizationId
-      type
-      status
-      password
-    }
-  }`;
+const [signup, { loading, error }] = useMutation(SIGNUP_MUTATION);
 
-  const dummyLocation= [{id:"1",value:"TCS"},{id:"2",value:"Microsoft"},{id:"3",value:"Mira"},{id:"4",value:"ABCaS"},{id:"5",value:"hYDRO"}]
+    useEffect(() => {
+      if (data) {
+        setOrganizationList(data.getOrganizations?.organizations);
+      }
+    }, [data]);
 
   const variablesData = {
       firstName: formData?.firstName,
@@ -119,7 +85,7 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
       email: formData?.email,
       phone: formData?.phoneNumber,
       role: "admin",
-      organizationId: selectOrg ? parseFloat(selectOrg):parseFloat("1") ,
+      organizationId: selectOrg ? parseFloat(selectOrg):null ,
       password: formData?.password, 
       status: "1",
       type: "1",
@@ -127,51 +93,13 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
   console.log(variablesData,"variablesData")
   const fetchUsers = async () => {
         try {
-        // const response = await fetch(`http://localhost:4000/graphql`, {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     query: `
-        //     mutation signUp(
-        //       $firstName: String!,
-        //       $lastName: String!,
-        //       $email: String!,
-        //       $phone: String!,
-        //       $role: String!,
-        //       $password: String!,
-        //       $status: String!,
-        //       $type: String!,
-        //       $organizationId: Int!
-        //     ) {
-        //       signUp(
-        //         firstName: $firstName,
-        //         lastName: $lastName,
-        //         email: $email,
-        //         phone: $phone,
-        //         role: $role,
-        //         password: $password,
-        //         status: $status,
-        //         type: $type,
-        //         organizationId: $organizationId
-        //       ) {
-        //         message
-        //         userId
-        //       }
-        //     }
-        //   `,
-        //   variables: variables,
-        //   }),
-        // });
-       
-        // const { data,errors } = await response.json();
+  
         const response = await signup({ variables: { ...variablesData } });
         console.log(response,"response-----")
         return; 
         if (response) {
-          if (data?.createUser) {
-            console.log('User created:', data.createUser);
+          if (response?.data?.createUser) {
+            console.log('User created:', response?.data.createUser);
           } else {
             // console.error('Error in mutation response:', errors);
           }
@@ -183,61 +111,7 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
       }
        
     }
-
-  //   const fetchUsers = async () => {
-  //     try {
-  //     const response = await fetch(`http://localhost:3000/api/graphql`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         query: `
-  //         mutation {
-  //           createUser(
-  //             FirstName: "${dummyUser.firstName}",
-  //             LastName: "${dummyUser.lastName}",
-  //             Email: "${dummyUser.email}",
-  //             Phone: "${dummyUser.phone}",
-  //             Role: "${dummyUser.role}",
-  //             OrganizationId: ${dummyUser.organizationId},
-  //             Password:"${dummyUser.password}",
-  //             Status:"${dummyUser.status}",
-  //             Type: "${dummyUser.type}"
-  //           ) {
-  //             FirstName
-  //             LastName
-  //             Email
-  //             Phone
-  //             Role
-  //             OrganizationId
-  //             Type
-  //             Status
-  //             Password
-  //           }
-  //         }
-  //         `,
-  //       }),
-  //     });
   
-  //     const { data,errors } = await response.json();
-  //     if (response.ok) {
-  //       if (data?.createUser) {
-  //         console.log('User created:', data.createUser);
-  //       } else {
-  //         console.error('Error in mutation response:', errors);
-  //       }
-  //     } else {
-  //       console.error('HTTP Error:', response.status, errors);
-  //     }
-  //   } catch (error) {
-  //     console.error('Fetch error:', error);
-  //   }
-     
-  //   };
-  //   fetchUsers();
-  // }, []);
-
   const confirmSignup = async () => {
     console.log(emailForConfirmation,"chbc")
     try {
@@ -424,11 +298,17 @@ const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
                         name="locationID"
                         label="Location"
                         id="demo-simple-select-error"
-                        defaultValue={ dummyLocation?.find(item=>item.id == values?.OrganizationId)?.value}
-                        value={selectOrg ||dummyLocation?.find(item=>item.id == values?.OrganizationId)?.value}                      
+                        // defaultValue={ }
+                        value={selectOrg }                      
                          onChange={(e:any)=>{handleChange(e) ,setSelectOrg(e.target.value)}}
                       >
-                        {dummyLocation?.map(item=><MenuItem value={item?.id}>{item?.value}</MenuItem>) }
+                         {
+                                                  organizationList && organizationList?.length > 0 && organizationList?.map((org:any, index:any) =>{
+                                                    return (
+                                                      <MenuItem value={org?.id}>{org?.Name}</MenuItem>
+                                                    )
+                                                  })
+                                                }
                        
                       </Select>
                       {/* <FormHelperText>{fieldError && fieldError}</FormHelperText> */}

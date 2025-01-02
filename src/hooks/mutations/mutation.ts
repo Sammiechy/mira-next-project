@@ -1,5 +1,35 @@
 import { gql } from "@apollo/client";
 
+
+ export const SIGNUP_MUTATION = gql`
+  mutation SignUp(
+    $firstName: String!
+    $lastName: String!
+    $email: String!
+    $password: String!
+    $phone: String!
+    $role: String!
+    $type: String!
+    $status: String!
+    $organizationId: Float!
+  ) {
+    signUp(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      password: $password
+      phone: $phone
+      role: $role
+      type: $type
+      status: $status
+      organizationId: $organizationId
+    ) {
+      message
+      userId
+    }
+  }
+`;
+
 export const DELETE_MULTIPLE_SHIPPERS = gql`
   mutation DeleteMultipleShippers($ids: [Int!]!) {
     deleteMultipleShipper(ids: $ids)
