@@ -9,6 +9,7 @@ export const GET_ORGANIZATIONS = gql`
         Email
         Website
         LocationID
+        address
         Phone
       }
       totalCount
@@ -60,6 +61,7 @@ export const GET_ORGANIZATION_BY_ID = gql`
     }
   }
 `;
+
 
 export const GET_RECIEVER = gql`
 query GetRecievers($page: Int, $limit: Int) {

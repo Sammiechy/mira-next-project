@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
+import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
 
 interface RowData {
   id: Number;
@@ -39,21 +40,7 @@ interface CustomToolbarProps {
 }
 
 
-export const GET_ORGANIZATIONS = gql`
-  query PaginatedOrganizations($page: Int, $limit: Int) {
-    getOrganizations(page: $page, limit: $limit) {
-      organizations {
-        id
-        Name
-        Email
-        Website
-        LocationID
-        Phone
-      }
-      totalCount
-    }
-  }
-`;
+
 
 const DELETE_MULTIPLE_ORGANIZATIONS = gql`
   mutation DeleteMultipleOrganizations($ids: [Int!]!) {
@@ -61,26 +48,6 @@ const DELETE_MULTIPLE_ORGANIZATIONS = gql`
   }
 `;
 
-const GET_USERS = gql`
-query GetUsers($excludeId: Float  $limit: Float, $offset: Float) {
-  users (excludeId: $excludeId limit: $limit, offset: $offset){
-    id
-    firstName
-    lastName
-    email
-    phone
-    role
-    status
-    type
-  }
-}
-`;
-
-const GET_USER_COUNT = gql`
-  query GetUserCount {
-    userCount
-  }
-`;
 
 const OrganizationTable = () => {
   const router = useRouter();
@@ -136,15 +103,16 @@ const OrganizationTable = () => {
     { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
     { field: 'Website', headerName: 'Website', type: 'number', width: 120 },
     {
-      field: 'LocationID', headerName: 'LocationID', type: 'number', width: 120, renderCell: (params) => (
+      field: 'address', headerName: 'LocationID', type: 'number', width: 120, renderCell: (params) => (
         <>
-          {
+        {params.value}
+          {/* {
             params.value == '1' ? 'Chandigarh' :
               params.value == '2' ? 'Mohali' :
                 params.value == '3' ? 'Delhi' :
                   params.value == '4' ? 'Pune' :
                     'Hyderabad'
-          }
+          } */}
         </>
       )
     },

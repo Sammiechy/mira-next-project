@@ -35,7 +35,7 @@ const LocationComp = (props:any) => {
     const fetchPlacesDebounced = useCallback(
       debounce((value: string) => {
         setLocation(value);
-      }, 5000),
+      }, 3000),
       []
     )
 

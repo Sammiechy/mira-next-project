@@ -30,6 +30,7 @@ import { spacing } from "@mui/system";
 import { gql, useMutation } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
+import LocationComp from "@/components/locationField/LocationComp";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -62,7 +63,14 @@ const initialValues = {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  locationID: Yup.string().required("locationID is required"),
+  locationID: Yup.string()
+    .transform((value) => {
+      if (typeof value === "object" && value?.target?.value) {
+        return value.target.value;
+      }
+      return value;
+    })
+    .required("Location is required"),
   Website: Yup.string().required("Webside is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
@@ -105,7 +113,8 @@ function AddOrganizationForm() {
       Email: values?.email,
       Phone: values?.phone,
       Website:values?.Website,
-      LocationID:parseFloat(location) ,
+      LocationID: values?.locationID?.target?.value,
+      address:values?.locationID?.target?.name
     };
 
     try {
@@ -144,6 +153,7 @@ function AddOrganizationForm() {
         handleSubmit,
         isSubmitting,
         setFieldError,
+        setFieldValue,
         touched,
         values,
         status,
@@ -213,7 +223,8 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
+                    <LocationComp  setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
+                    {/* <FormControl fullWidth  error={Boolean(touched.locationID && errors.locationID)}>
                       <InputLabel id="demo-simple-select-error-label">Location</InputLabel>
                       <Select
                         labelId="demo-simple-select-error-label"
@@ -230,7 +241,7 @@ function AddOrganizationForm() {
                         <MenuItem value={"5"}>Hyderabad</MenuItem>
                       </Select>
                       <FormHelperText>{touched && errors.locationID}</FormHelperText>
-                    </FormControl>
+                    </FormControl> */}
                   </Grid>
                  
                   <Grid
