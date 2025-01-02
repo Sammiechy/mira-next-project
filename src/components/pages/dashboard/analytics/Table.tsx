@@ -113,7 +113,7 @@ const DashboardTable = () => {
     { field: 'id', headerName: 'ID', width: 50 },
     { field: 'firstName', headerName: 'First Name', width: 120 },
     { field: 'lastName', headerName: 'Last Name', width: 120 },
-    { field: 'email', headerName: 'Email', width: 180 },
+    { field: 'email', headerName: 'Email', width: 195 },
     { field: 'phone', headerName: 'Phone Number', type: 'number', width: 120 },
     {
       field: 'role', headerName: 'Role', width: 90, renderCell: (params) => (

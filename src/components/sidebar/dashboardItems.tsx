@@ -55,7 +55,7 @@ const pagesSection = [
   },
   {
     href: "/organizations",
-    icon: Layout,
+    icon: CreditCard,
     title: "Organizations",
     children: [
       {
@@ -70,7 +70,7 @@ const pagesSection = [
   },
   {
     href: "/shippers",
-    icon: Layout,
+    icon: Package,
     title: "Shippers",
     children: [
       {
@@ -85,7 +85,7 @@ const pagesSection = [
   },
   {
     href: "/recievers",
-    icon: Layout,
+    icon: Briefcase,
     title: "Recievers",
     children: [
       {

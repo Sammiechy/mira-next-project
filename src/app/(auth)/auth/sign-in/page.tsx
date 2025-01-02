@@ -19,11 +19,11 @@ const BigAvatar = styled(Avatar)`
 function SignIn() {
   return (
     <React.Fragment>
-      <BigAvatar alt="Lucy" src="/static/img/avatars/avatar-1.jpg" />
+      {/* <BigAvatar alt="Lucy" src="/static/img/avatars/avatar-1.jpg" />
 
       <Typography component="h1" variant="h3" align="center" gutterBottom>
         Welcome back, Lucy!
-      </Typography>
+      </Typography> */}
       <Typography component="h2" variant="subtitle1" align="center">
         Sign in to your account to continue
       </Typography>

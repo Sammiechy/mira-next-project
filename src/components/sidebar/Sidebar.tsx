@@ -98,7 +98,7 @@ const Sidebar = ({ items, showFooter = true, ...rest }: SidebarProps) => {
       <Brand component={Link} href="/">
         <BrandIcon />{" "}
         <Box ml={1}>
-          Mira <BrandChip label="PRO" />
+          Canus <BrandChip label="PRO" />
         </Box>
       </Brand>
       <SidebarNav items={items} />

@@ -89,27 +89,20 @@ const OrganizationTable = () => {
   }, [data]);
 
   const columns: GridColDef<RowData>[] = [
-    { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'Name', headerName: 'Name', width: 120 },
-    { field: 'Email', headerName: 'Email', width: 120 },
-    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
-    { field: 'Website', headerName: 'Website', type: 'number', width: 120 },
+    { field: 'id', headerName: 'ID', width: 50, align: 'left'  },
+    { field: 'Name', headerName: 'Name', width: 120, align: 'left'  },
+    { field: 'Email', headerName: 'Email', width: 150, align: 'left'  },
+    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120, align: 'left'  },
+    { field: 'Website', headerName: 'Website', type: 'number', width: 195, align: 'left' },
     {
-      field: 'address', headerName: 'LocationID', type: 'number', width: 120, renderCell: (params) => (
+      field: 'address', headerName: 'Location', type: 'number', width: 200, align: 'left' , renderCell: (params) => (
         <>
           {params.value}
-          {/* {
-            params.value == '1' ? 'Chandigarh' :
-              params.value == '2' ? 'Mohali' :
-                params.value == '3' ? 'Delhi' :
-                  params.value == '4' ? 'Pune' :
-                    'Hyderabad'
-          } */}
         </>
       )
     },
     {
-      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
+      field: '', headerName: 'Action', type: 'string', width: 180, align: 'left' , renderCell: (params) => (
         <>
           <Button
             variant="outlined"

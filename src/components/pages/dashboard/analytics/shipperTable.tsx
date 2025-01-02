@@ -22,7 +22,7 @@ import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 import { GET_SHIPPERS } from "@/hooks/queries/queries";
-import {DELETE_MULTIPLE_SHIPPERS} from "@/hooks/mutations/mutation";
+import { DELETE_MULTIPLE_SHIPPERS } from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -40,12 +40,6 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-
-const DELETE_MULTIPLE_ORGANIZATIONS = gql`
-  mutation DeleteMultipleOrganizations($ids: [Int!]!) {
-    deleteMultipleOrganizations(ids: $ids)
-  }
-`;
 
 const ShipperTable = () => {
   const router = useRouter();
@@ -68,8 +62,6 @@ const ShipperTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-  // const { data: countData } = useQuery(GET_USER_COUNT);
-  // const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -96,22 +88,20 @@ const ShipperTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'Name', headerName: 'Name', width: 120 },
-    { field: 'Email', headerName: 'Email', width: 120 },
+    { field: 'Name', headerName: 'Name', width: 160 },
+    { field: 'Email', headerName: 'Email', width: 180 },
     { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
-    { field: 'organizationId', headerName: 'Organization', type: 'number', width: 120 },
     {
-      field: 'address', headerName: 'Location', type: 'number', width: 120, renderCell: (params) => (
+      field: 'organization', headerName: 'Organization', width: 120, renderCell: (params) => (
         <>
-        { params.value}
-          {/* {
-            params.value == '1' ? 'Chandigarh' :
-              params.value == '2' ? 'Mohali' :
-                params.value == '3' ? 'Delhi' :
-                  params.value == '4' ? 'Pune' :
-                    'Hyderabad'
-          } */}
+          {params.value ? params.value.Name : 'No Organization'}
         </>
+
+      )
+    },
+    {
+      field: 'address', headerName: 'Location', type: 'number', width: 190, renderCell: (params) => (
+        <>{params.value} </>
       )
     },
     {

@@ -252,10 +252,10 @@ const [signin, { data, loading, error }] = useMutation(SIGNIN_MUTATION);
         values,
       }) => (
         <form onSubmit={handleSubmit} >
-          <Alert mt={3} mb={3} severity="info">
+          {/* <Alert mt={3} mb={3} severity="info">
             Use <strong>demo@bootlab.io</strong> and{" "}
             <strong>unsafepassword</strong> to sign in
-          </Alert>
+          </Alert> */}
           {errors.submit && (
             <Alert mt={2} mb={3} severity="warning">
               {errors.submit}
