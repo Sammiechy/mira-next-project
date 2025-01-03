@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
 import { Formik } from "formik";
 
 import {
@@ -16,38 +14,22 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useMutation, useQuery } from "@apollo/client";
 import { useParams, useRouter } from "next/navigation";
 import { GET_ORGANIZATIONS, GET_SHIPPER_BY_ID } from "@/hooks/queries/queries";
 import { EDIT_SHIPPER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
-const FormControlSpacing = styled(MuiFormControl)(spacing);
-
-const FormControl = styled(FormControlSpacing)`
-  min-width: 148px;
-`;
-
 const validationSchema = Yup.object().shape({
   Name: Yup.string().required("name is required"),
   email: Yup.string().required("Email is required"),
@@ -65,7 +47,6 @@ const validationSchema = Yup.object().shape({
 function EditShipperForm() {
   const { id } = useParams();
   const shipperId = parseFloat(id[0]);
-  const [fieldError, setFieldError] = useState("");
   const { data, } = useQuery(GET_SHIPPER_BY_ID, {
     variables: { id: shipperId },
   });
@@ -85,7 +66,6 @@ function EditShipperForm() {
   useEffect(() => {
     if (data?.getShipperById) {
       setShipperData(data.getShipperById)
-
     }
   }, [data]);
 
@@ -99,7 +79,6 @@ function EditShipperForm() {
       Name: values?.Name,
       Email: values?.email,
       Phone: values?.phone,
-      // organizationId: parseFloat("1"),
       organizationId: parseFloat(values?.organizationId),
       address: values?.locationID?.target?.name,
       LocationID: values?.LocationID,
@@ -221,7 +200,13 @@ function EditShipperForm() {
                         md: 6,
                       }}
                     >
-                      <LocationComp defaultValue={values?.LocationID} setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name="Location" helperText={Boolean(touched.LocationID && errors.LocationID)} />
+                      <LocationComp
+                        defaultValue={values?.LocationID}
+                        setFieldValue={setFieldValue}
+                        error={Boolean(touched.locationID && errors.locationID)}
+                        name="Location"
+                        helperText={Boolean(touched.LocationID && errors.LocationID)}
+                      />
                     </Grid>
                     <Grid
                       size={{
@@ -251,25 +236,15 @@ function EditShipperForm() {
                         md: 6,
                       }}
                     >
-                      <InputLabel id="demo-simple-select-error-label">Organisation</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
+                      <OrganizationInput
                         name="organizationId"
-                        label="Organisation"
-                        id="demo-simple-select-error"
+                        label="Organization"
                         value={values?.organizationId || ""}
+                        options={organizationList}
+                        error={null}
+                        touched={false}
                         onChange={handleChange}
-                        fullWidth
-                      >
-                        {Array.isArray(organizationList) &&
-                          organizationList.length > 0 &&
-                          organizationList.map((org, index) => (
-                            <MenuItem key={index} value={org?.id || ""}>
-                              {org?.Name || "Unknown Name"}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                      <FormHelperText>{Boolean(touched.Website && errors.organizationId)}</FormHelperText>
+                      />
                     </Grid>
                   </Grid>
                   <Button

@@ -1,10 +1,7 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
 import { Formik } from "formik";
 
 import {
@@ -17,36 +14,31 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { useParams,useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
+import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
+import { EDIT_USER_MUTATION } from "@/hooks/mutations/mutation";
+import { GET_USER_BY_ID } from "@/hooks/queries/queries";
 
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
 const FormControlSpacing = styled(MuiFormControl)(spacing);
-
 const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
-
-
 const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First name is required"),
   lastName: Yup.string().required("Last name is required"),
@@ -80,103 +72,43 @@ const validationSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
     .required("Confirm password is required"),
+  organizationId: Yup.string().required("organization is required")
 });
 
-const Edit_USER = gql`
-mutation editUser(
-  $id:String!
-  $firstName: String!
-  $lastName: String!
-  $email: String!
-  $phone: String!
-  $role: String!
-  $type: String!
-  $status: String!
-  $organizationId:  Float!
-  $password: String!
-) {
-  editUser(
-    id:$id
-    firstName: $firstName
-    lastName: $lastName
-    email: $email
-    phone: $phone
-    role: $role
-    type: $type
-    status: $status
-    organizationId: $organizationId
-    password: $password
-  ) {
-    id
-    firstName
-    lastName
-    email
-  }
-}
-`;
-
-const EDIT_USER_MUTATION = gql`
-mutation EditUser(
-  $id: Float!
-  $firstName: String
-  $lastName: String
-  $email: String
-  $phone: String
-  $role: String
-  $type: String
-  $status: String
-  $organizationId: Float
-  $password: String
-) {
-  editUser(
-    id: $id
-    firstName: $firstName
-    lastName: $lastName
-    email: $email
-    phone: $phone
-    role: $role
-    type: $type
-    status: $status
-    organizationId: $organizationId
-    password: $password
-  ) {
-    id
-    firstName
-    lastName
-    email
-    phone
-    role
-    type
-    status
-    organizationId
-  }
-}
-`;
 
 function EditUserForm() {
-const [editUser, { data, loading, error }] = useMutation(EDIT_USER_MUTATION);
- const {id}= useParams();
- const router= useRouter();
+  const [editUser, { loading, error }] = useMutation(EDIT_USER_MUTATION);
+  const { id } = useParams();
+  const router = useRouter();
+  const [userData, setUserData] = useState([]);
+  const [userstatus, setStatus] = useState("");
+  const [organizationList, setOrganizationList] = useState<any>("");
+  const [role, setRole] = useState("");
 
-  const userData = useSelector((state: RootState) => state.userData);
-  const [userstatus,setStatus] =useState("");
-  const [role,setRole] =useState("");
+  const { data, } = useQuery(GET_USER_BY_ID, {
+    variables: { id: id },
+  });
 
-  const initialValues :any= {
-    firstName: userData?.editUser?.firstName||"",
-    lastName: userData?.editUser?.lastName||"",
-    email: userData?.editUser?.email||"",
-    phone: userData?.editUser?.phone||"",
-    password:"Welcome@123",
+  useEffect(() => {
+    if (data?.getOrganizationById) {
+      setUserData(data.getOrganizationById)
+
+    }
+  }, [data]);
+
+
+  const initialValues: any = {
+    firstName: userData?.firstName || "",
+    lastName: userData?.lastName || "",
+    email: userData?.email || "",
+    phone: userData?.phone || "",
+    password: "Welcome@123",
     confirmPassword: "Welcome@123",
-    role: role||"user",
-    status: userstatus||"1"
+    role: role || "user",
+    status: userstatus || "1",
+    organizationId: "1",
   };
 
-useEffect(()=>{
-  setStatus(userData?.editUser?.status);
-  setRole(userData?.editUser?.role);
-},[userData])
 
   const handleSubmit = async (
     values: any,
@@ -189,24 +121,24 @@ useEffect(()=>{
       email: values?.email,
       phone: values?.phone,
       role: role,
-      organizationId: parseFloat("1"),
+      organizationId: parseFloat(values?.organizationId),
       password: values?.password,
       status: userstatus,
       id: parseFloat(id?.[0]),
       type: "1",
     };
- 
+
     try {
       const response = await editUser({ variables: { ...variablesData } });
-      if(response?.data?.editUser){
+      if (response?.data?.editUser) {
         router.push('/users/list');
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-      }else{
+      } else {
         setSubmitting(false);
       }
-   
+
     } catch (error: any) {
       setStatus({ sent: false });
       setErrors({ submit: error.message });
@@ -214,7 +146,16 @@ useEffect(()=>{
     }
   };
 
+  const getOrganizationList = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
 
+  useEffect(() => {
+    if (getOrganizationList?.data) {
+      setOrganizationList(getOrganizationList?.data?.getOrganizations?.organizations);
+    }
+    getOrganizationList?.refetch();
+  }, [getOrganizationList?.data]);
 
   return (
     <Formik
@@ -393,8 +334,8 @@ useEffect(()=>{
                         id="demo-simple-select-error"
                         defaultValue={values?.role}
                         value={role}
-                        onChange={ (e:any)=>{handleChange(e),setRole(e.target.value)}}
-                        // onChange={handleChange}
+                        onChange={(e: any) => { handleChange(e), setRole(e.target.value) }}
+                      // onChange={handleChange}
                       >
                         <MenuItem value={"admin"}>Admin</MenuItem>
                         <MenuItem value={"user"}>User</MenuItem>
@@ -414,12 +355,28 @@ useEffect(()=>{
                         id="demo-simple-select-error"
                         defaultValue={values.status}
                         value={userstatus}
-                        onChange={ (e:any)=>{handleChange(e),setStatus(e.target.value)}}
+                        onChange={(e: any) => { handleChange(e), setStatus(e.target.value) }}
                       >
                         <MenuItem value={"1"}>Approved</MenuItem>
                         <MenuItem value={"0"}>Disapproved</MenuItem>
                       </Select>
                     </FormControl>
+                  </Grid>
+
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <OrganizationInput
+                      name="organizationId"
+                      label="Organization"
+                      value={values?.organizationId || ""}
+                      options={organizationList}
+                      error={null}
+                      touched={false}
+                      onChange={handleChange}
+                    />
                   </Grid>
                 </Grid>
 

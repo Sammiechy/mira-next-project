@@ -19,10 +19,10 @@ import BarChart from "@/components/pages/dashboard/analytics/BarChart";
 import DoughnutChart from "@/components/pages/dashboard/analytics/DoughnutChart";
 import LanguagesTable from "@/components/pages/dashboard/analytics/LanguagesTable";
 import Stats from "@/components/pages/dashboard/analytics/Stats";
-import Table from "@/components/pages/dashboard/analytics/Table";
 import WorldMap from "@/components/pages/dashboard/analytics/WorldMap";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import UserTable from "@/components/pages/dashboard/analytics/UserTable";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -167,7 +167,7 @@ function Analytics() {
             lg: 8,
           }}
         >
-          <Table />
+          <UserTable />
         </Grid>
       </Grid>
     </React.Fragment>

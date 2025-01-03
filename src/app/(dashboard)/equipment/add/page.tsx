@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
 import { Formik } from "formik";
@@ -19,11 +19,12 @@ import {
   FormControl as MuiFormControl,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
-import LocationComp from "@/components/locationField/LocationComp";
-import { ADD_ORGANIZATION } from "@/hooks/mutations/mutation";
+import { GET_ORGANIZATIONS } from "hooks/queries/queries";
+import { CREATE_EQUIPMENT } from "@/hooks/mutations/mutation";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -31,56 +32,42 @@ const TextField = styled(MuiTextField)(spacing);
 const Button = styled(MuiButton)(spacing);
 
 const initialValues = {
-  name: "",
-  email: "",
-  phone: "",
-  Website: "",
-  locationID: ""
+  type: "",
+  description: "",
+  organizationId: "",
 };
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required("Name is required"),
-  locationID: Yup.string()
-    .transform((value) => {
-      if (typeof value === "object" && value?.target?.value) {
-        return value.target.value;
-      }
-      return value;
-    })
-    .required("Location is required"),
-  Website: Yup.string().required("Webside is required"),
-  email: Yup.string().email().required("Emai is required"),
-  phone: Yup.string()
-    .matches(
-      /^(?:\+?\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}$/,
-      "Phone number is not valid"
-    )
-    .required("Phone number is required"),
+  type: Yup.string().required("Type is required"),
+  organizationId: Yup.string().required("Organization is required"),
+  description: Yup.string().required("Description is required"),
 });
 
 
-function AddOrganizationForm() {
+function AddEquipmentForm() {
   const router = useRouter();
+  const [location, setLocation] = useState("");
+  const [organizationList, setOrganizationList] = useState<any>("");
+  const [organisation, setOrganisation] = useState<any>("");
+
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
+    const organisationID = parseFloat(organisation);
     const variablesData = {
-      Name: values?.name,
-      Email: values?.email,
-      Phone: values?.phone,
-      Website: values?.Website,
-      LocationID: values?.locationID?.target?.value,
-      address: values?.locationID?.target?.name
+      Type: values?.type,
+      Description: values?.description,
+      organizationId: organisationID,
     };
 
     try {
-      const response = await addOrganization({ variables: { data: variablesData } });
-      if (response?.data?.addOrganization) {
+      const response = await createEquipment({ variables: variablesData });
+      if (response?.data?.createEquipment) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-        router.push('/organization/list')
+        router.push('/equipment/list')
       } else {
         setSubmitting(false);
       }
@@ -93,8 +80,18 @@ function AddOrganizationForm() {
     }
   };
 
-  const [addOrganization] = useMutation(ADD_ORGANIZATION);
+  const [createEquipment, { loading, error }] = useMutation(CREATE_EQUIPMENT);
 
+  const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setOrganizationList(data.getOrganizations?.organizations);
+    }
+    refetch();
+  }, [data]);
   return (
     <Formik
       initialValues={initialValues}
@@ -108,15 +105,15 @@ function AddOrganizationForm() {
         handleSubmit,
         isSubmitting,
         setFieldError,
-        setFieldValue,
         touched,
+        setFieldValue,
         values,
         status,
       }) => (
         <Card mb={6}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Add New Organization
+              Add New Equipment
             </Typography>
 
             {status && status.sent && (
@@ -138,12 +135,12 @@ function AddOrganizationForm() {
                     }}
                   >
                     <TextField
-                      name="name"
-                      label="Name"
-                      value={values.name}
-                      error={Boolean(touched.name && errors.name)}
+                      name="type"
+                      label="Type"
+                      value={values.type}
+                      error={Boolean(touched.type && errors.type)}
                       fullWidth
-                      helperText={touched.name && errors.name}
+                      helperText={touched.type && errors.type}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
@@ -155,20 +152,15 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <TextField
-                      name="email"
-                      label="Email"
-                      value={values.email}
-                      error={Boolean(touched.email && errors.email)}
-                      fullWidth
-                      helperText={touched.email && errors.email}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="email"
-                      variant="outlined"
-                      my={2}
+                    <OrganizationInput
+                      name="organizationId"
+                      label="Organization"
+                      value={values?.organizationId}
+                      options={organizationList}
+                      error={errors.organizationId}
+                      touched={touched.organizationId}
+                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
                     />
-
                   </Grid>
                 </Grid>
 
@@ -178,59 +170,22 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp
-                      setFieldValue={setFieldValue}
-                      error={Boolean(touched.locationID && errors.locationID)}
-                      name={"locationID"}
-                      values={values}
-                      helperText={Boolean(touched.locationID && errors.locationID)}
-                    />
-
-                  </Grid>
-
-                  <Grid
-                    size={{
-                      md: 6,
-                    }}
-                  >
-
                     <TextField
-                      name="phone"
-                      label="Phone Number"
-                      value={values.phone}
-                      error={Boolean(touched.phone && errors.phone)}
+                      name="description"
+                      label="Description"
+                      value={values.description}
+                      error={Boolean(touched.description && errors.description)}
                       fullWidth
-                      helperText={touched.phone && errors.phone}
+                      helperText={touched.description && errors.description}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       type="text"
                       variant="outlined"
                       my={2}
                     />
-                  </Grid>
-                </Grid>
 
-
-                <Grid container spacing={6}>
-                  <Grid
-                    size={{
-                      md: 6,
-                    }}
-                  >
-                    <TextField
-                      name="Website"
-                      label="Website"
-                      value={values.Website}
-                      error={Boolean(touched.Website && errors.Website)}
-                      fullWidth
-                      helperText={touched.Website && errors.Website}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="text"
-                      variant="outlined"
-                      my={2}
-                    />
                   </Grid>
+
                 </Grid>
 
                 <Button
@@ -239,7 +194,7 @@ function AddOrganizationForm() {
                   color="primary"
                   mt={3}
                 >
-                  Save Organization
+                  Save
                 </Button>
               </form>
             )}
@@ -254,7 +209,7 @@ function FormikPage() {
   return (
     <ApolloProviderWrapper>
       <React.Fragment>
-        <AddOrganizationForm />
+        <AddEquipmentForm />
       </React.Fragment>
     </ApolloProviderWrapper>
   );

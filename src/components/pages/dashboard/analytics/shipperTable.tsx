@@ -40,7 +40,6 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-
 const ShipperTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
@@ -88,11 +87,11 @@ const ShipperTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'Name', headerName: 'Name', width: 160 },
-    { field: 'Email', headerName: 'Email', width: 180 },
-    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120 },
+    { field: 'Name', headerName: 'Name', width: 160, headerAlign:'left', align:'left' },
+    { field: 'Email', headerName: 'Email', width: 180, headerAlign:'left', align:'left' },
+    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120, headerAlign:'left', align:'left' },
     {
-      field: 'organization', headerName: 'Organization', width: 120, renderCell: (params) => (
+      field: 'organization', headerName: 'Organization', width: 120, headerAlign:'left', align:'left', renderCell: (params) => (
         <>
           {params.value ? params.value.Name : 'No Organization'}
         </>
@@ -100,12 +99,9 @@ const ShipperTable = () => {
       )
     },
     {
-      field: 'address', headerName: 'Location', type: 'number', width: 190, renderCell: (params) => (
-        <>{params.value} </>
-      )
-    },
+      field: 'address', headerName: 'Location', type: 'number', width: 190, headerAlign:'left', align:'left'},
     {
-      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
+      field: '', headerName: 'Action', type: 'string', width: 200, headerAlign:'left', align:'left', renderCell: (params) => (
         <>
           <Button
             variant="outlined"

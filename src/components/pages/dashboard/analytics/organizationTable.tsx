@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 
 import {
@@ -22,6 +22,7 @@ import { TextField } from '@mui/material';
 import { setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
+import { DELETE_MULTIPLE_ORGANIZATIONS } from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -39,11 +40,6 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const DELETE_MULTIPLE_ORGANIZATIONS = gql`
-  mutation DeleteMultipleOrganizations($ids: [Int!]!) {
-    deleteMultipleOrganizations(ids: $ids)
-  }
-`;
 
 const OrganizationTable = () => {
   const router = useRouter();
@@ -51,7 +47,6 @@ const OrganizationTable = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const localStore = localStorage?.getItem("userInfo");
   const userDetail = localStore ? JSON.parse(localStore) : null;
-  const { id } = userDetail;
   const [count, setCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
@@ -63,7 +58,7 @@ const OrganizationTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-
+  const inputRef = useRef<HTMLInputElement>(null);
   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
@@ -90,19 +85,19 @@ const OrganizationTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50, align: 'left'  },
-    { field: 'Name', headerName: 'Name', width: 120, align: 'left'  },
-    { field: 'Email', headerName: 'Email', width: 150, align: 'left'  },
-    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120, align: 'left'  },
-    { field: 'Website', headerName: 'Website', type: 'number', width: 195, align: 'left' },
+    { field: 'Name', headerName: 'Name', width: 120, headerAlign:'left', align:'left' },
+    { field: 'Email', headerName: 'Email', width: 150, headerAlign:'left', align:'left'},
+    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120, headerAlign:'left', align:'left'  },
+    { field: 'Website', headerName: 'Website', type: 'number', width: 195, headerAlign:'left', align:'left' },
     {
-      field: 'address', headerName: 'Location', type: 'number', width: 200, align: 'left' , renderCell: (params) => (
+      field: 'address', headerName: 'Location', type: 'number', width: 200, headerAlign:'left', align:'left' , renderCell: (params) => (
         <>
           {params.value}
         </>
       )
     },
     {
-      field: '', headerName: 'Action', type: 'string', width: 180, align: 'left' , renderCell: (params) => (
+      field: '', headerName: 'Action', type: 'string', width: 180, headerAlign:'left', align:'left' , renderCell: (params) => (
         <>
           <Button
             variant="outlined"
@@ -187,6 +182,7 @@ const OrganizationTable = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: '200px' }}
+          inputRef={inputRef} 
         />
       </div>
     );

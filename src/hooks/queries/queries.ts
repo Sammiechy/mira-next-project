@@ -17,7 +17,57 @@ export const GET_ORGANIZATIONS = gql`
   }
 `;
 
- export const GET_SHIPPERS = gql`
+export const GET_ORGANIZATION_BY_ID = gql`
+  query GetOrganizationById($id: Int!) {
+    getOrganizationById(id: $id) {
+      id
+      Name
+      LocationID
+      Website
+      Email
+      Phone
+    }
+  }
+`;
+
+export const GET_USERS = gql`
+query GetUsers($excludeId: Float  $limit: Float, $offset: Float) {
+  users (excludeId: $excludeId limit: $limit, offset: $offset){
+    id
+    firstName
+    lastName
+    email
+    phone
+    role
+    status
+    type
+  }
+}
+`;
+
+export const GET_USER_BY_ID = gql`
+  query GetUserById($id: Int!) {
+    GetUserById(id: $id) {
+      id
+      firstName
+      lastName
+      email
+      phone
+      role
+      status
+      type
+    }
+  }
+`;
+
+export const GET_USER_COUNT = gql`
+  query GetUserCount {
+    userCount
+  }
+`;
+
+
+export const GET_SHIPPERS = gql`
   query GetShippers($page: Int, $limit: Int) {
     getShippers(page: $page, limit: $limit) {
       shippers {
@@ -38,20 +88,7 @@ export const GET_ORGANIZATIONS = gql`
   }
 `;
 
-export const GET_ORGANIZATION_BY_ID = gql`
-  query GetOrganizationById($id: Int!) {
-    getOrganizationById(id: $id) {
-      id
-      Name
-      LocationID
-      Website
-      Email
-      Phone
-    }
-  }
-`;
-
- export const GET_SHIPPER_BY_ID = gql`
+export const GET_SHIPPER_BY_ID = gql`
   query GetShipperById($id: Int!) {
     getShipperById(id: $id) {
       id
@@ -116,4 +153,21 @@ export const SEARCH_PLACES = gql`
   }
 `;
 
+
+export const GET_EQUIPMENTS = gql`
+  query PaginatedEquipment($page: Int, $limit: Int) {
+    getEquipment(page: $page, limit: $limit) {
+      equipment {
+        id
+        Type
+        Description
+          organization {
+          id
+          Name
+        }
+      }
+      totalCount
+    }
+  }
+`;
 

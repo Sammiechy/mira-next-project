@@ -1,10 +1,8 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
 import { Formik } from "formik";
-
 import {
   Alert as MuiAlert,
   Box,
@@ -18,10 +16,6 @@ import {
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { useMutation, useQuery } from "@apollo/client";
@@ -30,15 +24,12 @@ import { useRouter } from "next/navigation";
 import { GET_ORGANIZATIONS } from "hooks/queries/queries";
 import { CREATE_LOCATION, CREATE_RECIEVER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
 const TextField = styled(MuiTextField)(spacing);
 const Button = styled(MuiButton)(spacing);
-const FormControlSpacing = styled(MuiFormControl)(spacing);
-const FormControl = styled(FormControlSpacing)`
-  min-width: 148px;
-`;
 
 const initialValues = {
   name: "",
@@ -78,7 +69,6 @@ function AddRecieverForm() {
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
-    console.log(values, "values")
     const organisationID = parseFloat(organisation);
     const locationID = parseFloat(location);
     const variablesData = {
@@ -218,7 +208,12 @@ function AddRecieverForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values} helperText={touched.locationID && errors.locationID} />
+                    <LocationComp
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.locationID && errors.locationID)}
+                      name={"locationID"} values={values}
+                      helperText={Boolean(touched.locationID && errors.locationID)}
+                    />
                   </Grid>
 
                   <Grid
@@ -248,27 +243,15 @@ function AddRecieverForm() {
                       md: 6,
                     }}
                   >
-                    <FormControl fullWidth error={Boolean(touched.organizationId && errors.organizationId)}>
-                      <InputLabel id="demo-simple-select-error-label">Organisation</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="organizationId"
-                        label="Organisation"
-                        id="demo-simple-select-error"
-                        value={organisation}
-                        onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
-                      >
-                        {
-                          organizationList && organizationList?.length > 0 && organizationList?.map((org: any, index: any) => {
-                            return (
-                              <MenuItem value={org?.id}>{org?.Name}</MenuItem>
-                            )
-                          })
-                        }
-
-                      </Select>
-                      <FormHelperText>{touched && errors.organizationId}</FormHelperText>
-                    </FormControl>
+                    <OrganizationInput
+                      name="organizationId"
+                      label="Organization"
+                      value={values?.organizationId}
+                      options={organizationList}
+                      error={errors.organizationId}
+                      touched={touched.organizationId}
+                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
+                    />
                   </Grid>
                 </Grid>
 

@@ -11,7 +11,7 @@ import {
   Stack,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 const Card = styled(MuiCard)(spacing);
 const Button = styled(MuiButton)(spacing);
 import { DataGrid, GridColDef, GridToolbar, GridOverlay } from '@mui/x-data-grid';
@@ -19,8 +19,10 @@ import { CircularProgress, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
-import { setUsers, editUser } from "@/redux/slices/userReducer";
+import { editUser } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
+import { GET_USERS } from "@/hooks/queries/queries";
+import { DELETE_USERS_MUTATION } from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -38,54 +40,28 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const DELETE_USERS_MUTATION = gql`
-  mutation DeleteUsers($ids: [Float!]!) {
-    deleteUsers(ids: $ids)
-  }
-`;
-
-const GET_USERS = gql`
-query GetUsers($excludeId: Float  $limit: Float, $offset: Float) {
-  users (excludeId: $excludeId limit: $limit, offset: $offset){
-    id
-    firstName
-    lastName
-    email
-    phone
-    role
-    status
-    type
-  }
-}
-`;
-
-const GET_USER_COUNT = gql`
-  query GetUserCount {
-    userCount
-  }
-`;
-
-const DashboardTable = () => {
+const UserTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const localStore = localStorage.getItem("userInfo");
   const userDetail = localStore ? JSON.parse(localStore) : null;
   const { id } = userDetail;
-  const [pageNumber, setPageNumber] = useState(1);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
-  const { loading, error, data, refetch } = useQuery(GET_USERS, { variables: { excludeId: id, limit: paginationModel.pageSize, offset: paginationModel.page * paginationModel.pageSize }, fetchPolicy: "network-only" });
+
+  const { data, refetch } = useQuery(GET_USERS, {
+    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+  });
+
   const [deleteUsers, { }] = useMutation(DELETE_USERS_MUTATION);
   const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
-  const { data: countData } = useQuery(GET_USER_COUNT);
-  const totalPages = countData ? Math.ceil(countData.userCount / 10) : 0;
   const [count, setCount] = useState(0);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -106,31 +82,33 @@ const DashboardTable = () => {
         setLoader(false);
       }, 2000);
     }
-  }, [data]);
+    refetch();
+  }, [data,]);
 
 
   const columns: GridColDef<RowData>[] = [
-    { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'firstName', headerName: 'First Name', width: 120 },
-    { field: 'lastName', headerName: 'Last Name', width: 120 },
-    { field: 'email', headerName: 'Email', width: 195 },
-    { field: 'phone', headerName: 'Phone Number', type: 'number', width: 120 },
+    { field: 'id', headerName: 'ID', width: 50, headerAlign: 'left', align: 'left' },
+    { field: 'firstName', headerName: 'First Name', width: 100, headerAlign: 'left', align: 'left' },
+    { field: 'lastName', headerName: 'Last Name', width: 100, headerAlign: 'left', align: 'left' },
+    { field: 'email', headerName: 'Email', width: 195, headerAlign: 'left', align: 'left' },
+    { field: 'phone', headerName: 'Phone Number', type: 'number', width: 100, headerAlign: 'left', align: 'left' },
+    { field: 'organization', headerName: 'Organization', type: 'number', width: 100, headerAlign: 'left', align: 'left' },
     {
-      field: 'role', headerName: 'Role', width: 90, renderCell: (params) => (
+      field: 'role', headerName: 'Role', width: 90, headerAlign: 'left', align: 'left', renderCell: (params) => (
         <Button variant="outlined" color="primary" size="small" sx={{ textTransform: 'capitalize' }}>
           {params.value}
         </Button>
       )
     },
     {
-      field: 'status', headerName: 'Status', type: 'string', width: 115, renderCell: (params) => (
+      field: 'status', headerName: 'Status', type: 'string', width: 115, headerAlign: 'left', align: 'left', renderCell: (params) => (
         <Button variant="outlined" color={`${params.value == 1 ? "success" : "error"}`} size="small" sx={{ textTransform: 'capitalize' }}>
           {params.value == 1 ? 'Approved' : 'Disapproved'}
         </Button>
       )
     },
     {
-      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
+      field: '', headerName: 'Action', type: 'string', width: 200, headerAlign: 'left', align: 'left', renderCell: (params) => (
         <>
           <Button
             variant="outlined"
@@ -149,7 +127,7 @@ const DashboardTable = () => {
             variant="outlined"
             color="error"
             size="small"
-            onClick={() => handleDelete(params.row)}
+            onClick={() => handleDelete(params.row.id)}
           >
             <Delete fontSize="small" /> Delete
           </Button>
@@ -295,4 +273,4 @@ const DashboardTable = () => {
   )
 };
 
-export default DashboardTable;
+export default UserTable;

@@ -30,9 +30,21 @@ import { gql } from "@apollo/client";
   }
 `;
 
-export const DELETE_MULTIPLE_SHIPPERS = gql`
-  mutation DeleteMultipleShippers($ids: [Int!]!) {
-    deleteMultipleShipper(ids: $ids)
+
+export const ADD_ORGANIZATION = gql`
+  mutation AddOrganization($data: OrganizationInput!) {
+    addOrganization(data: $data) {
+      message
+      organization {
+        id
+        Name
+        LocationID
+        Website
+        Phone
+        Email
+        isDeleted
+      }
+    }
   }
 `;
 
@@ -51,6 +63,94 @@ export const EDIT_ORGANIZATION = gql`
     }
   }
 `;
+
+export const DELETE_MULTIPLE_ORGANIZATIONS = gql`
+  mutation DeleteMultipleOrganizations($ids: [Int!]!) {
+    deleteMultipleOrganizations(ids: $ids)
+  }
+`;
+
+export const ADD_USER = gql`
+mutation AddUser(
+  $firstName: String!
+  $lastName: String!
+  $email: String!
+  $phone: String!
+  $role: String!
+  $type: String!
+  $status: String!
+  $organizationId:  Float!
+  $password: String!
+) {
+  addUser(
+    firstName: $firstName
+    lastName: $lastName
+    email: $email
+    phone: $phone
+    role: $role
+    type: $type
+    status: $status
+    organizationId: $organizationId
+    password: $password
+  ) {
+    id
+    firstName
+    lastName
+    email
+  }
+}
+`;
+
+export const EDIT_USER_MUTATION = gql`
+mutation EditUser(
+  $id: Float!
+  $firstName: String
+  $lastName: String
+  $email: String
+  $phone: String
+  $role: String
+  $type: String
+  $status: String
+  $organizationId: Float
+  $password: String
+) {
+  editUser(
+    id: $id
+    firstName: $firstName
+    lastName: $lastName
+    email: $email
+    phone: $phone
+    role: $role
+    type: $type
+    status: $status
+    organizationId: $organizationId
+    password: $password
+  ) {
+    id
+    firstName
+    lastName
+    email
+    phone
+    role
+    type
+    status
+    organizationId
+  }
+}
+`;
+
+export const DELETE_USERS_MUTATION = gql`
+  mutation DeleteUsers($ids: [Float!]!) {
+    deleteUsers(ids: $ids)
+  }
+`;
+
+export const DELETE_MULTIPLE_SHIPPERS = gql`
+  mutation DeleteMultipleShippers($ids: [Int!]!) {
+    deleteMultipleShipper(ids: $ids)
+  }
+`;
+
 
  export const CREATE_SHIPPER = gql`
   mutation CreateShipper(
@@ -76,7 +176,9 @@ export const EDIT_ORGANIZATION = gql`
         Phone
         Email
         address
-       organizationId
+       organization {
+        id
+      }
         isDeleted
       }
       message
@@ -190,6 +292,31 @@ export const CREATE_LOCATION = gql`
         City
         Country
         State_Province
+      }
+      message
+    }
+  }
+`; 
+
+export const CREATE_EQUIPMENT = gql`
+  mutation createEquipment(
+    $Type: String!
+    $Description: String!
+    $organizationId: Float!
+  ) {
+    createEquipment(
+      Type: $Type
+      Description: $Description
+      organizationId: $organizationId
+    ) {
+      equipment {
+        id
+        Type
+        Description
+       organization {
+        id
+      }
+        isDeleted
       }
       message
     }

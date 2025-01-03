@@ -39,23 +39,8 @@ const pagesSection = [
     ],
   },
   {
-    href: "/users",
-    icon: Layout,
-    title: "User Management",
-    children: [
-      {
-        href: "/users/list",
-        title: "List",
-      },
-      {
-        href: "/users/add",
-        title: "Add",
-      },
-    ],
-  },
-  {
     href: "/organizations",
-    icon: CreditCard,
+    icon: Grid,
     title: "Organizations",
     children: [
       {
@@ -64,6 +49,21 @@ const pagesSection = [
       },
       {
         href: "/organization/add",
+        title: "Add",
+      },
+    ],
+  },
+  {
+    href: "/users",
+    icon: Users,
+    title: "User Management",
+    children: [
+      {
+        href: "/users/list",
+        title: "List",
+      },
+      {
+        href: "/users/add",
         title: "Add",
       },
     ],
@@ -85,7 +85,7 @@ const pagesSection = [
   },
   {
     href: "/recievers",
-    icon: Briefcase,
+    icon: ShoppingCart,
     title: "Recievers",
     children: [
       {
@@ -94,6 +94,36 @@ const pagesSection = [
       },
       {
         href: "/recievers/add",
+        title: "Add",
+      },
+    ],
+  },
+  {
+    href: "/equipment",
+    icon: Briefcase,
+    title: "Equipment",
+    children: [
+      {
+        href: "/equipment/list",
+        title: "List",
+      },
+      {
+        href: "/equipment/add",
+        title: "Add",
+      },
+    ],
+  },
+  {
+    href: "/driver",
+    icon: Heart,
+    title: "Driver",
+    children: [
+      {
+        href: "/driver/list",
+        title: "List",
+      },
+      {
+        href: "/driver/add",
         title: "Add",
       },
     ],

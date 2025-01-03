@@ -1,10 +1,7 @@
 "use client";
-
-import React, { useState } from "react";
-import type { ReactElement } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
 import { Formik } from "formik";
 
 import {
@@ -17,40 +14,29 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
-
-const Divider = styled(MuiDivider)(spacing);
-
-const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
+import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
+import { ADD_USER } from "@/hooks/mutations/mutation";
 
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
 const FormControlSpacing = styled(MuiFormControl)(spacing);
-
 const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
-
-
-const timeOut = (time: number) => new Promise((res) => setTimeout(res, time));
 
 const initialValues = {
   firstName: "",
@@ -60,13 +46,15 @@ const initialValues = {
   password: "",
   confirmPassword: "",
   role: "",
-  status: 1
+  status: 1,
+  organizationId: "",
 };
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First name is required"),
   lastName: Yup.string().required("Last name is required"),
   email: Yup.string().email().required("Emai is required"),
+  organizationId: Yup.string().required("Organization is required"),
   phone: Yup.string()
     .matches(
       /^(?:\+?\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}$/,
@@ -98,40 +86,40 @@ const validationSchema = Yup.object().shape({
     .required("Confirm password is required"),
 });
 
-
 function AddUserForm() {
-  const router= useRouter();
-  const [userStatus,setUserStatus]= useState("");
-  const [role,setRole]= useState("user");
-
+  const router = useRouter();
+  const [userStatus, setUserStatus] = useState("");
+  const [role, setRole] = useState("user");
+  const [organisation, setOrganisation] = useState<any>("");
+  const [organizationList, setOrganizationList] = useState<any>("");
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
+    const organisationID = parseFloat(organisation);
     const variablesData = {
       firstName: values?.firstName,
       lastName: values?.lastName,
       email: values?.email,
       phone: values?.phone,
       role: `${role}`,
-      organizationId: parseFloat("1"),
+      organizationId: organisationID,
       password: values?.password,
       status: `${userStatus}`,
       type: "1",
     };
 
     try {
-      // await timeOut(1500);
       const response = await addUser({ variables: { ...variablesData } });
-      if(response?.data?.addUser){
+      if (response?.data?.addUser) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
         router.push('/users/list')
-      }else{
+      } else {
         setSubmitting(false);
       }
-    
+
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -141,39 +129,17 @@ function AddUserForm() {
   };
 
 
-
-  const ADD_USER = gql`
-mutation AddUser(
-  $firstName: String!
-  $lastName: String!
-  $email: String!
-  $phone: String!
-  $role: String!
-  $type: String!
-  $status: String!
-  $organizationId:  Float!
-  $password: String!
-) {
-  addUser(
-    firstName: $firstName
-    lastName: $lastName
-    email: $email
-    phone: $phone
-    role: $role
-    type: $type
-    status: $status
-    organizationId: $organizationId
-    password: $password
-  ) {
-    id
-    firstName
-    lastName
-    email
-  }
-}
-`;
-
   const [addUser, { data, loading, error }] = useMutation(ADD_USER);
+  const getOrganizationList = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
+
+  useEffect(() => {
+    if (getOrganizationList?.data) {
+      setOrganizationList(getOrganizationList?.data?.getOrganizations?.organizations);
+    }
+    getOrganizationList?.refetch();
+  }, [getOrganizationList?.data]);
 
   return (
     <Formik
@@ -186,6 +152,7 @@ mutation AddUser(
         handleBlur,
         handleChange,
         handleSubmit,
+        setFieldError,
         isSubmitting,
         touched,
         values,
@@ -348,7 +315,7 @@ mutation AddUser(
                         label="Age"
                         id="demo-simple-select-error"
                         value={role}
-                        onChange={(e:any)=>{handleChange(e),setRole(e.target.value)}}
+                        onChange={(e: any) => { handleChange(e), setRole(e.target.value) }}
                       >
                         <MenuItem value={"admin"}>Admin</MenuItem>
                         <MenuItem value={"user"}>User</MenuItem>
@@ -366,16 +333,30 @@ mutation AddUser(
                         labelId="demo-simple-select-error-label"
                         label="Age"
                         id="demo-simple-select-error"
-                        // value={values.status}
                         value={userStatus}
-                        onChange={(e:any)=>{handleChange(e),setUserStatus(e.target.value)}}
-
-                        // onChange={handleChange}
+                        onChange={(e: any) => { handleChange(e), setUserStatus(e.target.value) }}
                       >
                         <MenuItem value={1}>Approved</MenuItem>
                         <MenuItem value={0}>Disapproved</MenuItem>
                       </Select>
                     </FormControl>
+                  </Grid>
+
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <OrganizationInput
+                      name="organizationId"
+                      label="Organization"
+                      value={values?.organizationId}
+                      options={organizationList}
+                      error={errors.organizationId}
+                      touched={touched.organizationId}
+                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
+
+                    />
                   </Grid>
                 </Grid>
 

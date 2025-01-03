@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
 import { Formik } from "formik";
@@ -17,38 +17,48 @@ import {
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
+import {GET_ORGANIZATIONS} from "hooks/queries/queries";
+import { CREATE_LOCATION, CREATE_SHIPPER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
-import { ADD_ORGANIZATION } from "@/hooks/mutations/mutation";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
 const TextField = styled(MuiTextField)(spacing);
 const Button = styled(MuiButton)(spacing);
+const FormControlSpacing = styled(MuiFormControl)(spacing);
+const FormControl = styled(FormControlSpacing)`
+  min-width: 148px;
+`;
+
 
 const initialValues = {
   name: "",
   email: "",
   phone: "",
-  Website: "",
+  organizationId: "",
   locationID: ""
 };
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-  locationID: Yup.string()
-    .transform((value) => {
-      if (typeof value === "object" && value?.target?.value) {
-        return value.target.value;
-      }
-      return value;
-    })
-    .required("Location is required"),
-  Website: Yup.string().required("Webside is required"),
+   locationID: Yup.string()
+     .transform((value) => {
+       if (typeof value === "object" && value?.target?.value) {
+         return value.target.value;
+       }
+       return value;
+     })
+     .required("Location is required"),
+  organizationId: Yup.string().required("Organization is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
     .matches(
@@ -59,32 +69,49 @@ const validationSchema = Yup.object().shape({
 });
 
 
-function AddOrganizationForm() {
-  const router = useRouter();
+function AddShipperForm() {
+  const router= useRouter();
+  const [location,setLocation]= useState("");
+  const [organizationList,setOrganizationList] =useState<any>("");
+  const [organisation,setOrganisation]= useState<any>("");
+  
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
+    const organisationID = parseFloat(organisation); 
+    const locationID = parseFloat(location);
     const variablesData = {
       Name: values?.name,
       Email: values?.email,
       Phone: values?.phone,
-      Website: values?.Website,
+      organizationId: organisationID,
       LocationID: values?.locationID?.target?.value,
-      address: values?.locationID?.target?.name
+      address:values?.locationID?.target?.name
     };
+    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item:any) => item.trim());
+    const LocationData={
+      Address1: values?.locationID?.target?.name,
+      places_id: values?.locationID?.target?.value,
+      City: City||"",
+      Country: Country||"",
+      State_Province: State_Province||"",
+      PostalCode_Zip:"",
+      Address2:""
+    }
 
     try {
-      const response = await addOrganization({ variables: { data: variablesData } });
-      if (response?.data?.addOrganization) {
+      const response = await createShipper({ variables:  variablesData  });
+      const res= await createLocation({variables:LocationData})
+      if(response?.data?.createShipper){
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-        router.push('/organization/list')
-      } else {
+        router.push('/shippers/list')
+      }else{
         setSubmitting(false);
       }
-
+    
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -93,8 +120,19 @@ function AddOrganizationForm() {
     }
   };
 
-  const [addOrganization] = useMutation(ADD_ORGANIZATION);
+  const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
+   const [createLocation] = useMutation(CREATE_LOCATION);
 
+   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setOrganizationList(data.getOrganizations?.organizations);
+    }
+    refetch();
+  }, [data]);
   return (
     <Formik
       initialValues={initialValues}
@@ -108,15 +146,15 @@ function AddOrganizationForm() {
         handleSubmit,
         isSubmitting,
         setFieldError,
-        setFieldValue,
         touched,
+        setFieldValue,
         values,
         status,
       }) => (
         <Card mb={6}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Add New Organization
+              Add New Shipper
             </Typography>
 
             {status && status.sent && (
@@ -155,7 +193,7 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <TextField
+                      <TextField
                       name="email"
                       label="Email"
                       value={values.email}
@@ -168,7 +206,7 @@ function AddOrganizationForm() {
                       variant="outlined"
                       my={2}
                     />
-
+                   
                   </Grid>
                 </Grid>
 
@@ -178,16 +216,9 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp
-                      setFieldValue={setFieldValue}
-                      error={Boolean(touched.locationID && errors.locationID)}
-                      name={"locationID"}
-                      values={values}
-                      helperText={Boolean(touched.locationID && errors.locationID)}
-                    />
-
+                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
                   </Grid>
-
+                 
                   <Grid
                     size={{
                       md: 6,
@@ -212,24 +243,32 @@ function AddOrganizationForm() {
 
 
                 <Grid container spacing={6}>
-                  <Grid
+                <Grid
                     size={{
                       md: 6,
                     }}
                   >
-                    <TextField
-                      name="Website"
-                      label="Website"
-                      value={values.Website}
-                      error={Boolean(touched.Website && errors.Website)}
-                      fullWidth
-                      helperText={touched.Website && errors.Website}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="text"
-                      variant="outlined"
-                      my={2}
-                    />
+                     <FormControl fullWidth  error={Boolean(touched.organizationId && errors.organizationId)}>
+                      <InputLabel id="demo-simple-select-error-label">Organization</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-error-label"
+                        name="organizationId"
+                        label="Organization"
+                        id="demo-simple-select-error"
+                        value={organisation}                      
+                        onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
+                      >
+                        {
+                          organizationList && organizationList?.length > 0 && organizationList?.map((org:any, index:any) =>{
+                            return (
+                              <MenuItem value={org?.id}>{org?.Name}</MenuItem>
+                            )
+                          })
+                        }
+                        
+                      </Select>
+                      <FormHelperText>{touched && errors.organizationId}</FormHelperText>
+                    </FormControl>
                   </Grid>
                 </Grid>
 
@@ -239,7 +278,7 @@ function AddOrganizationForm() {
                   color="primary"
                   mt={3}
                 >
-                  Save Organization
+                  Save 
                 </Button>
               </form>
             )}
@@ -254,7 +293,7 @@ function FormikPage() {
   return (
     <ApolloProviderWrapper>
       <React.Fragment>
-        <AddOrganizationForm />
+        <AddShipperForm />
       </React.Fragment>
     </ApolloProviderWrapper>
   );

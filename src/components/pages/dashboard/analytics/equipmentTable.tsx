@@ -21,8 +21,8 @@ import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
-import { GET_RECIEVER } from "@/hooks/queries/queries";
-import { DELETE_MULTIPLE_RECIEVER } from "@/hooks/mutations/mutation";
+import { GET_EQUIPMENTS } from "@/hooks/queries/queries";
+import { DELETE_MULTIPLE_SHIPPERS } from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -41,7 +41,7 @@ interface CustomToolbarProps {
 }
 
 
-const RecieverTable = () => {
+const EquipmentTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -53,10 +53,10 @@ const RecieverTable = () => {
     page: 1,
     pageSize: 10,
   });
-  const { loading, error, data, refetch } = useQuery(GET_RECIEVER, {
+  const { loading, error, data, refetch } = useQuery(GET_EQUIPMENTS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
-  const [deleteRecievers] = useMutation(DELETE_MULTIPLE_RECIEVER)
+  const [deleteShippers] = useMutation(DELETE_MULTIPLE_SHIPPERS)
   const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,11 +72,12 @@ const RecieverTable = () => {
   }, [searchQuery]);
 
 
+
   useEffect(() => {
     setLoader(true)
     if (data) {
-      setList(data.getRecievers?.recievers);
-      setCount(data.getRecievers?.recievers?.length)
+      setList(data.getEquipment?.equipment);
+      setCount(data.getEquipment?.equipment?.length)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
@@ -86,21 +87,18 @@ const RecieverTable = () => {
 
 
   const columns: GridColDef<RowData>[] = [
-    { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'Name', headerName: 'Name', width: 160, headerAlign:'left', align:'left'  },
-    { field: 'Email', headerName: 'Email', width: 180, headerAlign:'left', align:'left'  },
-    { field: 'Phone', headerName: 'Phone Number', type: 'number', width: 120, headerAlign:'left', align:'left'  },
+    { field: 'id', headerName: 'ID', width: 50, headerAlign:'left', align:'left' },
+    { field: 'Type', headerName: 'Type', width: 200, headerAlign:'left', align:'left' },
     {
-      field: 'organization', headerName: 'Organization', width: 120, headerAlign:'left', align:'left' , renderCell: (params) => (
+      field: 'organization', headerName: 'Organization', width: 240, headerAlign:'left', align:'left' , renderCell: (params) => (
         <>
           {params.value ? params.value.Name : 'No Organization'}
         </>
       )
     },
+    { field: 'Description', headerName: 'Description', type: 'number', width: 320 , headerAlign:'left', align:'left'},
     {
-      field: 'address', headerName: 'Location', type: 'number', width: 190, headerAlign:'left', align:'left'},
-    {
-      field: '', headerName: 'Action', type: 'string', width: 200, headerAlign:'left', align:'left' , renderCell: (params) => (
+      field: '', headerName: 'Action', type: 'string', width: 200, renderCell: (params) => (
         <>
           <Button
             variant="outlined"
@@ -108,7 +106,7 @@ const RecieverTable = () => {
             size="small"
             onClick={() => {
               dispatch(setEditOrganization(params.row)),
-                router.push(`/recievers/edit/${params.row.id}`)
+                router.push(`/shippers/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -130,14 +128,14 @@ const RecieverTable = () => {
 
   const handleDelete = async (ids: any) => {
     if (selectedIds?.length > 0 && ids == "") {
-      const response = await deleteRecievers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
-      if (response.data.deleteMultipleReciever) {
+      const response = await deleteShippers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
+      if (response.data.deleteMultipleShipper) {
         setDeleteStatus(true);
         await refetch();
       }
     } else {
-      const response = await deleteRecievers({ variables: { ids } });
-      if (response.data.deleteMultipleReciever) {
+      const response = await deleteShippers({ variables: { ids } });
+      if (response.data.deleteMultipleShipper) {
         setDeleteStatus(true);
         await refetch();
       }
@@ -163,14 +161,14 @@ const RecieverTable = () => {
     );
   }
 
-  // const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
-  //   setPaginationModel(paginationModel);
-  //   refetch({
-  //       excludeId: id,
-  //       limit: paginationModel.pageSize,
-  //       offset: paginationModel.page * paginationModel.pageSize,
-  //   });
-  // };
+  const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
+    setPaginationModel(paginationModel);
+    refetch({
+        excludeId: id,
+        limit: paginationModel.pageSize,
+        offset: paginationModel.page * paginationModel.pageSize,
+    });
+  };
 
   const filteredRows = list?.filter((row) =>
     Object.keys(row).some((column) => {
@@ -206,26 +204,26 @@ const RecieverTable = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         open={deleteStatus}
         onClose={() => setDeleteStatus(false)}
-        message="Reciever Deleted Successfully"
+        message="Shipper Deleted Successfully"
         key={"top" + "right"}
       />
       <Card mb={6}>
         <CardHeader
           action={
             <Button mr={2} mb={2} variant="contained" onClick={() => {
-              router.push("/recievers/add");
+              router.push("/equipment/add");
             }}>
-              Add New Reciever
+              Add New Equipment
             </Button>
           }
-          title="Reciever List"
+          title="Equipment List"
         />
         <Paper>
           <DataGrid
             pagination
             paginationMode="server"
             paginationModel={paginationModel}
-            //  onPaginationModelChange={handlePaginationChange}
+             onPaginationModelChange={handlePaginationChange}
             rows={filteredRows}
             rowCount={count ? count : 0}
             columns={columns}
@@ -267,4 +265,4 @@ const RecieverTable = () => {
   )
 };
 
-export default RecieverTable;
+export default EquipmentTable;

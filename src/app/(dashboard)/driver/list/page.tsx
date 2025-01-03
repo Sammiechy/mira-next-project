@@ -2,13 +2,13 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
 import client from "lib/apolloClient";
-import UserTable from "@/components/pages/dashboard/analytics/UserTable";
+import DriverTable from "@/components/pages/dashboard/analytics/driverTable";
 
 function List() {
   return (
     <React.Fragment>
       <ApolloProvider client={client}>
-      <UserTable/>
+      <DriverTable/>
       </ApolloProvider>
     </React.Fragment>
   );

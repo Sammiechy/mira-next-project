@@ -17,28 +17,20 @@ import {
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
-import {GET_ORGANIZATIONS} from "hooks/queries/queries";
+import { GET_ORGANIZATIONS } from "hooks/queries/queries";
 import { CREATE_LOCATION, CREATE_SHIPPER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
 const TextField = styled(MuiTextField)(spacing);
 const Button = styled(MuiButton)(spacing);
-const FormControlSpacing = styled(MuiFormControl)(spacing);
-const FormControl = styled(FormControlSpacing)`
-  min-width: 148px;
-`;
-
 
 const initialValues = {
   name: "",
@@ -50,14 +42,14 @@ const initialValues = {
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
-   locationID: Yup.string()
-     .transform((value) => {
-       if (typeof value === "object" && value?.target?.value) {
-         return value.target.value;
-       }
-       return value;
-     })
-     .required("Location is required"),
+  locationID: Yup.string()
+    .transform((value) => {
+      if (typeof value === "object" && value?.target?.value) {
+        return value.target.value;
+      }
+      return value;
+    })
+    .required("Location is required"),
   organizationId: Yup.string().required("Organization is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
@@ -70,48 +62,50 @@ const validationSchema = Yup.object().shape({
 
 
 function AddShipperForm() {
-  const router= useRouter();
-  const [location,setLocation]= useState("");
-  const [organizationList,setOrganizationList] =useState<any>("");
-  const [organisation,setOrganisation]= useState<any>("");
-  
+  const router = useRouter();
+  const [location, setLocation] = useState("");
+  const [organizationList, setOrganizationList] = useState<any>("");
+  const [organisation, setOrganisation] = useState<any>("");
+
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
-    const organisationID = parseFloat(organisation); 
+    const organisationID = parseFloat(organisation);
     const locationID = parseFloat(location);
     const variablesData = {
       Name: values?.name,
       Email: values?.email,
       Phone: values?.phone,
       organizationId: organisationID,
-      LocationID: values?.locationID?.target?.value,
-      address:values?.locationID?.target?.name
+      address: values?.locationID?.target?.name,
+      LocationID: values?.locationID?.target?.value
     };
-    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item:any) => item.trim());
-    const LocationData={
+
+    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item: any) => item.trim());
+    const LocationData = {
       Address1: values?.locationID?.target?.name,
       places_id: values?.locationID?.target?.value,
-      City: City||"",
-      Country: Country||"",
-      State_Province: State_Province||"",
-      PostalCode_Zip:"",
-      Address2:""
+      City: City || "",
+      Country: Country || "",
+      State_Province: State_Province || "",
+      PostalCode_Zip: "",
+      Address2: ""
     }
 
+    console.log(variablesData, values, 'variablesDatavariablesData')
     try {
-      const response = await createShipper({ variables:  variablesData  });
-      const res= await createLocation({variables:LocationData})
-      if(response?.data?.createShipper){
+      const response = await createShipper({ variables: variablesData });
+      const res = await createLocation({ variables: LocationData })
+      if (response?.data?.createShipper) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
         router.push('/shippers/list')
-      }else{
+      } else {
         setSubmitting(false);
       }
-    
+
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -121,9 +115,9 @@ function AddShipperForm() {
   };
 
   const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
-   const [createLocation] = useMutation(CREATE_LOCATION);
+  const [createLocation] = useMutation(CREATE_LOCATION);
 
-   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+  const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
     variables: { page: 1, limit: 1000 },
   });
 
@@ -193,7 +187,7 @@ function AddShipperForm() {
                       md: 6,
                     }}
                   >
-                      <TextField
+                    <TextField
                       name="email"
                       label="Email"
                       value={values.email}
@@ -206,7 +200,7 @@ function AddShipperForm() {
                       variant="outlined"
                       my={2}
                     />
-                   
+
                   </Grid>
                 </Grid>
 
@@ -216,9 +210,14 @@ function AddShipperForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
+                    <LocationComp
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.locationID && errors.locationID)}
+                      name={"locationID"} values={values}
+                      helperText={Boolean(touched.locationID && errors.locationID)}
+                    />
                   </Grid>
-                 
+
                   <Grid
                     size={{
                       md: 6,
@@ -243,32 +242,20 @@ function AddShipperForm() {
 
 
                 <Grid container spacing={6}>
-                <Grid
+                  <Grid
                     size={{
                       md: 6,
                     }}
                   >
-                     <FormControl fullWidth  error={Boolean(touched.organizationId && errors.organizationId)}>
-                      <InputLabel id="demo-simple-select-error-label">Organisation</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="organizationId"
-                        label="Organisation"
-                        id="demo-simple-select-error"
-                        value={organisation}                      
-                        onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
-                      >
-                        {
-                          organizationList && organizationList?.length > 0 && organizationList?.map((org:any, index:any) =>{
-                            return (
-                              <MenuItem value={org?.id}>{org?.Name}</MenuItem>
-                            )
-                          })
-                        }
-                        
-                      </Select>
-                      <FormHelperText>{touched && errors.organizationId}</FormHelperText>
-                    </FormControl>
+                    <OrganizationInput
+                      name="organizationId"
+                      label="Organization"
+                      value={values?.organizationId}
+                      options={organizationList}
+                      error={errors.organizationId}
+                      touched={touched.organizationId}
+                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
+                      />
                   </Grid>
                 </Grid>
 
@@ -278,7 +265,7 @@ function AddShipperForm() {
                   color="primary"
                   mt={3}
                 >
-                  Save 
+                  Save
                 </Button>
               </form>
             )}
