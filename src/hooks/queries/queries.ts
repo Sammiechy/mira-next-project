@@ -24,6 +24,7 @@ export const GET_ORGANIZATION_BY_ID = gql`
       Name
       LocationID
       Website
+      address
       Email
       Phone
     }

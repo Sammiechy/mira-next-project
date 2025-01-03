@@ -59,7 +59,7 @@ function EditUserForm() {
 
   const initialValues: any = {
     Name: organisationData?.Name || "",
-    LocationID: organisationData?.LocationID || "",
+    LocationID: organisationData?.address || "",
     email: organisationData?.Email || location,
     phone: organisationData?.Phone || "",
     Website: organisationData?.Website || "",
@@ -196,7 +196,7 @@ function EditUserForm() {
                         setFieldValue={setFieldValue}
                         error={Boolean(touched.locationID && errors.locationID)}
                         name={"locationID"}
-                        values={values?.LocationID}
+                        defaultValue={values?.LocationID}
                         helperText={Boolean(touched.locationID && errors.locationID)}
                       />
 
