@@ -50,11 +50,11 @@ const RecieverTable = () => {
   const { id } = userDetail;
   const [count, setCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const { loading, error, data, refetch } = useQuery(GET_RECIEVER, {
-    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+    variables: { page: paginationModel?.page+1, limit: paginationModel.pageSize },
   });
   const [deleteRecievers] = useMutation(DELETE_MULTIPLE_RECIEVER)
   const [deleteStatus, setDeleteStatus] = useState(false);
@@ -76,7 +76,7 @@ const RecieverTable = () => {
     setLoader(true)
     if (data) {
       setList(data.getRecievers?.recievers);
-      setCount(data.getRecievers?.recievers?.length)
+      setCount(data.getRecievers?.totalCount)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
@@ -163,14 +163,14 @@ const RecieverTable = () => {
     );
   }
 
-  // const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
-  //   setPaginationModel(paginationModel);
-  //   refetch({
-  //       excludeId: id,
-  //       limit: paginationModel.pageSize,
-  //       offset: paginationModel.page * paginationModel.pageSize,
-  //   });
-  // };
+  const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
+    setPaginationModel(paginationModel);
+    refetch({
+        // excludeId: id,
+        limit: paginationModel.pageSize,
+        offset: paginationModel.page * paginationModel.pageSize,
+    });
+  };
 
   const filteredRows = list?.filter((row) =>
     Object.keys(row).some((column) => {
@@ -225,7 +225,7 @@ const RecieverTable = () => {
             pagination
             paginationMode="server"
             paginationModel={paginationModel}
-            //  onPaginationModelChange={handlePaginationChange}
+             onPaginationModelChange={handlePaginationChange}
             rows={filteredRows}
             rowCount={count ? count : 0}
             columns={columns}

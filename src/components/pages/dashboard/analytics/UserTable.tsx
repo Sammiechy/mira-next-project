@@ -182,7 +182,12 @@ const UserTable = () => {
       excludeId: id,
       limit: paginationModel.pageSize,
       offset: paginationModel.page * paginationModel.pageSize,
-    });
+    }).then((refetchedData) => {
+      if (refetchedData?.data?.users?.users) {
+        setList(refetchedData.data.users.users); 
+        // setCount(refetchedData.data.users.totalCount); 
+      }
+    })
   };
 
   const filteredRows = list.filter((row) =>
