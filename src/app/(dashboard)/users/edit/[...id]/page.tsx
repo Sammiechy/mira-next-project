@@ -79,24 +79,26 @@ const validationSchema = Yup.object().shape({
 function EditUserForm() {
   const [editUser, { loading, error }] = useMutation(EDIT_USER_MUTATION);
   const { id } = useParams();
+   const userId= parseFloat(id[0])
   const router = useRouter();
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState<any>("");
   const [userstatus, setStatus] = useState("");
   const [organizationList, setOrganizationList] = useState<any>("");
   const [role, setRole] = useState("");
 
   const { data, } = useQuery(GET_USER_BY_ID, {
-    variables: { id: id },
+    variables: { id: userId },
   });
 
   useEffect(() => {
-    if (data?.getOrganizationById) {
-      setUserData(data.getOrganizationById)
-
+    if (data?.getUserById) {
+      setUserData(data.getUserById)
+      setRole(data.getUserById.role || "user");
+    setStatus(data.getUserById.status || "1");
     }
   }, [data]);
 
-
+console.log(userData,"userData---")
   const initialValues: any = {
     firstName: userData?.firstName || "",
     lastName: userData?.lastName || "",
@@ -122,7 +124,8 @@ function EditUserForm() {
       phone: values?.phone,
       role: role,
       organizationId: parseFloat(values?.organizationId),
-      password: values?.password,
+      // password: values?.password,
+      // password: values?.password,
       status: userstatus,
       id: parseFloat(id?.[0]),
       type: "1",
@@ -158,7 +161,8 @@ function EditUserForm() {
   }, [getOrganizationList?.data]);
 
   return (
-    <Formik
+    <>
+    {userData?  <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -285,6 +289,7 @@ function EditUserForm() {
                       defaultValue={values.password}
                       error={Boolean(touched.password && errors.password)}
                       fullWidth
+                      disabled
                       helperText={Boolean(touched.password && errors.password)}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -304,6 +309,7 @@ function EditUserForm() {
                       name="confirmPassword"
                       label="Confirm password"
                       value={values.confirmPassword}
+                      disabled
                       defaultValue={values.confirmPassword}
                       error={Boolean(
                         touched.confirmPassword && errors.confirmPassword
@@ -332,7 +338,7 @@ function EditUserForm() {
                         labelId="demo-simple-select-error-label"
                         label="Age"
                         id="demo-simple-select-error"
-                        defaultValue={values?.role}
+                        defaultValue={values?.role||""}
                         value={role}
                         onChange={(e: any) => { handleChange(e), setRole(e.target.value) }}
                       // onChange={handleChange}
@@ -393,7 +399,9 @@ function EditUserForm() {
           </CardContent>
         </Card>
       )}
-    </Formik>
+    </Formik>: null }
+    </>
+   
   );
 }
 

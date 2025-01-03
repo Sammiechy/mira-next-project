@@ -76,8 +76,8 @@ const UserTable = () => {
   useEffect(() => {
     setLoader(true)
     if (data) {
-      setList(data?.users);
-      setCount(data?.users?.length)
+      setList(data?.users?.users);
+      setCount(data?.users?.totalCount)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
@@ -92,7 +92,11 @@ const UserTable = () => {
     { field: 'lastName', headerName: 'Last Name', width: 100, headerAlign: 'left', align: 'left' },
     { field: 'email', headerName: 'Email', width: 195, headerAlign: 'left', align: 'left' },
     { field: 'phone', headerName: 'Phone Number', type: 'number', width: 100, headerAlign: 'left', align: 'left' },
-    { field: 'organization', headerName: 'Organization', type: 'number', width: 100, headerAlign: 'left', align: 'left' },
+    { field: 'organization', headerName: 'Organization', type: 'number', width: 100, headerAlign: 'left', align: 'left' , renderCell: (params) => (
+    <>
+     {params.value ? params.value.Name : 'No Organization'}
+    </>
+     )},
     {
       field: 'role', headerName: 'Role', width: 90, headerAlign: 'left', align: 'left', renderCell: (params) => (
         <Button variant="outlined" color="primary" size="small" sx={{ textTransform: 'capitalize' }}>
