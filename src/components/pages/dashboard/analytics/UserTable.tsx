@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 
 import {
@@ -44,6 +44,7 @@ const UserTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const inputRef = useRef<HTMLInputElement>(null);
   const localStore = localStorage.getItem("userInfo");
   const userDetail = localStore ? JSON.parse(localStore) : null;
   const { id } = userDetail;
@@ -63,7 +64,11 @@ const UserTable = () => {
   const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
   const [count, setCount] = useState(0);
+
   useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus(); 
+    }
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
@@ -166,11 +171,13 @@ const UserTable = () => {
     );
   }
 
-  function CustomNoRowsOverlay() {
+  function CustomNoRowsOverlay(searchQuery:any) {
     return (
       <GridOverlay>
         <Typography variant="h6" color="textSecondary">
-          No data available
+        {searchQuery
+          ? `No data found for "${searchQuery}"`
+          : "No data available"}
         </Typography>
       </GridOverlay>
     );
@@ -201,7 +208,7 @@ const UserTable = () => {
     setSelectedIds(id);
   };
 
-  const CustomToolbar: React.FC<CustomToolbarProps> = ({ searchQuery, setSearchQuery }) => {
+  const CustomToolbar: React.FC<CustomToolbarProps> =  ({ searchQuery, setSearchQuery }) => {
     return (
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
         <GridToolbar />
@@ -209,6 +216,7 @@ const UserTable = () => {
           label="Search"
           variant="outlined"
           size="small"
+          inputRef={inputRef} 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: '200px' }}
@@ -267,13 +275,13 @@ const UserTable = () => {
                     }
                   </Stack>
                   <CustomToolbar
-                    {...props}
+                    // {...props}
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery} />
 
                 </div>,
               loadingOverlay: CustomLoadingOverlay,
-              noRowsOverlay: CustomNoRowsOverlay,
+             noRowsOverlay: () => <CustomNoRowsOverlay searchQuery={searchQuery} />
             }}
           />
         </Paper>

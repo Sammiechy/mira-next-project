@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 
 import {
@@ -46,6 +46,7 @@ const EquipmentTable = () => {
   const [list, setList] = useState<RowData[]>([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const localStore = localStorage?.getItem("userInfo");
+  const inputRef = useRef<HTMLInputElement>(null);
   const userDetail = localStore ? JSON.parse(localStore) : null;
   const { id } = userDetail;
   const [count, setCount] = useState(0);
@@ -62,6 +63,9 @@ const EquipmentTable = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
 
   useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus(); 
+    }
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
@@ -192,6 +196,7 @@ const EquipmentTable = () => {
           variant="outlined"
           size="small"
           value={searchQuery}
+          ref={inputRef}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: '200px' }}
         />

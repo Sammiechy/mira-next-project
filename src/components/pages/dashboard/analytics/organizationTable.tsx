@@ -64,6 +64,9 @@ const OrganizationTable = () => {
   });
 
   useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus(); 
+    }
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
