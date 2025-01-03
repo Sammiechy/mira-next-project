@@ -347,3 +347,70 @@ export const EDIT_EQUIPMENT = gql`
     }
   }
 `;
+
+
+export const CREATE_DRIVERS = gql`
+  mutation createDrivers(
+    $FirstName: String!
+    $LastName: String!
+    $Phone: String!
+    $Email: String!
+    $Notes:String!
+    $PaymentMethod: PaymentMethod!
+    $organizationId: Float!
+  ) {
+    createDrivers(
+      FirstName: $FirstName
+      LastName: $LastName
+      Phone: $Phone
+      Email: $Email
+      Notes:$Notes
+      PaymentMethod: $PaymentMethod 
+      organizationId: $organizationId
+    ) {
+      drivers {
+        id
+        FirstName
+        LastName
+        Phone
+        Email
+        Notes
+        PaymentMethod
+        organization {
+          id
+        }
+        isDeleted
+      }
+      message
+    }
+  }
+`; 
+
+
+export const DELETE_MULTIPLE_DRIVERS = gql`
+  mutation DeleteMultipleDrivers($ids: [Int!]!) {
+    deleteMultipleDrivers(ids: $ids)
+  }
+`;
+
+
+export const EDIT_DRIVER = gql`
+  mutation EditDriver($id: Int!, $data: DriversInput!) {
+    editDrivers(id: $id, data: $data) {
+      message
+      success
+      drivers {
+        id
+        FirstName
+        LastName
+        Phone
+        Email
+        Notes
+        PaymentMethod
+        organization {
+          id
+        }
+      }
+    }
+  }
+`;

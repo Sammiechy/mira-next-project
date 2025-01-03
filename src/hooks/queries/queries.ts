@@ -196,3 +196,44 @@ export const GET_EQUIPMENT_BY_ID = gql`
     }
   }
 `;
+
+
+export const GET_DRIVERS = gql`
+  query PaginatedDrivers($page: Int, $limit: Int) {
+    getDrivers(page: $page, limit: $limit) {
+      drivers {
+        id
+        FirstName
+        LastName
+        Email
+        Phone
+        PaymentMethod
+        Notes
+        organization {
+          id
+          Name
+        }
+      }
+      totalCount
+    }
+  }
+`;
+
+
+export const GET_DRIVER_BY_ID = gql`
+  query GetDriversById($id: Int!) {
+    getDriversById(id: $id) {
+       id
+      FirstName
+      LastName
+      Email
+      Phone
+      PaymentMethod
+      Notes
+      organization {
+        id
+        Name
+      }
+    }
+  }
+`;

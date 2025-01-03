@@ -164,10 +164,10 @@ function AddEquipmentForm() {
                   </Grid>
                 </Grid>
 
-                <Grid container spacing={6}>
+                <Grid container spacing={12}>
                   <Grid
                     size={{
-                      md: 6,
+                      md: 12,
                     }}
                   >
                     <TextField

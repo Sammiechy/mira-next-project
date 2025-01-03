@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import type { ReactElement } from "react";
 import * as Yup from "yup";
 import styled from "@emotion/styled";
-import NextLink from "next/link";
 import { Formik } from "formik";
 
 import {
@@ -16,7 +14,6 @@ import {
   CircularProgress,
   Divider as MuiDivider,
   Grid2 as Grid,
-  Link,
   TextField as MuiTextField,
   Typography,
   FormControl as MuiFormControl,
@@ -26,39 +23,34 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { spacing } from "@mui/system";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useMutation, useQuery } from "@apollo/client";
 import { useParams, useRouter } from "next/navigation";
-import { GET_ORGANIZATIONS, GET_SHIPPER_BY_ID } from "@/hooks/queries/queries";
-import { EDIT_SHIPPER } from "@/hooks/mutations/mutation";
-import LocationComp from "@/components/locationField/LocationComp";
+import { GET_DRIVER_BY_ID, GET_ORGANIZATIONS } from "@/hooks/queries/queries";
+import { EDIT_DRIVER } from "@/hooks/mutations/mutation";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 
 const Card = styled(MuiCard)(spacing);
-
 const Alert = styled(MuiAlert)(spacing);
-
 const TextField = styled(MuiTextField)(spacing);
-
 const Button = styled(MuiButton)(spacing);
-
 const FormControlSpacing = styled(MuiFormControl)(spacing);
-
 const FormControl = styled(FormControlSpacing)`
   min-width: 148px;
 `;
 
 const validationSchema = Yup.object().shape({
-  Name: Yup.string().required("name is required"),
-  email: Yup.string().required("Email is required"),
-  LocationID: Yup.string().required("Location is required"),
+  FirstName: Yup.string().required("First Name is required"),
+  LastName: Yup.string().required("Last Name is required"),
+  Notes: Yup.string().required("Notes is required"),
+  organizationId: Yup.string().required("Organization is required"),
+  PaymentMethod: Yup.string().required("Payment Method is required"),
+  email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
     .matches(
       /^(?:\+?\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}$/,
       "Phone number is not valid"
     )
     .required("Phone number is required"),
-  organizationId: Yup.string().required("organization is required")
 });
 
 
@@ -66,25 +58,27 @@ function EditShipperForm() {
   const { id } = useParams();
   const shipperId = parseFloat(id[0]);
   const [fieldError, setFieldError] = useState("");
-  const { data, } = useQuery(GET_SHIPPER_BY_ID, {
+  const { data, } = useQuery(GET_DRIVER_BY_ID, {
     variables: { id: shipperId },
   });
-  const [editShipper, { loading, error }] = useMutation(EDIT_SHIPPER);
+  const [editDrivers, { loading, error }] = useMutation(EDIT_DRIVER);
   const router = useRouter();
   const [location, setLocation] = useState("");
-  const [shipperData, setShipperData] = useState<any>("");
+  const [driverData, setDriverData] = useState<any>("");
   const [organizationList, setOrganizationList] = useState<any>("");
   const initialValues: any = {
-    Name: shipperData?.Name || "",
-    LocationID: shipperData?.address || "",
-    email: shipperData?.Email || location,
-    phone: shipperData?.Phone || "",
-    organizationId: shipperData?.organization?.id || "",
+    FirstName: driverData?.FirstName || "",
+    LastName: driverData?.LastName || "",
+    email: driverData?.Email || location,
+    phone: driverData?.Phone || "",
+    PaymentMethod: driverData?.PaymentMethod || "",
+    Notes: driverData?.Notes || "",
+    organizationId: driverData?.organization?.id || "",
   };
 
   useEffect(() => {
-    if (data?.getShipperById) {
-      setShipperData(data.getShipperById)
+    if (data?.getDriversById) {
+      setDriverData(data.getDriversById)
 
     }
   }, [data]);
@@ -96,24 +90,24 @@ function EditShipperForm() {
   ) => {
 
     const variablesData = {
-      Name: values?.Name,
+      FirstName: values?.FirstName,
+      LastName: values?.LastName,
       Email: values?.email,
       Phone: values?.phone,
-      // organizationId: parseFloat("1"),
       organizationId: parseFloat(values?.organizationId),
-      address: values?.locationID?.target?.name,
-      LocationID: values?.LocationID,
+      PaymentMethod: values?.PaymentMethod,
+      Notes: values?.Notes,
     };
 
     try {
-      const response = await editShipper({
+      const response = await editDrivers({
         variables: {
           id: shipperId,
           data: variablesData,
         },
       });
-      if (response.data.editShipper.success) {
-        router.push('/shippers/list');
+      if (response.data.editDrivers.success) {
+        router.push('/driver/list');
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
@@ -141,7 +135,7 @@ function EditShipperForm() {
 
   return (
     <>
-      {shipperData ? <Formik
+      {driverData ? <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -182,15 +176,56 @@ function EditShipperForm() {
                       }}
                     >
                       <TextField
-                        name="Name"
-                        label="Name"
-                        value={values.Name}
-                        defaultValue={values.Name}
-                        error={Boolean(touched.Name && errors.Name)}
+                        name="FirstName"
+                        label="First Name"
+                        value={values.FirstName}
+                        error={Boolean(touched.FirstName && errors.FirstName)}
                         fullWidth
-                        helperText={Boolean(touched.Name ? errors.Name : "")}
+                        helperText={Boolean(touched.FirstName && errors.FirstName)}
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        variant="outlined"
+                        my={2}
+                      />
+                    </Grid>
+
+                    <Grid
+                      size={{
+                        md: 6,
+                      }}
+                    >
+                      <TextField
+                        name="LastName"
+                        label="Last Name"
+                        value={values.LastName}
+                        error={Boolean(touched.LastName && errors.LastName)}
+                        fullWidth
+                        helperText={Boolean(touched.LastName && errors.LastName)}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        variant="outlined"
+                        my={2}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={6}>
+
+                    <Grid
+                      size={{
+                        md: 6,
+                      }}
+                    >
+                      <TextField
+                        name="phone"
+                        label="Phone Number"
+                        value={values.phone}
+                        error={Boolean(touched.phone && errors.phone)}
+                        fullWidth
+                        helperText={Boolean(touched.phone && errors.phone)}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        type="text"
                         variant="outlined"
                         my={2}
                       />
@@ -209,11 +244,14 @@ function EditShipperForm() {
                         helperText={Boolean(touched.email && errors.email)}
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        type="email"
                         variant="outlined"
                         my={2}
                       />
+
                     </Grid>
                   </Grid>
+
 
                   <Grid container spacing={6}>
                     <Grid
@@ -221,64 +259,69 @@ function EditShipperForm() {
                         md: 6,
                       }}
                     >
-                      <LocationComp defaultValue={values?.LocationID} setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name="Location" helperText={Boolean(touched.LocationID && errors.LocationID)} />
+                      <FormControl fullWidth error={Boolean(touched.PaymentMethod && errors.PaymentMethod)}>
+                        <InputLabel id="demo-simple-select-error-label">Payment Method</InputLabel>
+                        <Select
+                          labelId="demo-simple-select-error-label"
+                          name="PaymentMethod"
+                          label="Payment Method"
+                          id="demo-simple-select-error"
+                          value={values.PaymentMethod}
+                          onChange={handleChange}
+                        >
+                          <MenuItem value={'PER_HOUR'}>Per Hour</MenuItem>
+                          <MenuItem value={'PER_MILES'}>Per Miles</MenuItem>
+                        </Select>
+                        <FormHelperText>{Boolean(touched && errors.PaymentMethod)}</FormHelperText>
+                      </FormControl>
                     </Grid>
+
                     <Grid
                       size={{
                         md: 6,
+                      }}
+                    >
+                      <OrganizationInput
+                        name="organizationId"
+                        label="Organization"
+                        value={values?.organizationId}
+                        options={organizationList}
+                        error={null}
+                        touched={false}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={12}>
+                    <Grid
+                      size={{
+                        md: 12,
                       }}
                     >
                       <TextField
-                        name="phone"
-                        label="Phone Number"
-                        value={values.phone}
-                        error={Boolean(touched.phone && errors.phone)}
+                        name="Notes"
+                        label="Notes"
+                        value={values.Notes}
+                        error={Boolean(touched.Notes && errors.Notes)}
                         fullWidth
-                        helperText={Boolean(touched.phone && errors.phone)}
+                        helperText={Boolean(touched.Notes && errors.Notes)}
                         onBlur={handleBlur}
                         onChange={handleChange}
-                        // type="text"
+                        type="text"
                         variant="outlined"
                         my={2}
                       />
                     </Grid>
                   </Grid>
 
-
-                  <Grid container spacing={6}>
-                    <Grid
-                      size={{
-                        md: 6,
-                      }}
-                    >
-                      <InputLabel id="demo-simple-select-error-label">Organization</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="organizationId"
-                        label="Organization"
-                        id="demo-simple-select-error"
-                        value={values?.organizationId || ""}
-                        onChange={handleChange}
-                        fullWidth
-                      >
-                        {Array.isArray(organizationList) &&
-                          organizationList.length > 0 &&
-                          organizationList.map((org, index) => (
-                            <MenuItem key={index} value={org?.id || ""}>
-                              {org?.Name || "Unknown Name"}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                      <FormHelperText>{Boolean(touched.Website && errors.organizationId)}</FormHelperText>
-                    </Grid>
-                  </Grid>
                   <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     mt={3}
                   >
-                    Update Shipper
+                    Save
                   </Button>
                 </form>
               )}

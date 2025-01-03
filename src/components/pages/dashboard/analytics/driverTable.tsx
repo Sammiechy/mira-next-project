@@ -21,8 +21,8 @@ import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
-import { GET_SHIPPERS } from "@/hooks/queries/queries";
-import { DELETE_MULTIPLE_SHIPPERS } from "@/hooks/mutations/mutation";
+import { GET_DRIVERS } from "@/hooks/queries/queries";
+import { DELETE_MULTIPLE_DRIVERS } from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -40,7 +40,6 @@ interface CustomToolbarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-
 const DriverTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
@@ -53,10 +52,10 @@ const DriverTable = () => {
     page: 1,
     pageSize: 10,
   });
-  const { loading, error, data, refetch } = useQuery(GET_SHIPPERS, {
+  const { loading, error, data, refetch } = useQuery(GET_DRIVERS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
-  const [deleteShippers] = useMutation(DELETE_MULTIPLE_SHIPPERS)
+  const [deleteDrivers] = useMutation(DELETE_MULTIPLE_DRIVERS)
   const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,13 +70,11 @@ const DriverTable = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-
-
   useEffect(() => {
     setLoader(true)
     if (data) {
-      setList(data.getShippers?.shippers);
-      setCount(data.getOrganizations?.shippers?.length)
+      setList(data.getDrivers?.drivers);
+      setCount(data.getDrivers?.drivers?.length)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
@@ -88,11 +85,11 @@ const DriverTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50, headerAlign:'left', align:'left' },
-    { field: 'First Name', headerName: 'First Name', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'Last Name', headerName: 'Last Name', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'FirstName', headerName: 'First Name', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'LastName', headerName: 'Last Name', width: 100, headerAlign:'left', align:'left'  },
     { field: 'Phone', headerName: 'Phone', width: 100, headerAlign:'left', align:'left'  },
     { field: 'Email', headerName: 'Email', width: 120, headerAlign:'left', align:'left'  },
-    { field: 'Payment Method', headerName: 'Payment Method', width: 130 },
+    { field: 'PaymentMethod', headerName: 'Payment Method', width: 130 },
     {
       field: 'organization', headerName: 'Organization', width: 100, renderCell: (params) => (
         <>
@@ -111,7 +108,7 @@ const DriverTable = () => {
             size="small"
             onClick={() => {
               dispatch(setEditOrganization(params.row)),
-                router.push(`/shippers/edit/${params.row.id}`)
+                router.push(`/driver/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -132,17 +129,16 @@ const DriverTable = () => {
   ];
 
 
-
   const handleDelete = async (ids: any) => {
     if (selectedIds?.length > 0 && ids == "") {
-      const response = await deleteShippers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
-      if (response.data.deleteMultipleShipper) {
+      const response = await deleteDrivers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
+      if (response.data.deleteMultipleDrivers) {
         setDeleteStatus(true);
         await refetch();
       }
     } else {
-      const response = await deleteShippers({ variables: { ids } });
-      if (response.data.deleteMultipleShipper) {
+      const response = await deleteDrivers({ variables: { ids } });
+      if (response.data.deleteMultipleDrivers) {
         setDeleteStatus(true);
         await refetch();
       }
@@ -211,7 +207,7 @@ const DriverTable = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         open={deleteStatus}
         onClose={() => setDeleteStatus(false)}
-        message="Shipper Deleted Successfully"
+        message="Driver Deleted Successfully"
         key={"top" + "right"}
       />
       <Card mb={6}>
@@ -223,7 +219,7 @@ const DriverTable = () => {
               Add New Driver
             </Button>
           }
-          title="Driver List"
+          title="Drivers List"
         />
         <Paper>
           <DataGrid
