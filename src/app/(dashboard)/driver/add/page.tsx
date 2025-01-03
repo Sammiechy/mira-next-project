@@ -26,9 +26,10 @@ import { spacing } from "@mui/system";
 import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
-import {GET_ORGANIZATIONS} from "hooks/queries/queries";
+import { GET_ORGANIZATIONS } from "hooks/queries/queries";
 import { CREATE_LOCATION, CREATE_SHIPPER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
+import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -41,24 +42,21 @@ const FormControl = styled(FormControlSpacing)`
 
 
 const initialValues = {
-  name: "",
+  FirstName: "",
+  LastName: "",
   email: "",
   phone: "",
   organizationId: "",
-  locationID: ""
+  PaymentMethod: "",
+  Notes: ""
 };
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required("Name is required"),
-   locationID: Yup.string()
-     .transform((value) => {
-       if (typeof value === "object" && value?.target?.value) {
-         return value.target.value;
-       }
-       return value;
-     })
-     .required("Location is required"),
+  FirstName: Yup.string().required("First Name is required"),
+  LastName: Yup.string().required("Last Name is required"),
+  Notes: Yup.string().required("Notes is required"),
   organizationId: Yup.string().required("Organization is required"),
+  PaymentMethod: Yup.string().required("Payment Method is required"),
   email: Yup.string().email().required("Emai is required"),
   phone: Yup.string()
     .matches(
@@ -70,16 +68,16 @@ const validationSchema = Yup.object().shape({
 
 
 function AddShipperForm() {
-  const router= useRouter();
-  const [location,setLocation]= useState("");
-  const [organizationList,setOrganizationList] =useState<any>("");
-  const [organisation,setOrganisation]= useState<any>("");
-  
+  const router = useRouter();
+  const [location, setLocation] = useState("");
+  const [organizationList, setOrganizationList] = useState<any>("");
+  const [organisation, setOrganisation] = useState<any>("");
+
   const handleSubmit = async (
     values: any,
     { resetForm, setErrors, setStatus, setSubmitting }: any
   ) => {
-    const organisationID = parseFloat(organisation); 
+    const organisationID = parseFloat(organisation);
     const locationID = parseFloat(location);
     const variablesData = {
       Name: values?.name,
@@ -87,31 +85,31 @@ function AddShipperForm() {
       Phone: values?.phone,
       organizationId: organisationID,
       LocationID: values?.locationID?.target?.value,
-      address:values?.locationID?.target?.name
+      address: values?.locationID?.target?.name
     };
-    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item:any) => item.trim());
-    const LocationData={
+    const [City, State_Province, Country] = values?.locationID?.target?.name.split(", ").map((item: any) => item.trim());
+    const LocationData = {
       Address1: values?.locationID?.target?.name,
       places_id: values?.locationID?.target?.value,
-      City: City||"",
-      Country: Country||"",
-      State_Province: State_Province||"",
-      PostalCode_Zip:"",
-      Address2:""
+      City: City || "",
+      Country: Country || "",
+      State_Province: State_Province || "",
+      PostalCode_Zip: "",
+      Address2: ""
     }
 
     try {
-      const response = await createShipper({ variables:  variablesData  });
-      const res= await createLocation({variables:LocationData})
-      if(response?.data?.createShipper){
+      const response = await createShipper({ variables: variablesData });
+      const res = await createLocation({ variables: LocationData })
+      if (response?.data?.createShipper) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
         router.push('/shippers/list')
-      }else{
+      } else {
         setSubmitting(false);
       }
-    
+
 
     } catch (error: any) {
       setStatus({ sent: false });
@@ -121,9 +119,9 @@ function AddShipperForm() {
   };
 
   const [createShipper, { loading, error }] = useMutation(CREATE_SHIPPER);
-   const [createLocation] = useMutation(CREATE_LOCATION);
+  const [createLocation] = useMutation(CREATE_LOCATION);
 
-   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+  const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
     variables: { page: 1, limit: 1000 },
   });
 
@@ -154,7 +152,7 @@ function AddShipperForm() {
         <Card mb={6}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              Add New Shipper
+              Add New Driver
             </Typography>
 
             {status && status.sent && (
@@ -176,55 +174,46 @@ function AddShipperForm() {
                     }}
                   >
                     <TextField
-                      name="name"
-                      label="Name"
-                      value={values.name}
-                      error={Boolean(touched.name && errors.name)}
+                      name="FirstName"
+                      label="First Name"
+                      value={values.FirstName}
+                      error={Boolean(touched.FirstName && errors.FirstName)}
                       fullWidth
-                      helperText={touched.name && errors.name}
+                      helperText={touched.FirstName && errors.FirstName}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       variant="outlined"
                       my={2}
                     />
                   </Grid>
+
                   <Grid
                     size={{
                       md: 6,
                     }}
                   >
-                      <TextField
-                      name="email"
-                      label="Email"
-                      value={values.email}
-                      error={Boolean(touched.email && errors.email)}
+                    <TextField
+                      name="LastName"
+                      label="Last Name"
+                      value={values.LastName}
+                      error={Boolean(touched.LastName && errors.LastName)}
                       fullWidth
-                      helperText={touched.email && errors.email}
+                      helperText={touched.LastName && errors.LastName}
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      type="email"
                       variant="outlined"
                       my={2}
                     />
-                   
                   </Grid>
                 </Grid>
 
                 <Grid container spacing={6}>
-                  <Grid
-                    size={{
-                      md: 6,
-                    }}
-                  >
-                    <LocationComp setFieldValue={setFieldValue} error={Boolean(touched.locationID && errors.locationID)} name={"locationID"} values={values}  helperText={touched.locationID && errors.locationID}/>
-                  </Grid>
-                 
-                  <Grid
-                    size={{
-                      md: 6,
-                    }}
-                  >
 
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
                     <TextField
                       name="phone"
                       label="Phone Number"
@@ -239,38 +228,76 @@ function AddShipperForm() {
                       my={2}
                     />
                   </Grid>
-                </Grid>
-
-
-                <Grid container spacing={6}>
-                <Grid
+                  <Grid
                     size={{
                       md: 6,
                     }}
                   >
-                     <FormControl fullWidth  error={Boolean(touched.organizationId && errors.organizationId)}>
-                      <InputLabel id="demo-simple-select-error-label">Organization</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-error-label"
-                        name="organizationId"
-                        label="Organization"
-                        id="demo-simple-select-error"
-                        value={organisation}                      
-                        onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
-                      >
-                        {
-                          organizationList && organizationList?.length > 0 && organizationList?.map((org:any, index:any) =>{
-                            return (
-                              <MenuItem value={org?.id}>{org?.Name}</MenuItem>
-                            )
-                          })
-                        }
-                        
-                      </Select>
-                      <FormHelperText>{touched && errors.organizationId}</FormHelperText>
-                    </FormControl>
+                    <TextField
+                      name="email"
+                      label="Email"
+                      value={values.email}
+                      error={Boolean(touched.email && errors.email)}
+                      fullWidth
+                      helperText={touched.email && errors.email}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="email"
+                      variant="outlined"
+                      my={2}
+                    />
+
                   </Grid>
                 </Grid>
+
+
+                <Grid container spacing={6}>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <FormControl fullWidth error={Boolean(touched.PaymentMethod && errors.PaymentMethod)}>
+                      <InputLabel id="demo-simple-select-error-label">Payment Method</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-error-label"
+                        name="PaymentMethod"
+                        label="Payment Method"
+                        id="demo-simple-select-error"
+                        value={''}
+                      // onChange={(e:any)=>{handleChange(e),setOrganisation(e.target.value),setFieldError("locationID","")}}
+                      >
+                        <MenuItem value={'per hour'}>Per Hour</MenuItem>
+                        <MenuItem value={'per miles'}>Per Miles</MenuItem>
+                      </Select>
+                      <FormHelperText>{Boolean(touched && errors.PaymentMethod)}</FormHelperText>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <OrganizationInput
+                      name="organizationId"
+                      label="Organization"
+                      value={values?.organizationId}
+                      options={organizationList}
+                      error={errors.organizationId}
+                      touched={touched.organizationId}
+                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value) }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={12}>
+                  <Grid
+                    size={{
+                      md: 12,
+                    }}
+                  >
+  </Grid></Grid>
 
                 <Button
                   type="submit"
@@ -278,7 +305,7 @@ function AddShipperForm() {
                   color="primary"
                   mt={3}
                 >
-                  Save 
+                  Save
                 </Button>
               </form>
             )}

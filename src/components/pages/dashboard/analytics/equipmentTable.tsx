@@ -22,7 +22,7 @@ import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
 import { GET_EQUIPMENTS } from "@/hooks/queries/queries";
-import { DELETE_MULTIPLE_SHIPPERS } from "@/hooks/mutations/mutation";
+import { DELETE_MULTIPLE_EQUIPMENT } from "@/hooks/mutations/mutation";
 
 interface RowData {
   id: Number;
@@ -53,10 +53,8 @@ const EquipmentTable = () => {
     page: 1,
     pageSize: 10,
   });
-  const { loading, error, data, refetch } = useQuery(GET_EQUIPMENTS, {
-    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
-  });
-  const [deleteShippers] = useMutation(DELETE_MULTIPLE_SHIPPERS)
+  
+  const [deleteEquipment] = useMutation(DELETE_MULTIPLE_EQUIPMENT)
   const [deleteStatus, setDeleteStatus] = useState(false);
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,6 +70,10 @@ const EquipmentTable = () => {
   }, [searchQuery]);
 
 
+  const {data, refetch} = useQuery(GET_EQUIPMENTS, {
+    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+  });
+  // console.log(data,'datadata')
 
   useEffect(() => {
     setLoader(true)
@@ -106,7 +108,7 @@ const EquipmentTable = () => {
             size="small"
             onClick={() => {
               dispatch(setEditOrganization(params.row)),
-                router.push(`/shippers/edit/${params.row.id}`)
+                router.push(`/equipment/edit/${params.row.id}`)
             }
             }
             style={{ marginRight: 8 }}
@@ -128,14 +130,14 @@ const EquipmentTable = () => {
 
   const handleDelete = async (ids: any) => {
     if (selectedIds?.length > 0 && ids == "") {
-      const response = await deleteShippers({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
-      if (response.data.deleteMultipleShipper) {
+      const response = await deleteEquipment({ variables: { ids: selectedIds.map((id: any) => parseFloat(id.toString())) } });
+      if (response.data.deleteMultipleEquipment) {
         setDeleteStatus(true);
         await refetch();
       }
     } else {
-      const response = await deleteShippers({ variables: { ids } });
-      if (response.data.deleteMultipleShipper) {
+      const response = await deleteEquipment({ variables: { ids } });
+      if (response.data.deleteMultipleEquipment) {
         setDeleteStatus(true);
         await refetch();
       }
@@ -204,7 +206,7 @@ const EquipmentTable = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         open={deleteStatus}
         onClose={() => setDeleteStatus(false)}
-        message="Shipper Deleted Successfully"
+        message="Equipment Deleted Successfully"
         key={"top" + "right"}
       />
       <Card mb={6}>
@@ -223,7 +225,7 @@ const EquipmentTable = () => {
             pagination
             paginationMode="server"
             paginationModel={paginationModel}
-             onPaginationModelChange={handlePaginationChange}
+            // onPaginationModelChange={handlePaginationChange}
             rows={filteredRows}
             rowCount={count ? count : 0}
             columns={columns}

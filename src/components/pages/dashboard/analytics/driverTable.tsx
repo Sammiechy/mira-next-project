@@ -88,9 +88,9 @@ const DriverTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50, headerAlign:'left', align:'left' },
-    { field: 'First Name', headerName: 'First Name', width: 120, headerAlign:'left', align:'left'  },
-    { field: 'Last Name', headerName: 'Last Name', width: 120, headerAlign:'left', align:'left'  },
-    { field: 'Phone', headerName: 'Phone', width: 120, headerAlign:'left', align:'left'  },
+    { field: 'First Name', headerName: 'First Name', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'Last Name', headerName: 'Last Name', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'Phone', headerName: 'Phone', width: 100, headerAlign:'left', align:'left'  },
     { field: 'Email', headerName: 'Email', width: 120, headerAlign:'left', align:'left'  },
     { field: 'Payment Method', headerName: 'Payment Method', width: 130 },
     {

@@ -34,21 +34,8 @@ export const GET_ORGANIZATION_BY_ID = gql`
 export const GET_USERS = gql`
 query GetUsers($excludeId: Float  $limit: Float, $offset: Float) {
   users (excludeId: $excludeId limit: $limit, offset: $offset){
-    id
-    firstName
-    lastName
-    email
-    phone
-    role
-    status
-    type
-  }
-}
-`;
-
-export const GET_USER_BY_ID = gql`
-  query GetUserById($id: Int!) {
-    GetUserById(id: $id) {
+      totalCount
+    users {
       id
       firstName
       lastName
@@ -56,7 +43,31 @@ export const GET_USER_BY_ID = gql`
       phone
       role
       status
+      organization {
+        id
+        Name
+      }
       type
+    }
+}
+}
+`;
+
+
+export const GET_USER_BY_ID = gql`
+  query GetUserById($id: Int!) {
+    getUserById(id: $id) {
+      firstName
+      lastName
+      email
+      phone
+      role
+      status
+      type
+      organization {
+        id
+        Name
+      }
     }
   }
 `;
@@ -172,3 +183,16 @@ export const GET_EQUIPMENTS = gql`
   }
 `;
 
+export const GET_EQUIPMENT_BY_ID = gql`
+  query GetEquipmentById($id: Int!) {
+    getEquipmentById(id: $id) {
+      id
+      Type
+      Description
+        organization {
+        id
+        Name
+      }
+    }
+  }
+`;

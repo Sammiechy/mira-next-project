@@ -323,3 +323,27 @@ export const CREATE_EQUIPMENT = gql`
   }
 `; 
 
+
+export const DELETE_MULTIPLE_EQUIPMENT = gql`
+  mutation DeleteMultipleEquipment($ids: [Int!]!) {
+    deleteMultipleEquipment(ids: $ids)
+  }
+`;
+
+
+export const EDIT_EQUIPMENT = gql`
+  mutation EditEquipment($id: Int!, $data: EquipmentInput!) {
+    editEquipment(id: $id, data: $data) {
+      message
+      success
+      equipment {
+        id
+        Type
+        Description
+        organization {
+          id
+        }
+      }
+    }
+  }
+`;

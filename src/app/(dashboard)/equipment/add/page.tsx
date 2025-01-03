@@ -159,7 +159,7 @@ function AddEquipmentForm() {
                       options={organizationList}
                       error={errors.organizationId}
                       touched={touched.organizationId}
-                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value), setFieldError("locationID", "") }}
+                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value)}}
                     />
                   </Grid>
                 </Grid>
