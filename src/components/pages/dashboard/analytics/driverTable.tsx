@@ -50,11 +50,11 @@ const DriverTable = () => {
   const { id } = userDetail;
   const [count, setCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const { loading, error, data, refetch } = useQuery(GET_DRIVERS, {
-    variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
+    variables: { page: paginationModel?.page+1, limit: paginationModel.pageSize },
   });
   const [deleteDrivers] = useMutation(DELETE_MULTIPLE_DRIVERS)
   const [deleteStatus, setDeleteStatus] = useState(false);
@@ -78,7 +78,7 @@ const DriverTable = () => {
     setLoader(true)
     if (data) {
       setList(data.getDrivers?.drivers);
-      setCount(data.getDrivers?.drivers?.length)
+      setCount(data.getDrivers?.totalCount)
       setTimeout(() => {
         setLoader(false);
       }, 2000);
@@ -168,14 +168,13 @@ const DriverTable = () => {
     );
   }
 
-  // const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
-  //   setPaginationModel(paginationModel);
-  //   refetch({
-  //       excludeId: id,
-  //       limit: paginationModel.pageSize,
-  //       offset: paginationModel.page * paginationModel.pageSize,
-  //   });
-  // };
+  const handlePaginationChange = (paginationModel: { page: number; pageSize: number }) => {
+    setPaginationModel(paginationModel);
+    refetch({
+        limit: paginationModel.pageSize,
+        offset: paginationModel.page * paginationModel.pageSize,
+    });
+  };
 
   const filteredRows = list?.filter((row) =>
     Object.keys(row).some((column) => {
@@ -231,7 +230,7 @@ const DriverTable = () => {
             pagination
             paginationMode="server"
             paginationModel={paginationModel}
-            //  onPaginationModelChange={handlePaginationChange}
+             onPaginationModelChange={handlePaginationChange}
             rows={filteredRows}
             rowCount={count ? count : 0}
             columns={columns}

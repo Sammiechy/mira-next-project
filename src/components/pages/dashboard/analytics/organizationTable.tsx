@@ -78,7 +78,7 @@ const OrganizationTable = () => {
     setLoader(true)
     if (data) {
       setList(data.getOrganizations?.organizations);
-      setCount(data.getOrganizations?.organizations?.length)
+      setCount(data.getOrganizations?.totalCount)
       setTimeout(() => {
         setLoader(false);
       }, 2000);

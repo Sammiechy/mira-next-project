@@ -216,10 +216,10 @@ function EditRecieverForm() {
                       /> */}
                        <GooglePlacesAutocomplete
                       setFieldValue={setFieldValue}
-                      error={Boolean(touched.locationID && errors.locationID)}
+                      error={Boolean(touched.LocationID && errors.LocationID)}
                       name="locationID"
-                      values={values}
-                      helperText={Boolean(errors.locationID)}
+                      values={values?.LocationID}
+                      helperText={Boolean(errors.LocationID)}
                       // defaultValue={""}
                     />
                     </Grid>

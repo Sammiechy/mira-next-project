@@ -219,7 +219,7 @@ function AddRecieverForm() {
                       setFieldValue={setFieldValue}
                       error={Boolean(touched.locationID && errors.locationID)}
                       name="locationID"
-                      values={values}
+                      values={values?.locationID}
                       helperText={Boolean(errors.locationID)}
                       // defaultValue={""}
                     />
