@@ -24,6 +24,7 @@ import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
 import LocationComp from "@/components/locationField/LocationComp";
 import { ADD_ORGANIZATION } from "@/hooks/mutations/mutation";
+import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -70,10 +71,11 @@ function AddOrganizationForm() {
       Email: values?.email,
       Phone: values?.phone,
       Website: values?.Website,
-      LocationID: values?.locationID?.target?.value,
+      LocationID: values?.locationID,
       address: values?.locationID?.target?.name
     };
 
+    console.log(variablesData, 'variablesData'); return
     try {
       const response = await addOrganization({ variables: { data: variablesData } });
       if (response?.data?.addOrganization) {
@@ -178,12 +180,20 @@ function AddOrganizationForm() {
                       md: 6,
                     }}
                   >
-                    <LocationComp
+                    {/* <LocationComp
                       setFieldValue={setFieldValue}
                       error={Boolean(touched.locationID && errors.locationID)}
                       name={"locationID"}
                       values={values}
                       helperText={Boolean(touched.locationID && errors.locationID)}
+                    /> */}
+
+                    <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.locationID && errors.locationID)}
+                      name="locationID"
+                      values={values?.locationID}
+                      helperText={Boolean(errors.locationID)}
                     />
 
                   </Grid>
