@@ -27,7 +27,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         libraries: ['places'],
     })
     const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
-    const [inputValue, setInputValue] = useState<string>(''); 
+    const [inputValue, setInputValue] = useState<any>(''); 
     const handleLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
         setAutocomplete(autocompleteInstance);
     };
@@ -42,6 +42,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         if (autocomplete) {
             const place = autocomplete.getPlace();
             console.log(place,'placeplace')
+            setInputValue(place?.formatted_address);
             // if (place.formatted_address) {
             //     setFieldValue(name, place.formatted_address);
             // }

@@ -98,7 +98,6 @@ function EditUserForm() {
     }
   }, [data]);
 
-console.log(userData,"userData---")
   const initialValues: any = {
     firstName: userData?.firstName || "",
     lastName: userData?.lastName || "",
@@ -108,7 +107,7 @@ console.log(userData,"userData---")
     confirmPassword: "Welcome@123",
     role: role || "user",
     status: userstatus || "1",
-    organizationId: "1",
+    organizationId: userData?.organization?.id
   };
 
 
