@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 import { FormHelperText } from '@mui/material';
 
@@ -11,6 +11,7 @@ interface GooglePlacesAutocompleteProps {
     name: string;
     values: any;
     helperText: string | boolean;
+    // defaultValue: any;
 }
 
 const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
@@ -18,27 +19,34 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     error,
     name,
     values,
+    // defaultValue,
     helperText,
 }) => {
     const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
-    const [inputValue, setInputValue] = useState<string>(values?.locationID?.target?.name || ''); 
+    const [inputValue, setInputValue] = useState<string>(''); 
     const handleLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
         setAutocomplete(autocompleteInstance);
     };
+    console.log(values,"fhbdj")
+    useEffect(()=>{
+  
+  setInputValue(values);
+    },[])
 
     const handlePlaceChanged = () => {
         if (autocomplete) {
             const place = autocomplete.getPlace();
-            // console.log(place,'placeplace')
+            console.log(place,'placeplace')
             // if (place.formatted_address) {
             //     setFieldValue(name, place.formatted_address);
             // }
             const data = {
               target: {
-                name: place.formatted_address,
+                name: place?.formatted_address,
                 value: place?.place_id || '',
               },
             };
+            
             setFieldValue("locationID", data);
         }
     };
@@ -50,8 +58,8 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
                     <input
                         type="text"
                         placeholder="Type an address"
-                        value={inputValue || values[name] || ""}
-                        onChange={(e) => setFieldValue(name, e.target.value)}
+                        value={inputValue  || ""}
+                        onChange={(e) => {setFieldValue(name, e.target.value),setInputValue(e.target.value)}}
                         style={{
                             width: '100%',
                             padding: '10px',

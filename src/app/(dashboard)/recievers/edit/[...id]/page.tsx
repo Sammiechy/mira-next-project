@@ -29,6 +29,7 @@ import { GET_ORGANIZATIONS, GET_RECIEVER_BY_ID } from "@/hooks/queries/queries";
 import { EDIT_RECIEVER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
 import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
+import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -207,13 +208,20 @@ function EditRecieverForm() {
                         md: 6,
                       }}
                     >
-                      <LocationComp
+                      {/* <LocationComp
                         defaultValue={values?.LocationID}
                         setFieldValue={setFieldValue}
                         error={Boolean(touched.locationID && errors.locationID)}
                         name="Location" helperText={Boolean(touched.LocationID && errors.LocationID)}
-                      />
-
+                      /> */}
+                       <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.locationID && errors.locationID)}
+                      name="locationID"
+                      values={values}
+                      helperText={Boolean(errors.locationID)}
+                      // defaultValue={""}
+                    />
                     </Grid>
                     <Grid
                       size={{

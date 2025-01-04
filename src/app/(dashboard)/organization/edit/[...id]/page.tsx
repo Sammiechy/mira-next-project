@@ -24,6 +24,7 @@ import { useParams, useRouter } from "next/navigation";
 import LocationComp from "@/components/locationField/LocationComp";
 import { EDIT_ORGANIZATION } from "@/hooks/mutations/mutation";
 import { GET_ORGANIZATION_BY_ID } from "@/hooks/queries/queries";
+import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -60,7 +61,7 @@ function EditUserForm() {
   const initialValues: any = {
     Name: organisationData?.Name || "",
     LocationID: organisationData?.address || "",
-    email: organisationData?.Email || location,
+    email: organisationData?.Email || "",
     phone: organisationData?.Phone || "",
     Website: organisationData?.Website || "",
   };
@@ -71,7 +72,7 @@ function EditUserForm() {
 
     }
   }, [data]);
-
+  console.log(initialValues,"organisationData")
 
   const handleSubmit = async (
     values: any,
@@ -192,14 +193,22 @@ function EditUserForm() {
                         md: 6,
                       }}
                     >
-                      <LocationComp
+                      {/* <LocationComp
                         setFieldValue={setFieldValue}
                         error={Boolean(touched.locationID && errors.locationID)}
                         name={"locationID"}
                         defaultValue={values?.LocationID}
                         helperText={Boolean(touched.locationID && errors.locationID)}
-                      />
-
+                      /> */}
+                     
+                        <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.locationID && errors.locationID)}
+                      name="locationID"
+                      values={values?.LocationID}
+                      helperText={Boolean(errors.locationID)}
+                    />
+                      
                     </Grid>
                     <Grid
                       size={{

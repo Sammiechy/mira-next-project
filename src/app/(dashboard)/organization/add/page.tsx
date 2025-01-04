@@ -71,11 +71,10 @@ function AddOrganizationForm() {
       Email: values?.email,
       Phone: values?.phone,
       Website: values?.Website,
-      LocationID: values?.locationID,
+      LocationID: values?.locationID?.target?.value,
       address: values?.locationID?.target?.name
     };
 
-    console.log(variablesData, 'variablesData'); return
     try {
       const response = await addOrganization({ variables: { data: variablesData } });
       if (response?.data?.addOrganization) {
@@ -194,6 +193,7 @@ function AddOrganizationForm() {
                       name="locationID"
                       values={values?.locationID}
                       helperText={Boolean(errors.locationID)}
+                      // defaultValue={""}
                     />
 
                   </Grid>

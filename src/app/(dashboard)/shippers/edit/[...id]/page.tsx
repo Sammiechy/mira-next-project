@@ -25,6 +25,7 @@ import { GET_ORGANIZATIONS, GET_SHIPPER_BY_ID } from "@/hooks/queries/queries";
 import { EDIT_SHIPPER } from "@/hooks/mutations/mutation";
 import LocationComp from "@/components/locationField/LocationComp";
 import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
+import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -200,13 +201,21 @@ function EditShipperForm() {
                         md: 6,
                       }}
                     >
-                      <LocationComp
+                      {/* <LocationComp
                         defaultValue={values?.LocationID}
                         setFieldValue={setFieldValue}
                         error={Boolean(touched.locationID && errors.locationID)}
                         name="Location"
                         helperText={Boolean(touched.LocationID && errors.LocationID)}
-                      />
+                      /> */}
+                       <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.LocationID && errors.LocationID)}
+                      name="locationID"
+                      values={values?.LocationID}
+                      helperText={Boolean(errors.LocationID)}
+                      // defaultValue={""}
+                    />
                     </Grid>
                     <Grid
                       size={{
