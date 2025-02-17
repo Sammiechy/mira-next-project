@@ -11,7 +11,7 @@ import { gql } from "@apollo/client";
     $role: String!
     $type: String!
     $status: String!
-    $organizationId: Float!
+    $organizationId: Float
   ) {
     signUp(
       firstName: $firstName
@@ -353,29 +353,47 @@ export const CREATE_DRIVERS = gql`
   mutation createDrivers(
     $FirstName: String!
     $LastName: String!
-    $Phone: String!
     $Email: String!
-    $Notes:String!
+    $Phone: String!
+    $DOB: String!
+    $Gender: String!
+    $PrimaryCitizenship: String
+    $SecondaryCitizenship: String
+    $address:String
+    $Primary_Phone:String!
     $PaymentMethod: PaymentMethod!
+    $Notes: String!
     $organizationId: Float!
   ) {
     createDrivers(
       FirstName: $FirstName
       LastName: $LastName
-      Phone: $Phone
       Email: $Email
-      Notes:$Notes
-      PaymentMethod: $PaymentMethod 
+      Phone: $Phone
+      DOB: $DOB
+      Gender: $Gender
+      PrimaryCitizenship: $PrimaryCitizenship
+      SecondaryCitizenship: $SecondaryCitizenship
+      address:$address
+      Primary_Phone:$Primary_Phone
+      PaymentMethod: $PaymentMethod
+      Notes: $Notes
       organizationId: $organizationId
     ) {
       drivers {
         id
         FirstName
         LastName
-        Phone
         Email
-        Notes
+        DOB
+        Gender
+        Phone
+        PrimaryCitizenship
+        SecondaryCitizenship
+        address
+        Primary_Phone
         PaymentMethod
+        Notes
         organization {
           id
         }
@@ -384,7 +402,7 @@ export const CREATE_DRIVERS = gql`
       message
     }
   }
-`; 
+`;
 
 
 export const DELETE_MULTIPLE_DRIVERS = gql`

@@ -93,6 +93,8 @@ const DriverTable = () => {
     { field: 'LastName', headerName: 'Last Name', width: 100, headerAlign:'left', align:'left'  },
     { field: 'Phone', headerName: 'Phone', width: 100, headerAlign:'left', align:'left'  },
     { field: 'Email', headerName: 'Email', width: 120, headerAlign:'left', align:'left'  },
+    { field: 'Gender', headerName: 'Gender', width: 120, headerAlign:'left', align:'left'  },
+
     { field: 'PaymentMethod', headerName: 'Payment Method', width: 130 },
     {
       field: 'organization', headerName: 'Organization', width: 100, renderCell: (params) => (
@@ -102,6 +104,11 @@ const DriverTable = () => {
 
       )
     },
+    { field: 'DOB', headerName: 'DOB', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'PrimaryCitizenship', headerName: 'Primary Citizenship', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'Primary_Phone', headerName: 'Primary Phone', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'SecondaryCitizenship', headerName: 'Secondary Citizenship', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'address', headerName: 'Address', width: 100, headerAlign:'left', align:'left'  },
     { field: 'Notes', headerName: 'Notes', width: 180 },
     {
       field: '', headerName: 'Action', type: 'string', width: 180, renderCell: (params) => (

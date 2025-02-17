@@ -85,7 +85,7 @@ const [signup, { loading, error }] = useMutation(SIGNUP_MUTATION);
       email: formData?.email,
       phone: formData?.phoneNumber,
       role: "admin",
-      organizationId: selectOrg ? parseFloat(selectOrg):null ,
+      organizationId: selectOrg ? parseInt(selectOrg):null ,
       password: formData?.password, 
       status: "1",
       type: "1",
@@ -95,8 +95,6 @@ const [signup, { loading, error }] = useMutation(SIGNUP_MUTATION);
         try {
   
         const response = await signup({ variables: { ...variablesData } });
-        console.log(response,"response-----")
-        return; 
         if (response) {
           if (response?.data?.createUser) {
             console.log('User created:', response?.data.createUser);
@@ -113,7 +111,6 @@ const [signup, { loading, error }] = useMutation(SIGNUP_MUTATION);
     }
   
   const confirmSignup = async () => {
-    console.log(emailForConfirmation,"chbc")
     try {
       await confirmSignUp({
         username: emailForConfirmation,

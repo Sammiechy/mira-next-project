@@ -207,6 +207,12 @@ export const GET_DRIVERS = gql`
         LastName
         Email
         Phone
+        DOB
+        Primary_Phone
+        Gender
+        PrimaryCitizenship
+        SecondaryCitizenship
+        address
         PaymentMethod
         Notes
         organization {
@@ -229,6 +235,12 @@ export const GET_DRIVER_BY_ID = gql`
       Email
       Phone
       PaymentMethod
+      DOB
+      Gender
+      Primary_Phone
+      PrimaryCitizenship
+      SecondaryCitizenship
+      address
       Notes
       organization {
         id

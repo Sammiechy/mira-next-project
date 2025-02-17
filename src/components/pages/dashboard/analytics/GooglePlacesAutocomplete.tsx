@@ -52,8 +52,12 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
                 value: place?.place_id || '',
               },
             };
+            if(name=="locationID"){
+                setFieldValue("locationID", data);
+            }else{
+                setFieldValue(name, data?.target?.name);
+            }
             
-            setFieldValue("locationID", data);
         }
     };
 

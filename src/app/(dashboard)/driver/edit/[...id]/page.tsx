@@ -28,6 +28,8 @@ import { useParams, useRouter } from "next/navigation";
 import { GET_DRIVER_BY_ID, GET_ORGANIZATIONS } from "@/hooks/queries/queries";
 import { EDIT_DRIVER } from "@/hooks/mutations/mutation";
 import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
+import { DatePicker } from "@mui/x-date-pickers";
+import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
@@ -72,6 +74,12 @@ function EditShipperForm() {
     email: driverData?.Email || location,
     phone: driverData?.Phone || "",
     PaymentMethod: driverData?.PaymentMethod || "",
+    dob: driverData?.DOB || "",
+    Gender: driverData?.Gender || "",
+    PrimaryCitizenship: driverData?.PrimaryCitizenship || "",
+    Primary_Phone: driverData?.Primary_Phone || "",
+    SecondaryCitizenship: driverData?.SecondaryCitizenship || "",
+    address: driverData?.address || "",
     Notes: driverData?.Notes || "",
     organizationId: driverData?.organization?.id || "",
   };
@@ -96,8 +104,15 @@ function EditShipperForm() {
       Phone: values?.phone,
       organizationId: parseFloat(values?.organizationId),
       PaymentMethod: values?.PaymentMethod,
+      DOB: values?.dob || "",
+      Gender: values?.Gender || "",
+      PrimaryCitizenship: values?.PrimaryCitizenship || "",
+      Primary_Phone: values?.Primary_Phone || "",
+      SecondaryCitizenship: values?.SecondaryCitizenship || "",
+      address: values?.address || "",
       Notes: values?.Notes,
     };
+    console.log(variablesData,"variablesData----")
 
     try {
       const response = await editDrivers({
@@ -292,6 +307,123 @@ function EditShipperForm() {
                       />
                     </Grid>
                   </Grid>
+                  
+                                  <Grid container spacing={6}>
+                                    <Grid
+                                      size={{
+                                        md: 6,
+                                      }}
+                                    >
+                                      <TextField
+                                        name="Primary_Phone"
+                                        label="Primary Phone Number"
+                                        value={values.Primary_Phone}
+                                        error={Boolean(touched.Primary_Phone && errors.Primary_Phone)}
+                                        fullWidth
+                                        helperText={Boolean(touched.Primary_Phone && errors.Primary_Phone)}
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        type="text"
+                                        variant="outlined"
+                                        my={2}
+                                      />
+                                    </Grid>
+                                    <Grid
+                                      size={{
+                                        md: 6,
+                                      }}
+                                    >
+                                      <TextField
+                                        name="PrimaryCitizenship"
+                                        label="Primary Citizenship"
+                                        value={values.PrimaryCitizenship}
+                                        error={Boolean(touched.PrimaryCitizenship && errors.PrimaryCitizenship)}
+                                        fullWidth
+                                        helperText={Boolean(touched.PrimaryCitizenship && errors.PrimaryCitizenship)}
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        type="text"
+                                        variant="outlined"
+                                        my={2}
+                                      />
+                  
+                                    </Grid>
+                                  </Grid>
+
+                  <Grid container spacing={6}>
+                <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                      <FormControl fullWidth error={Boolean(touched.gender && errors.gender)}>
+                      <InputLabel id="demo-simple-select-error-label">Gender</InputLabel>
+                     <Select
+                        labelId="demo-simple-select-error-label"
+                        name="gender"
+                        label="Gender"
+                        id="demo-simple-select-error"
+                        value={values.gender}
+                        onChange={handleChange}
+                        
+                      >
+                        <MenuItem value={'male'}>Male</MenuItem>
+                        <MenuItem value={'female'}>Female</MenuItem>
+                      </Select>
+                      <FormHelperText>{Boolean(touched && errors.gender)}</FormHelperText>
+                      </FormControl>
+                     </Grid>
+                     <Grid size={{
+                      md: 6,
+                    }}>
+                     
+                     <FormControl fullWidth error={Boolean(touched.dob && errors.dob)}>
+          <DatePicker
+            label="Date of Birth"
+            value={values?.dob}
+            name="dob"
+            onChange={(newValue)=>setFieldValue("dob",newValue)}
+          />
+        </FormControl>
+        <FormHelperText>{Boolean(touched && errors.dob)}</FormHelperText>
+                     </Grid>
+                </Grid>
+                <Grid container spacing={6}>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <TextField
+                      name="SecondaryCitizenship"
+                      label="Secondary Citizenship"
+                      value={values.SecondaryCitizenship}
+                      error={Boolean(touched.SecondaryCitizenship && errors.SecondaryCitizenship)}
+                      fullWidth
+                      helperText={Boolean(touched.SecondaryCitizenship && errors.SecondaryCitizenship)}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="text"
+                      variant="outlined"
+                      my={2}
+                    />
+                  </Grid>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.address && errors.address)}
+                      name="address"
+                      values={values?.address}
+                      helperText={Boolean(errors.address)}
+                      // defaultValue={""}
+                    />
+
+                  </Grid>
+                </Grid>
 
                   <Grid container spacing={12}>
                     <Grid

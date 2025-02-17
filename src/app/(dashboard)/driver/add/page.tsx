@@ -21,6 +21,7 @@ import {
   Select,
   MenuItem,
   FormHelperText,
+  Paper as MuiPaper,
 } from "@mui/material";
 import { spacing } from "@mui/system";
 import { useMutation, useQuery } from "@apollo/client";
@@ -29,10 +30,13 @@ import { useRouter } from "next/navigation";
 import { GET_ORGANIZATIONS } from "hooks/queries/queries";
 import { CREATE_DRIVERS } from "@/hooks/mutations/mutation";
 import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
+import { DatePicker } from "@mui/x-date-pickers";
+import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
 
 const Card = styled(MuiCard)(spacing);
 const Alert = styled(MuiAlert)(spacing);
 const TextField = styled(MuiTextField)(spacing);
+const Paper = styled(MuiPaper)(spacing);
 const Button = styled(MuiButton)(spacing);
 const FormControlSpacing = styled(MuiFormControl)(spacing);
 const FormControl = styled(FormControlSpacing)`
@@ -46,7 +50,13 @@ const initialValues = {
   phone: "",
   organizationId: "",
   PaymentMethod: "",
-  Notes: ""
+  Notes: "",
+  gender:"",
+  dob:null,
+  PrimaryCitizenship:"",
+  Primary_Phone:"",
+  SecondaryCitizenship:"",
+  address:""
 };
 
 const validationSchema = Yup.object().shape({
@@ -55,7 +65,9 @@ const validationSchema = Yup.object().shape({
   Notes: Yup.string().required("Notes is required"),
   organizationId: Yup.string().required("Organization is required"),
   PaymentMethod: Yup.string().required("Payment Method is required"),
+  gender: Yup.string().required("Gender is required"),
   email: Yup.string().email().required("Emai is required"),
+  dob: Yup.string().required("DOB is required"),
   phone: Yup.string()
     .matches(
       /^(?:\+?\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}$/,
@@ -82,7 +94,20 @@ function AddShipperForm() {
       Phone: values?.phone,
       organizationId: organisationID,
       Notes: values?.Notes,
-      PaymentMethod: values?.PaymentMethod
+      PaymentMethod: values?.PaymentMethod,
+      // PrimaryPhone: values?.PrimaryPhone,
+      // SecondaryPhone: values?.SecondaryPhone || null, 
+      DOB: values?.dob||"1993-05-03",
+      Gender: values?.Gender||"female",
+      PrimaryCitizenship: values?.PrimaryCitizenship || "",
+      SecondaryCitizenship: values?.SecondaryCitizenship || "", 
+      address:values?.address,
+      Primary_Phone:""
+      // Street: values?.Street || "",
+      // City: values?.City || "",
+      // State: values?.State || "",
+      // ZipCode: values?.ZipCode || "",
+      // Country: values?.Country || "",
     };
    
     try {
@@ -234,7 +259,44 @@ function AddShipperForm() {
 
                   </Grid>
                 </Grid>
-
+                <Grid container spacing={6}>
+                <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                      <FormControl fullWidth error={Boolean(touched.gender && errors.gender)}>
+                      <InputLabel id="demo-simple-select-error-label">Gender</InputLabel>
+                     <Select
+                        labelId="demo-simple-select-error-label"
+                        name="gender"
+                        label="Gender"
+                        id="demo-simple-select-error"
+                        value={values.gender}
+                        onChange={handleChange}
+                        
+                      >
+                        <MenuItem value={'male'}>Male</MenuItem>
+                        <MenuItem value={'female'}>Female</MenuItem>
+                      </Select>
+                      <FormHelperText>{Boolean(touched && errors.gender)}</FormHelperText>
+                      </FormControl>
+                     </Grid>
+                     <Grid size={{
+                      md: 6,
+                    }}>
+                     
+                     <FormControl fullWidth error={Boolean(touched.dob && errors.dob)}>
+          <DatePicker
+            label="Date of Birth"
+            value={values?.dob}
+            name="dob"
+            onChange={(newValue)=>setFieldValue("dob",newValue)}
+          />
+        </FormControl>
+        <FormHelperText>{Boolean(touched && errors.dob)}</FormHelperText>
+                     </Grid>
+                </Grid>
 
                 <Grid container spacing={6}>
                   <Grid
@@ -273,6 +335,85 @@ function AddShipperForm() {
                       touched={touched.organizationId}
                       onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value) }}
                     />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={6}>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <TextField
+                      name="Primary_Phone"
+                      label="Primary Phone Number"
+                      value={values.Primary_Phone}
+                      error={Boolean(touched.Primary_Phone && errors.Primary_Phone)}
+                      fullWidth
+                      helperText={touched.Primary_Phone && errors.Primary_Phone}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="text"
+                      variant="outlined"
+                      my={2}
+                    />
+                  </Grid>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <TextField
+                      name="PrimaryCitizenship"
+                      label="Primary Citizenship"
+                      value={values.PrimaryCitizenship}
+                      error={Boolean(touched.PrimaryCitizenship && errors.PrimaryCitizenship)}
+                      fullWidth
+                      helperText={touched.PrimaryCitizenship && errors.PrimaryCitizenship}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="text"
+                      variant="outlined"
+                      my={2}
+                    />
+
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={6}>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <TextField
+                      name="SecondaryCitizenship"
+                      label="Secondary Citizenship"
+                      value={values.SecondaryCitizenship}
+                      error={Boolean(touched.SecondaryCitizenship && errors.SecondaryCitizenship)}
+                      fullWidth
+                      helperText={touched.SecondaryCitizenship && errors.SecondaryCitizenship}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="text"
+                      variant="outlined"
+                      my={2}
+                    />
+                  </Grid>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.address && errors.address)}
+                      name="address"
+                      values={values?.address}
+                      helperText={Boolean(errors.address)}
+                      // defaultValue={""}
+                    />
+
                   </Grid>
                 </Grid>
 
