@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
-import { GET_EQUIPMENTS } from "@/hooks/queries/queries";
+import { GET_EQUIPMENTS, SEARCH_EQUIPMENT } from "@/hooks/queries/queries";
 import { DELETE_MULTIPLE_EQUIPMENT } from "@/hooks/mutations/mutation";
 
 interface RowData {
@@ -60,12 +60,14 @@ const EquipmentTable = () => {
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+   const { loading, error, data: searchData } = useQuery(SEARCH_EQUIPMENT, {
+      variables: { Type: searchQuery},
+      skip: !debouncedSearchQuery,
+    })
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus(); 
-    }
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
@@ -175,29 +177,40 @@ const EquipmentTable = () => {
     });
   };
 
-  const filteredRows = list?.filter((row) =>
-    Object.keys(row).some((column) => {
-      const value = row[column as keyof RowData];
-      return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-    })
-  );
+  // const filteredRows = list?.filter((row) =>
+  //   Object.keys(row).some((column) => {
+  //     const value = row[column as keyof RowData];
+  //     return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+  //   })
+  // );
+  const filteredRows = debouncedSearchQuery
+  ? searchData?.searchEquipment || []
+  : list || [];
 
   const handleSelectionChange = (id: any) => {
     setSelectedIds(id);
   };
 
   const CustomToolbar: React.FC<CustomToolbarProps> = ({ searchQuery, setSearchQuery }) => {
+
+      const inputRef = useRef<HTMLInputElement>(null);      
+        useEffect(() => {
+          if (inputRef.current) {
+            inputRef.current.focus(); 
+          }
+        },[])
+
     return (
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
         <GridToolbar />
         <TextField
-          label="Search"
+          label="Search with type"
           variant="outlined"
           size="small"
           value={searchQuery}
-          ref={inputRef}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: '200px' }}
+          inputRef={inputRef}
         />
       </div>
     );

@@ -249,3 +249,84 @@ export const GET_DRIVER_BY_ID = gql`
     }
   }
 `;
+
+export const SEARCH_ORGANIZATIONS = gql`
+  query SearchOrganizations($name: String) {
+    searchOrganization(name: $name) {
+      id
+      Name
+      LocationID
+      Website
+      address
+      Email
+      Phone
+    }
+  }
+`;
+
+export const SEARCH_RECIEVER = gql`
+  query searchReciever($name: String!) {
+    searchReciever(name: $name) {
+     id
+      Name
+      Email
+      Phone
+       organization {
+        id
+        Name
+      }
+      LocationID
+      address
+      isDeleted
+    }
+  }
+`;
+
+export const SEARCH_SHIPPER = gql`
+  query searchShipper($name: String!) {
+    searchShipper
+    (name: $name) {
+     id
+      Name
+      Email
+      Phone
+       organization {
+        id
+        Name
+      }
+      LocationID
+      address
+      isDeleted
+    }
+  }
+`;
+
+export const SEARCH_EQUIPMENT = gql`
+ query SearchEquipment($Type: String) {
+      searchEquipment(Type: $Type) {
+        id
+        Type
+        Description
+          organization {
+          id
+          Name
+        }
+    }
+  }
+`;
+
+export const SEARCH_DRIVERS = gql`
+  query SearchDriversByName($name: String!) {
+    searchDriversByName(name: $name) {
+      id
+      FirstName
+      LastName
+      Email
+      Phone
+      organization {
+        id
+        Name
+      }
+    }
+  }
+`;

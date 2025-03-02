@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
 import { setUsers, setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
-import { GET_DRIVERS } from "@/hooks/queries/queries";
+import { GET_DRIVERS, SEARCH_DRIVERS } from "@/hooks/queries/queries";
 import { DELETE_MULTIPLE_DRIVERS } from "@/hooks/mutations/mutation";
 
 interface RowData {
@@ -63,10 +63,12 @@ const DriverTable = () => {
   const dispatch = useDispatch();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
 
+    const { data: searchData } = useQuery(SEARCH_DRIVERS, {
+        variables: { name: searchQuery},
+        skip: debouncedSearchQuery.length < 3
+      })
+
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus(); 
-    }
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
@@ -183,18 +185,30 @@ const DriverTable = () => {
     });
   };
 
-  const filteredRows = list?.filter((row) =>
-    Object.keys(row).some((column) => {
-      const value = row[column as keyof RowData];
-      return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-    })
-  );
+  // const filteredRows = list?.filter((row) =>
+  //   Object.keys(row).some((column) => {
+  //     const value = row[column as keyof RowData];
+  //     return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+  //   })
+  // );
+
+  const filteredRows = debouncedSearchQuery
+  ? searchData?.searchDriversByName || []
+  : list || [];
 
   const handleSelectionChange = (id: any) => {
     setSelectedIds(id);
   };
 
   const CustomToolbar: React.FC<CustomToolbarProps> = ({ searchQuery, setSearchQuery }) => {
+
+       const inputRef = useRef<HTMLInputElement>(null);      
+            useEffect(() => {
+              if (inputRef.current) {
+                inputRef.current.focus(); 
+              }
+            },[])
+
     return (
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
         <GridToolbar />
@@ -203,9 +217,9 @@ const DriverTable = () => {
           variant="outlined"
           size="small"
           value={searchQuery}
-          ref={inputRef}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: '200px' }}
+          inputRef={inputRef}
         />
       </div>
     );

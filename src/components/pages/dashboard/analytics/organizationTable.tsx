@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { TextField } from '@mui/material';
 import { setEditOrganization } from "@/redux/slices/userReducer";
 import { useDispatch } from "react-redux";
-import { GET_ORGANIZATIONS } from "@/hooks/queries/queries";
+import { GET_ORGANIZATIONS, SEARCH_ORGANIZATIONS } from "@/hooks/queries/queries";
 import { DELETE_MULTIPLE_ORGANIZATIONS } from "@/hooks/mutations/mutation";
 
 interface RowData {
@@ -45,8 +45,8 @@ const OrganizationTable = () => {
   const router = useRouter();
   const [list, setList] = useState<RowData[]>([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const localStore = localStorage?.getItem("userInfo");
-  const userDetail = localStore ? JSON.parse(localStore) : null;
+  // const localStore = localStorage?.getItem("userInfo");
+  // const userDetail = localStore ? JSON.parse(localStore) : null;
   const [count, setCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
@@ -57,11 +57,16 @@ const OrganizationTable = () => {
   const [loader, setLoader] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
     variables: { page: paginationModel?.page, limit: paginationModel.pageSize },
   });
+
+  const { loading, error, data: searchData } = useQuery(SEARCH_ORGANIZATIONS, {
+    variables: { name: debouncedSearchQuery}, 
+    skip: !debouncedSearchQuery,
+  })
 
   useEffect(() => {
     if (inputRef.current) {
@@ -163,12 +168,16 @@ const OrganizationTable = () => {
     );
   }
 
-  const filteredRows = list?.filter((row) =>
-    Object.keys(row).some((column) => {
-      const value = row[column as keyof RowData];
-      return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-    })
-  );
+  // const filteredRows = list?.filter((row) =>
+  //   Object.keys(row).some((column) => {
+  //     const value = row[column as keyof RowData];
+  //     return value?.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+  //   })
+  // );
+
+  const filteredRows = debouncedSearchQuery
+  ? searchData?.searchOrganization || []
+  : list || [];
 
   const handleSelectionChange = (id: any) => {
     setSelectedIds(id);
@@ -179,7 +188,7 @@ const OrganizationTable = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
         <GridToolbar />
         <TextField
-          label="Search"
+          label="Search with name"
           variant="outlined"
           size="small"
           value={searchQuery}

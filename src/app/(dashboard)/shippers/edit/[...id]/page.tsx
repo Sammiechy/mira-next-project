@@ -124,7 +124,7 @@ function EditShipperForm() {
       {shipperData ? <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmits}
       >
         {({
           errors,
