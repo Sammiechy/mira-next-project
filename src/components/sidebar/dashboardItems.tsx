@@ -128,6 +128,21 @@ const pagesSection = [
       },
     ],
   },
+  {
+    href: "/loads",
+    icon: List,
+    title: "Loads",
+    children: [
+      {
+        href: "/loads/list",
+        title: "List",
+      },
+      {
+        href: "/loads/add",
+        title: "Add",
+      },
+    ],
+  },
   // {
   //   href: "/pages",
   //   icon: Layout,

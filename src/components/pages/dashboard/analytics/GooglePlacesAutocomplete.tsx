@@ -11,6 +11,7 @@ interface GooglePlacesAutocompleteProps {
     name: string;
     values: any;
     helperText: string | boolean;
+    label:any
     // defaultValue: any;
 }
 
@@ -21,6 +22,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     values,
     // defaultValue,
     helperText,
+    label
 }) => {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: GOOGLE_API_KEY,
@@ -72,7 +74,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
                     <TextField
                         // type="text"
                         // placeholder="Location"
-                        label="Location"
+                        label={label? label : "Location"}
                         value={inputValue  || ""}
                         error={error}
                         helperText={error?"Location is required":""}

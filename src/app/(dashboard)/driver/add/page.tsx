@@ -51,12 +51,12 @@ const initialValues = {
   organizationId: "",
   PaymentMethod: "",
   Notes: "",
-  gender:"",
-  dob:null,
-  PrimaryCitizenship:"",
-  Primary_Phone:"",
-  SecondaryCitizenship:"",
-  address:""
+  gender: "",
+  dob: null,
+  PrimaryCitizenship: "",
+  Primary_Phone: "",
+  SecondaryCitizenship: "",
+  address: ""
 };
 
 const validationSchema = Yup.object().shape({
@@ -97,19 +97,19 @@ function AddShipperForm() {
       PaymentMethod: values?.PaymentMethod,
       // PrimaryPhone: values?.PrimaryPhone,
       // SecondaryPhone: values?.SecondaryPhone || null, 
-      DOB: values?.dob||"1993-05-03",
-      Gender: values?.Gender||"female",
+      DOB: values?.dob || "1993-05-03",
+      Gender: values?.Gender || "female",
       PrimaryCitizenship: values?.PrimaryCitizenship || "",
-      SecondaryCitizenship: values?.SecondaryCitizenship || "", 
-      address:values?.address,
-      Primary_Phone:""
+      SecondaryCitizenship: values?.SecondaryCitizenship || "",
+      address: values?.address,
+      Primary_Phone: ""
       // Street: values?.Street || "",
       // City: values?.City || "",
       // State: values?.State || "",
       // ZipCode: values?.ZipCode || "",
       // Country: values?.Country || "",
     };
-   
+
     try {
       const response = await createDrivers({ variables: variablesData });
       if (response?.data?.createDrivers) {
@@ -218,26 +218,6 @@ function AddShipperForm() {
                 </Grid>
 
                 <Grid container spacing={6}>
-
-                  <Grid
-                    size={{
-                      md: 6,
-                    }}
-                  >
-                    <TextField
-                      name="phone"
-                      label="Phone Number"
-                      value={values.phone}
-                      error={Boolean(touched.phone && errors.phone)}
-                      fullWidth
-                      helperText={touched.phone && errors.phone}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      type="text"
-                      variant="outlined"
-                      my={2}
-                    />
-                  </Grid>
                   <Grid
                     size={{
                       md: 6,
@@ -258,47 +238,44 @@ function AddShipperForm() {
                     />
 
                   </Grid>
-                </Grid>
-                <Grid container spacing={6}>
-                <Grid
+                  <Grid
                     size={{
                       md: 6,
                     }}
                   >
-                      <FormControl fullWidth error={Boolean(touched.gender && errors.gender)}>
+                    <FormControl fullWidth error={Boolean(touched.gender && errors.gender)}>
                       <InputLabel id="demo-simple-select-error-label">Gender</InputLabel>
-                     <Select
+                      <Select
                         labelId="demo-simple-select-error-label"
                         name="gender"
                         label="Gender"
                         id="demo-simple-select-error"
                         value={values.gender}
                         onChange={handleChange}
-                        
+
                       >
                         <MenuItem value={'male'}>Male</MenuItem>
                         <MenuItem value={'female'}>Female</MenuItem>
                       </Select>
                       <FormHelperText>{Boolean(touched && errors.gender)}</FormHelperText>
-                      </FormControl>
-                     </Grid>
-                     <Grid size={{
-                      md: 6,
-                    }}>
-                     
-                     <FormControl fullWidth error={Boolean(touched.dob && errors.dob)}>
-          <DatePicker
-            label="Date of Birth"
-            value={values?.dob}
-            name="dob"
-            onChange={(newValue)=>setFieldValue("dob",newValue)}
-          />
-        </FormControl>
-        <FormHelperText>{Boolean(touched && errors.dob)}</FormHelperText>
-                     </Grid>
+                    </FormControl>
+                  </Grid>
                 </Grid>
-
                 <Grid container spacing={6}>
+                  <Grid size={{
+                    md: 6,
+                  }}>
+
+                    <FormControl fullWidth error={Boolean(touched.dob && errors.dob)}>
+                      <DatePicker
+                        label="Date of Birth"
+                        value={values?.dob}
+                        name="dob"
+                        onChange={(newValue) => setFieldValue("dob", newValue)}
+                      />
+                    </FormControl>
+                    <FormHelperText>{Boolean(touched && errors.dob)}</FormHelperText>
+                  </Grid>
                   <Grid
                     size={{
                       md: 6,
@@ -320,7 +297,9 @@ function AddShipperForm() {
                       <FormHelperText>{Boolean(touched && errors.PaymentMethod)}</FormHelperText>
                     </FormControl>
                   </Grid>
+                </Grid>
 
+                <Grid container spacing={6}>
                   <Grid
                     size={{
                       md: 6,
@@ -335,6 +314,22 @@ function AddShipperForm() {
                       touched={touched.organizationId}
                       onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value) }}
                     />
+                  </Grid>
+                  <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <GooglePlacesAutocomplete
+                      setFieldValue={setFieldValue}
+                      error={Boolean(touched.address && errors.address)}
+                      name="address"
+                      values={values?.address}
+                      helperText={Boolean(errors.address)}
+                      label=''
+                    // defaultValue={""}
+                    />
+
                   </Grid>
                 </Grid>
 
@@ -358,7 +353,32 @@ function AddShipperForm() {
                       my={2}
                     />
                   </Grid>
+
                   <Grid
+                    size={{
+                      md: 6,
+                    }}
+                  >
+                    <TextField
+                      name="phone"
+                      label="Phone Number"
+                      value={values.phone}
+                      error={Boolean(touched.phone && errors.phone)}
+                      fullWidth
+                      helperText={touched.phone && errors.phone}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="text"
+                      variant="outlined"
+                      my={2}
+                    />
+                  </Grid>
+
+                  
+                </Grid>
+
+                <Grid container spacing={6}>
+                <Grid
                     size={{
                       md: 6,
                     }}
@@ -378,9 +398,6 @@ function AddShipperForm() {
                     />
 
                   </Grid>
-                </Grid>
-
-                <Grid container spacing={6}>
                   <Grid
                     size={{
                       md: 6,
@@ -400,21 +417,7 @@ function AddShipperForm() {
                       my={2}
                     />
                   </Grid>
-                  <Grid
-                    size={{
-                      md: 6,
-                    }}
-                  >
-                    <GooglePlacesAutocomplete
-                      setFieldValue={setFieldValue}
-                      error={Boolean(touched.address && errors.address)}
-                      name="address"
-                      values={values?.address}
-                      helperText={Boolean(errors.address)}
-                      // defaultValue={""}
-                    />
-
-                  </Grid>
+                 
                 </Grid>
 
                 <Grid container spacing={12}>
