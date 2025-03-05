@@ -330,3 +330,43 @@ export const SEARCH_DRIVERS = gql`
     }
   }
 `;
+
+export const GET_ALL_LOADS = gql`
+  query GetAllLoads {
+    getAllLoads {
+      id
+      type
+      status
+      weight
+      description
+      notes
+      origin_location_id
+      destination_location_id
+      loading_date
+      delivery_date
+       organization {
+        id
+        Name
+      }
+        drivers {
+        id
+      FirstName
+      LastName
+      }
+       equipment {
+        id
+        Type
+      }
+      shipper {
+        id
+        Name
+        Email
+      }
+      reciever {
+        id
+      Name
+      Email
+      }
+    }
+  }
+`;

@@ -432,3 +432,65 @@ export const EDIT_DRIVER = gql`
     }
   }
 `;
+
+export const ADD_LOAD_MUTATION = gql`
+    mutation AddLoad($data: LoadInput!) {
+        addLoad(data: $data) {
+            id
+            origin_location_id
+            destination_location_id
+            weight
+            notes
+            loading_date
+            delivery_date
+            type
+            status
+            organization {
+                id
+                Name
+            }
+            shipper {
+                id
+                Name
+                Email
+            }
+            reciever {
+                id
+                Name
+                Email
+            }
+            drivers {
+                id
+                FirstName
+                LastName
+            }
+            equipment {
+                id
+                Type
+            }
+        }
+    }
+`;
+
+
+
+// export const ADD_LOAD_MUTATION = gql`
+//     mutation AddLoad($data: LoadInput!) {
+//         addLoad(data: $data) {
+//             id
+//             shipper_id
+//             reciever_id
+//             driver_id
+//             equipment_id
+//             origin_location_id
+//             destination_location_id
+//             weight
+//             notes
+//             organizationId
+//             loading_date
+//             delivery_date
+//             type
+//             status
+//         }
+//     }
+// `;

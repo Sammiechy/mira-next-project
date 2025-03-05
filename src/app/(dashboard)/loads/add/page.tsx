@@ -27,8 +27,8 @@ import { spacing } from "@mui/system";
 import { useMutation, useQuery } from "@apollo/client";
 import ApolloProviderWrapper from "@/components/guards/apolloAuth";
 import { useRouter } from "next/navigation";
-import { GET_ORGANIZATIONS } from "hooks/queries/queries";
-import { CREATE_DRIVERS } from "@/hooks/mutations/mutation";
+import { GET_DRIVERS, GET_EQUIPMENTS, GET_ORGANIZATIONS, GET_RECIEVER, GET_SHIPPERS } from "hooks/queries/queries";
+import { ADD_LOAD_MUTATION, CREATE_DRIVERS } from "@/hooks/mutations/mutation";
 import OrganizationInput from "@/components/pages/dashboard/analytics/OrganizationInput";
 import { DatePicker } from "@mui/x-date-pickers";
 import GooglePlacesAutocomplete from "@/components/pages/dashboard/analytics/GooglePlacesAutocomplete";
@@ -81,7 +81,14 @@ const validationSchema = Yup.object().shape({
 function AddShipperForm() {
   const router = useRouter();
   const [organizationList, setOrganizationList] = useState<any>("");
+  const [shipperList, setShipperList] = useState<any>("");
+  const [recieverList, setRecieverList] = useState<any>("");
+  const [driverList, setDriverList] = useState<any>("");
+  const [equipmentList, setEquipmntList] = useState<any>("");
+
   const [organisation, setOrganisation] = useState<any>("");
+  const [addLoad, { loading, error, data:loadData }] = useMutation(ADD_LOAD_MUTATION);
+
 
   const handleSubmit = async (
     values: any,
@@ -89,28 +96,29 @@ function AddShipperForm() {
   ) => {
     const organisationID = parseFloat(organisation);
     const variablesData = {
-      FirstName: values?.FirstName,
-      LastName: values?.LastName,
-      Email: values?.email,
-      Phone: values?.phone,
-      organizationId: organisationID,
-      Notes: values?.Notes,
-      PaymentMethod: values?.PaymentMethod,
-      DOB: values?.dob || "1993-05-03",
-      Gender: values?.Gender || "female",
-      PrimaryCitizenship: values?.PrimaryCitizenship || "",
-      SecondaryCitizenship: values?.SecondaryCitizenship || "",
-      address: values?.address,
-      Primary_Phone: ""
+      organizationId:values?.OrganizationId,
+      notes: values?.Notes,
+      description: values?.Description,
+      loading_date: values?.LoadingDate || "1993-05-03",
+      equipment_id: values?.equipment_id || 1,
+      type:values?.Type||"",
+      weight:values?.Weight||"",
+      origin_location_id: values?.OriginLocationId||"",
+      destination_location_id: values?.DestinationLocationId||"",
+      delivery_date:values?.DeliveryDate||"",
+      status:values?.Status||"",
+      driver_id:values?.DriverIds,
+      reciever_id:values?.ReceiverId,
+      shipper_id:values?.ShipperId
     };
 
     try {
-      const response = await createDrivers({ variables: variablesData });
-      if (response?.data?.createDrivers) {
+      const response = await addLoad({  variables: { data: variablesData }  });
+      if (response?.data?.addLoad) {
         resetForm();
         setStatus({ sent: true });
         setSubmitting(false);
-        router.push('/driver/list')
+        router.push('/loads/list')
       } else {
         setSubmitting(false);
       }
@@ -122,10 +130,23 @@ function AddShipperForm() {
       setSubmitting(false);
     }
   };
-
-  const [createDrivers, { loading, error }] = useMutation(CREATE_DRIVERS);
+  
+  const { data:shippers ,refetch:shipperFetch } = useQuery(GET_SHIPPERS, {
+    variables: { page: 1, limit: 1000 },
+  });
+  const { data:receiver ,refetch:recieverFetch} = useQuery(GET_RECIEVER, {
+    variables: { page: 1, limit: 1000 },
+  });
 
   const { data, refetch } = useQuery(GET_ORGANIZATIONS, {
+    variables: { page: 1, limit: 1000 },
+  });
+
+  
+  const { data:euipment,refetch:equipfetch } = useQuery(GET_EQUIPMENTS, {
+    variables: { page: 1, limit: 1000 },
+  });
+  const { data:driver,refetch:driverfetch } = useQuery(GET_DRIVERS, {
     variables: { page: 1, limit: 1000 },
   });
 
@@ -133,7 +154,17 @@ function AddShipperForm() {
     if (data) {
       setOrganizationList(data.getOrganizations?.organizations);
     }
+    if(shippers){
+      setShipperList(shippers.getShippers?.shippers)
+    }
+    if(receiver){
+      setRecieverList(receiver.getRecievers?.recievers)
+    }
     refetch();
+    shipperFetch();
+    recieverFetch();
+    equipfetch();
+    driverfetch()
   }, [data]);
   return (
     <Formik
@@ -188,9 +219,9 @@ function AddShipperForm() {
                         value={values.ShipperId}
                         onChange={handleChange}
                       >
-                        {Array.isArray(organizationList) &&
-                          organizationList?.length > 0 &&
-                          organizationList?.map((org, index) => (
+                        {Array.isArray(shippers?.getShippers?.shippers) &&
+                          shippers?.getShippers?.shippers?.length > 0 &&
+                          shippers?.getShippers?.shippers?.map((org: { id: any; Name: any; }, index: React.Key | null | undefined) => (
                             <MenuItem key={index} value={org?.id || ""}>
                               {org?.Name || "Unknown Name"}
                             </MenuItem>
@@ -217,9 +248,9 @@ function AddShipperForm() {
                         value={values.ReceiverId}
                         onChange={handleChange}
                       >
-                        {Array.isArray(organizationList) &&
-                          organizationList?.length > 0 &&
-                          organizationList?.map((org, index) => (
+                        {Array.isArray(receiver?.getRecievers?.recievers) &&
+                          receiver?.getRecievers?.recievers?.length > 0 &&
+                          receiver?.getRecievers?.recievers?.map((org: { id: any; Name: any; }, index: React.Key | null | undefined) => (
                             <MenuItem key={index} value={org?.id || ""}>
                               {org?.Name || "Unknown Name"}
                             </MenuItem>
@@ -248,11 +279,11 @@ function AddShipperForm() {
                         value={values.DriverIds}
                         onChange={handleChange}
                       >
-                        {Array.isArray(organizationList) &&
-                          organizationList?.length > 0 &&
-                          organizationList?.map((org, index) => (
+                        {Array.isArray(driver?.getDrivers?.drivers) &&
+                          driver?.getDrivers?.drivers?.length > 0 &&
+                          driver?.getDrivers?.drivers?.map((org: { id: any; FirstName: any;LastName:any }, index: React.Key | null | undefined) => (
                             <MenuItem key={index} value={org?.id || ""}>
-                              {org?.Name || "Unknown Name"}
+                              {org?.FirstName } { org?.LastName} 
                             </MenuItem>
                           ))}
                       </Select>
@@ -277,11 +308,11 @@ function AddShipperForm() {
                         onChange={handleChange}
                         onBlur={handleBlur} // Ensure field is marked as touched
                       >
-                        {Array.isArray(organizationList) &&
-                          organizationList.length > 0 &&
-                          organizationList.map((org, index) => (
+                        {Array.isArray(euipment?.getEquipment?.equipment) &&
+                          euipment?.getEquipment?.equipment.length > 0 &&
+                          euipment?.getEquipment?.equipment.map((org: { id: any; Type: any; }, index: React.Key | null | undefined) => (
                             <MenuItem key={index} value={org?.id || ""}>
-                              {org?.Name || "Unknown Name"}
+                              {org?.Type || "Unknown Name"}
                             </MenuItem>
                           ))}
                       </Select>
@@ -303,7 +334,7 @@ function AddShipperForm() {
                       <GooglePlacesAutocomplete
                         setFieldValue={setFieldValue}
                         error={Boolean(touched.OriginLocationId && errors.OriginLocationId)}
-                        name="address"
+                        name="OriginLocationId"
                         values={values?.OriginLocationId}
                         helperText={Boolean(errors.OriginLocationId)}
                         label='Origin Location'
@@ -320,7 +351,7 @@ function AddShipperForm() {
                       <GooglePlacesAutocomplete
                         setFieldValue={setFieldValue}
                         error={Boolean(touched.DestinationLocationId && errors.DestinationLocationId)}
-                        name="address"
+                        name="DestinationLocationId"
                         values={values?.DestinationLocationId}
                         helperText={Boolean(errors.DestinationLocationId)}
                         label='Destination Location'
@@ -382,15 +413,38 @@ function AddShipperForm() {
                       md: 6,
                     }}
                   >
-                    <OrganizationInput
+                     <FormControl fullWidth error={Boolean(touched.OrganizationId && errors.OrganizationId)}>
+                      <InputLabel id="Equipment-label">Organization</InputLabel>
+                      <Select
+                        labelId="Equipment-label"
+                        name="OrganizationId"
+                        label="Organization"
+                        id="demo-simple-select-error"
+                        value={values?.OrganizationId}
+                        onChange={handleChange}
+                        onBlur={handleBlur} // Ensure field is marked as touched
+                      >
+                        {Array.isArray(organizationList) &&
+                          organizationList?.length > 0 &&
+                          organizationList?.map((org: { id: any; Name: any; }, index: React.Key | null | undefined) => (
+                            <MenuItem key={index} value={org?.id || ""}>
+                              {org?.Name || "Unknown Name"}
+                            </MenuItem>
+                          ))}
+                      </Select>
+                      {touched.EquipmentIds && errors.EquipmentIds && (
+                        <FormHelperText>{errors.EquipmentIds}</FormHelperText>
+                      )}
+                    </FormControl>
+                    {/* <OrganizationInput
                       name="organizationId"
                       label="Organization"
                       value={values?.OrganizationId}
                       options={organizationList}
                       error={errors.OrganizationId}
                       touched={touched.OrganizationId}
-                      onChange={(e: any) => { handleChange(e), setOrganisation(e.target.value) }}
-                    />
+                      onChange={(e: any) => { handleChange(e,"OrganizationId"), setOrganisation(e.target.value) }}
+                    /> */}
                   </Grid>
                   <Grid
                     size={{
