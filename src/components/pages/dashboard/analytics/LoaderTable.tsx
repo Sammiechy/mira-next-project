@@ -79,7 +79,7 @@ const LoaderTable = () => {
   useEffect(() => {
     setLoader(true)
     if (data) {
-      setList(data.getAllLoads?.drivers);
+      setList(data.getAllLoads);
       setCount(data.getAllLoads?.totalCount)
       setTimeout(() => {
         setLoader(false);
@@ -91,13 +91,27 @@ const LoaderTable = () => {
 
   const columns: GridColDef<RowData>[] = [
     { field: 'id', headerName: 'ID', width: 50, headerAlign:'left', align:'left' },
-    { field: 'FirstName', headerName: 'First Name', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'LastName', headerName: 'Last Name', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'Phone', headerName: 'Phone', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'Email', headerName: 'Email', width: 120, headerAlign:'left', align:'left'  },
-    { field: 'Gender', headerName: 'Gender', width: 120, headerAlign:'left', align:'left'  },
+    { field: 'drivers', headerName: 'Driver', width: 100, headerAlign:'left', align:'left',renderCell:(params)=>
+    (<>
+      {params.value ?  `${params.value.FirstName} ${ params.value.LastName}` : 'Invalid'}
+      </> )
+      },
+    { field: 'shipper', headerName: 'Shipper', width: 100, headerAlign:'left', align:'left' ,renderCell:(params)=>(
+      <>
+      {params.value ?  `${params.value.Name}` : 'Invalid'}
+      
+      </>
+    ) },
+    { field: 'reciever', headerName: 'Reciever', width: 100, headerAlign:'left', align:'left',renderCell:(params)=>(
+      <>
+      {params.value ?  `${params.value.Name}` : 'Invalid'}
+      
+      </>
+    )  },
+    { field: 'status', headerName: 'Status', width: 120, headerAlign:'left', align:'left'  },
+    { field: 'weight', headerName: 'Weight', width: 120, headerAlign:'left', align:'left'  },
 
-    { field: 'PaymentMethod', headerName: 'Payment Method', width: 130 },
+    { field: 'type', headerName: 'Type', width: 130 },
     {
       field: 'organization', headerName: 'Organization', width: 100, renderCell: (params) => (
         <>
@@ -106,39 +120,39 @@ const LoaderTable = () => {
 
       )
     },
-    { field: 'DOB', headerName: 'DOB', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'PrimaryCitizenship', headerName: 'Primary Citizenship', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'Primary_Phone', headerName: 'Primary Phone', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'SecondaryCitizenship', headerName: 'Secondary Citizenship', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'address', headerName: 'Address', width: 100, headerAlign:'left', align:'left'  },
-    { field: 'Notes', headerName: 'Notes', width: 180 },
-    {
-      field: '', headerName: 'Action', type: 'string', width: 180, renderCell: (params) => (
-        <>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="small"
-            onClick={() => {
-              dispatch(setEditOrganization(params.row)),
-                router.push(`/driver/edit/${params.row.id}`)
-            }
-            }
-            style={{ marginRight: 8 }}
-          >
-            <Edit fontSize="small" /> Edit
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            size="small"
-            onClick={() => handleDelete(params.row?.id)}
-          >
-            <Delete fontSize="small" /> Delete
-          </Button>
-        </>
-      )
-    }
+    { field: 'origin_location_id', headerName: 'Origin Location', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'delivery_date', headerName: 'Delivery Date', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'loading_date', headerName: 'Loading Date', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'destination_location_id', headerName: 'Address', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'description', headerName: 'Description', width: 100, headerAlign:'left', align:'left'  },
+    { field: 'notes', headerName: 'Notes', width: 180 },
+    // {
+    //   field: '', headerName: 'Action', type: 'string', width: 180, renderCell: (params) => (
+    //     <>
+    //       <Button
+    //         variant="outlined"
+    //         color="primary"
+    //         size="small"
+    //         onClick={() => {
+    //           dispatch(setEditOrganization(params.row)),
+    //             router.push(`/driver/edit/${params.row.id}`)
+    //         }
+    //         }
+    //         style={{ marginRight: 8 }}
+    //       >
+    //         <Edit fontSize="small" /> Edit
+    //       </Button>
+    //       <Button
+    //         variant="outlined"
+    //         color="error"
+    //         size="small"
+    //         onClick={() => handleDelete(params.row?.id)}
+    //       >
+    //         <Delete fontSize="small" /> Delete
+    //       </Button>
+    //     </>
+    //   )
+    // }
   ];
 
 
